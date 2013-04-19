@@ -1,4 +1,4 @@
-whippet
+Whippet
 =======
 
 Whippet
