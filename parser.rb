@@ -1,7 +1,19 @@
 require "rubygems"
 require "pdf/reader"
+require "nokogiri"
+require "open-uri"
+require "pp"
 
-pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
+# could loop over all possible dates?
+
+target_link = ""
+forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/display/templatedisplay1.asp?sectionid=7"))
+target_link = forthcoming_business_page.css('a').reverse.select {|link| link['href'].include?("http://www.lordswhips.org.uk/documents/") }
+
+io     = open(URI::encode(target_link[0]['href']))
+pdf = PDF::Reader.new(io)
+
+# pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
 mytext = ""
 
 pdf.pages.each do |page|
@@ -32,12 +44,8 @@ mytext.lines.each do |line|
     	when /^\n$/
     		p
 
-        #when /^[    ]/
-        #    if @itemflag == ""
-        #        puts "..." + line
-        #    end
-
 		when
+			
             if @itemflag == ""
                 puts line
             else
@@ -46,3 +54,5 @@ mytext.lines.each do |line|
 
 		end
 end
+
+
