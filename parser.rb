@@ -13,46 +13,50 @@ target_link = forthcoming_business_page.css('a').reverse.select {|link| link['hr
 io     = open(URI::encode(target_link[0]['href']))
 pdf = PDF::Reader.new(io)
 
-# pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
+#pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
 mytext = ""
+business = {:dates => []}
 
 pdf.pages.each do |page|
-	mytext << page.text
+  mytext << page.text
 end
 
 mytext.lines.each do |line|
 
-	case line
+  case line
 
-        when /Information/
-            break
+  when /Information/
+    break
 
-		when /\b([A-Z]{2,}[DAY] \d.+)/
-			@dateflag = $1
+  when /\b([A-Z]{2,}[DAY] \d.+)/
+            @dateflag = $1
             @itemflag = ""
-			puts
-			puts
-    		puts @dateflag
+            business[:dates] << {:date => @dateflag, :times => []}
 
-    	when /^(\d)/
+        when /^(\d)/
             @itemflag = $1
-    		puts "\t\t" + line
+            # puts "\t\t" + line
+            target = business[:dates].select { |date|  date[:date] == @dateflag  }
+            pp target
+            #puts "item parent: " + @itemflag
 
-    	when /^([A-Z])/
-    		puts "\t" + line
+        when /^([A-Z])/
+            target = business[:dates].select { |date|  date[:date] == @dateflag  }
+            target[0][:times] << {:time => line.strip, :items => []}
 
-    	when /^\n$/
-    		p
+        when /^\n$/
+          p
+    #when /^[    ]/
+  when
 
-		when
-			
-            if @itemflag == ""
-                puts line
-            else
-                puts @itemflag.to_s + "\t\t" + line
-            end
+    if @itemflag == ""
+      puts "no attached item: " + line
+    else
+      puts @itemflag.to_s + "\t\t" + line
+    end
 
-		end
+  end
 end
 
+pp business
 
