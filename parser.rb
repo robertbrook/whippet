@@ -3,6 +3,7 @@ require "pdf/reader"
 require "nokogiri"
 require "open-uri"
 require "pp"
+require "yaml"
 
 # could loop over all possible dates?
 
@@ -11,9 +12,9 @@ forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/di
 target_link = forthcoming_business_page.css('a').reverse.select {|link| link['href'].include?("http://www.lordswhips.org.uk/documents/") }
 
 io     = open(URI::encode(target_link[0]['href']))
-pdf = PDF::Reader.new(io)
+#pdf = PDF::Reader.new(io)
 
-#pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
+pdf = PDF::Reader.new("FB 2013 03 27 r.pdf")
 mytext = ""
 business = {:dates => []}
 
@@ -31,11 +32,12 @@ mytext.lines.each do |line|
   when /\b([A-Z]{2,}[DAY] \d.+)/
             @dateflag = $1
             @itemflag = ""
-            business[:dates] << {:date => @dateflag, :times => []}
+            business[:dates] << {:date => @dateflag, :times => [], :note => ""}
 
         when /^(\d)/
             @itemflag = $1
             # puts "\t\t" + line
+            # first line of item
             target = business[:dates].select { |date|  date[:date] == @dateflag  }
             pp target
             #puts "item parent: " + @itemflag
@@ -50,7 +52,9 @@ mytext.lines.each do |line|
   when
 
     if @itemflag == ""
-      puts "no attached item: " + line
+      # not picking up everything correctly yet
+      target = business[:dates].select { |date|  date[:date] == @dateflag  }
+      target[0][:note] = line.strip
     else
       puts @itemflag.to_s + "\t\t" + line
     end
@@ -58,5 +62,5 @@ mytext.lines.each do |line|
   end
 end
 
-pp business
+y business
 
