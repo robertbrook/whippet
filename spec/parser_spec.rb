@@ -1,15 +1,16 @@
 require 'minitest/spec'
 require 'minitest/autorun'
-require 'minitest/pride'
 require './parser'
 
-describe Array do
-  it "can be created with no arguments" do
-    Array.new.must_be_instance_of Array
+describe Parser do
+	before do
+    @parser = Parser.new
+  end
+  
+  describe "when fired up" do
+    it "must respond positively" do
+      @parser.reply.must_not_equal ""
+    end
   end
 
-  it "can be created with a specific size" do
-    Array.new(10).size.must_equal 10
-  end
 end
-

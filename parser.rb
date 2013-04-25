@@ -7,6 +7,8 @@ require "yaml"
 
 # could loop over all possible dates?
 
+class Parser
+
 target_link = ""
 forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/display/templatedisplay1.asp?sectionid=7"))
 target_link = forthcoming_business_page.css('a').reverse.select {|link| link['href'].include?("http://www.lordswhips.org.uk/documents/") }
@@ -19,48 +21,50 @@ mytext = ""
 business = {:dates => []}
 
 pdf.pages.each do |page|
-  mytext << page.text
+	mytext << page.text
 end
 
 mytext.lines.each do |line|
 
-  case line
+	case line
 
-  when /Information/
-    break
+	when /Information/
+		break
 
-  when /\b([A-Z]{2,}[DAY] \d.+)/
-            @dateflag = $1
-            @itemflag = ""
-            business[:dates] << {:date => @dateflag, :times => [], :note => ""}
+	when /\b([A-Z]{2,}[DAY] \d.+)/
+		@dateflag = $1
+		@itemflag = ""
+		business[:dates] << {:date => @dateflag, :times => [], :note => ""}
 
-        when /^(\d)/
-            @itemflag = $1
-            # puts "\t\t" + line
-            # first line of item
-            target = business[:dates].select { |date|  date[:date] == @dateflag  }
-            pp target
-            #puts "item parent: " + @itemflag
+	when /^(\d)/
+		@itemflag = $1
+		# puts "\t\t" + line
+		# first line of item
+		target = business[:dates].select { |date|  date[:date] == @dateflag  }
+		target[0][:times][0][:items] << {:item => line.strip}
 
-        when /^([A-Z])/
-            target = business[:dates].select { |date|  date[:date] == @dateflag  }
-            target[0][:times] << {:time => line.strip, :items => []}
 
-        when /^\n$/
-          p
-    #when /^[    ]/
-  when
+	when /^([A-Z])/
+		target = business[:dates].select { |date|  date[:date] == @dateflag  }
+		target[0][:times] << {:time => line.strip, :items => []}
 
-    if @itemflag == ""
-      # not picking up everything correctly yet
-      target = business[:dates].select { |date|  date[:date] == @dateflag  }
-      target[0][:note] = line.strip
-    else
-      puts @itemflag.to_s + "\t\t" + line
-    end
+	when /^\n$/
+		p
+		#when /^[    ]/
+	when
 
-  end
+		if @itemflag == ""
+			# not picking up everything correctly yet
+			target = business[:dates].select { |date|  date[:date] == @dateflag  }
+			target[0][:note] = line.strip
+		else
+			puts @itemflag.to_s + "\t\t" + line
+		end
+
+	end
 end
 
-y business
+pp business
 
+
+end
