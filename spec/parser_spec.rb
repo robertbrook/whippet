@@ -14,7 +14,7 @@ describe Parser, "when given the Forthcoming Business for 27th March 2013 PDF as
       @parser.must_be_instance_of Parser
     end
 
-    it "must have an output" do
+    it "must not have an empty output" do
       @parser.output.wont_be_empty
     end
 
