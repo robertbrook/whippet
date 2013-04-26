@@ -24,60 +24,60 @@ class Parser
   end
 
   def pages
-  	@pdf.pages
+    @pdf.pages
   end
 
-def process
-  @pdf.pages.each do |page|
-    @mytext << page.text
-  end
-
-  @mytext.lines.each do |line|
-
-    case line
-
-    when /Information/
-      break
-
-    when /\b([A-Z]{2,}[DAY] \d.+)/
-		@dateflag = $1
-		@itemflag = ""
-		@business[:dates] << {:date => @dateflag, :times => [], :note => ""}
-
-	when /^(\d)/
-		@itemflag = $1
-		# puts "\t\t" + line
-		# first line of item
-		target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-		target[0][:times][0][:items] << {:item => line.strip}
-
-
-	when /^([A-Z])/
-		target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-		target[0][:times] << {:time => line.strip, :items => []}
-
-	when /^\n$/
-      p
-      #when /^[    ]/
-    when
-
-      if @itemflag == ""
-        # not picking up everything correctly yet
-        target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-        target[0][:note] = line.strip
-      else
-        puts @itemflag.to_s + "\t\t" + line
-      end
-
+  def process
+    @pdf.pages.each do |page|
+      @mytext << page.text
     end
+
+    @mytext.lines.each do |line|
+
+      case line
+
+      when /Information/
+        break
+
+      when /\b([A-Z]{2,}[DAY] \d.+)/
+    @dateflag = $1
+    @itemflag = ""
+    @business[:dates] << {:date => @dateflag, :times => [], :note => ""}
+
+  when /^(\d)/
+    @itemflag = $1
+    # puts "\t\t" + line
+    # first line of item
+    target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+    target[0][:times][0][:items] << {:item => line.strip}
+
+
+  when /^([A-Z])/
+    target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+    target[0][:times] << {:time => line.strip, :items => []}
+
+  when /^\n$/
+        p
+        #when /^[    ]/
+      when
+
+        if @itemflag == ""
+          # not picking up everything correctly yet
+          target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+          target[0][:note] = line.strip
+        else
+          p
+          #puts @itemflag.to_s + "\t\t" + line
+        end
+
+      end
+    end
+
+
   end
 
-  
-end
-
-def output
-	@business
-end
+  def output
+    @business
+  end
 
 end
-
