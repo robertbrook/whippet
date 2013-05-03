@@ -1,4 +1,3 @@
-require "rubygems"
 require "pdf/reader"
 require "nokogiri"
 require "open-uri"
