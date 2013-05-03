@@ -54,17 +54,17 @@ class Parser
         @business[:dates] << {:date => @current_date, :times => [], :note => ""}
       
       #a new time 
-      when /^([A-Z])/
+      when /^\b([A-Z])/
         p "new time detected, starting a new sub-section: #{line}" if debug
         @last_line_was_blank = false
         @in_item = false
-        target = @business[:dates].select { |date|  date[:date] == @current_date  }
+        target = @business[:dates].select { |date|  date[:date] == @current_date }
         target.last[:times] << {:time => line.strip, :items => []}
       
       #a page number
       when /^\s*(\d+)\n/
         page_number = $1
-        p "** end of page #{page_number} **"
+        p "** end of page #{page_number} **" if debug
       
       #a numbered item 
       when /^(\d)/
@@ -72,7 +72,7 @@ class Parser
         @last_line_was_blank = false
         @in_item = true
         # first line of item
-        target = @business[:dates].select { |date|  date[:date] == @current_date  }
+        target = @business[:dates].select { |date|  date[:date] == @current_date }
         target.last[:times].last[:items] << {:item => line.strip}
       
       #a blank line
@@ -85,14 +85,14 @@ class Parser
       
       #whole line in square brackets
       when /^\s*\[.*\]\s*$/
-        p "Notes!? #{line}" if debug
+        p "Meh, no need to process these #{line}" if debug
         @last_line_was_blank = false
       
       #all the other things
       else
-        @last_line_was_blank = false
-        p "Undetected otherness: #{line}" if debug
         if @in_item
+          @last_line_was_blank = false
+          p "...item continuation line..." if debug
           #last line was a business item, treat this as a continuation
           target = @business[:dates].select { |date|  date[:date] == @current_date }
           last_item = target[0][:times].last[:items].pop
@@ -100,6 +100,21 @@ class Parser
           target.last[:times].last[:items] << {:item => last_line}
           
           p "item text replaced with: #{last_line}" if debug
+        else
+          #the last line wasn't blank and we're not in item space - a note!
+          if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
+            target = @business[:dates].select { |date|  date[:date] == @current_date }
+            unless target.last[:times].empty?
+              p "notes about the time: #{line}" if debug
+              target.last[:times].last[:note] = line.strip
+            else
+              p "notes about the day: #{line}" if debug
+              target.last[:note] = line.strip
+            end
+          else
+            @last_line_was_blank = false
+            p "Unhandled text: #{line}" if debug
+          end
         end
       end
     end
