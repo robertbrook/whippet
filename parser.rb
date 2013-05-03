@@ -21,6 +21,7 @@ class Parser
     @pdf = PDF::Reader.new(target_pdf)
     @mytext = ""
     @business = {:dates => []}
+    @last_line_was_blank = false
   end
   
   def pages
@@ -46,6 +47,7 @@ class Parser
       #a new day  
       when /\b([A-Z]{2,}[DAY] \d.+)/
         p "new day detected, starting a new section: #{line}" if debug
+        @last_line_was_blank = false
         @dateflag = $1
         @itemflag = ""
         @business[:dates] << {:date => @dateflag, :times => [], :note => ""}
@@ -53,12 +55,14 @@ class Parser
       #a new time 
       when /^([A-Z])/
         p "new time detected, starting a new sub-section: #{line}" if debug
+        @last_line_was_blank = false
         target = @business[:dates].select { |date|  date[:date] == @dateflag  }
         target[0][:times] << {:time => line.strip, :items => []}
       
       #a numbered item 
       when /^(\d)/
         p "new business item, hello: #{line}" if debug
+        @last_line_was_blank = false
         @itemflag = $1
         # puts "\t\t" + line
         # first line of item
@@ -67,11 +71,11 @@ class Parser
         
       #a blank line
       when /^\n$/
-        p
-        #when /^[    ]/
+        @last_line_was_blank = true
       
       #all the other things
       else
+        @last_line_was_blank = false
         p "Undetected otherness: #{line}" if debug
         if @itemflag == ""
           # not picking up everything correctly yet
