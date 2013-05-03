@@ -60,7 +60,7 @@ class Parser
         @last_line_was_blank = false
         @in_item = false
         target = @business[:dates].select { |date|  date[:date] == @current_date  }
-        target[0][:times] << {:time => line.strip, :items => []}
+        target.last[:times] << {:time => line.strip, :items => []}
       
       #a numbered item 
       when /^(\d)/
@@ -69,7 +69,7 @@ class Parser
         @in_item = true
         # first line of item
         target = @business[:dates].select { |date|  date[:date] == @current_date  }
-        target[0][:times].last[:items] << {:item => line.strip}
+        target.last[:times].last[:items] << {:item => line.strip}
         
       #a blank line
       when /^\n$/
@@ -93,7 +93,7 @@ class Parser
           target = @business[:dates].select { |date|  date[:date] == @current_date }
           last_item = target[0][:times].last[:items].pop
           last_line = "#{last_item[:item]} #{line.strip}"
-          target[0][:times].last[:items] << {:item => last_line}
+          target.last[:times].last[:items] << {:item => last_line}
           
           p "item text replaced with: #{last_line}" if debug
         end
