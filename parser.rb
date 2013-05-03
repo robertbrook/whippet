@@ -61,6 +61,11 @@ class Parser
         target = @business[:dates].select { |date|  date[:date] == @current_date  }
         target.last[:times] << {:time => line.strip, :items => []}
       
+      #a page number
+      when /^\s*(\d+)\n/
+        page_number = $1
+        p "** end of page #{page_number} **"
+      
       #a numbered item 
       when /^(\d)/
         p "new business item, hello: #{line}" if debug
@@ -69,10 +74,10 @@ class Parser
         # first line of item
         target = @business[:dates].select { |date|  date[:date] == @current_date  }
         target.last[:times].last[:items] << {:item => line.strip}
-        
+      
       #a blank line
       when /^\n$/
-        if @last_line_was_blank
+        if @last_line_was_blank and @in_item
           p "A blank following a blank line, resetting the itemflag" if debug
           @in_item = false
         end
