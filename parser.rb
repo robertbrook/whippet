@@ -48,6 +48,11 @@ class Parser
         @itemflag = ""
         @business[:dates] << {:date => @dateflag, :times => [], :note => ""}
       
+      #a new time 
+      when /^([A-Z])/
+        target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+        target[0][:times] << {:time => line.strip, :items => []}
+      
       #a numbered item 
       when /^(\d)/
         @itemflag = $1
@@ -55,11 +60,6 @@ class Parser
         # first line of item
         target = @business[:dates].select { |date|  date[:date] == @dateflag  }
         target[0][:times][0][:items] << {:item => line.strip}
-        
-      #a new time 
-      when /^([A-Z])/
-        target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-        target[0][:times] << {:time => line.strip, :items => []}
         
       #a blank line
       when /^\n$/
