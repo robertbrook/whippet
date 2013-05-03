@@ -22,6 +22,8 @@ class Parser
     @mytext = ""
     @business = {:dates => []}
     @last_line_was_blank = false
+    @in_item = false
+    @current_date = ""
   end
   
   def pages
@@ -48,42 +50,52 @@ class Parser
       when /\b([A-Z]{2,}[DAY] \d.+)/
         p "new day detected, starting a new section: #{line}" if debug
         @last_line_was_blank = false
-        @dateflag = $1
-        @itemflag = ""
-        @business[:dates] << {:date => @dateflag, :times => [], :note => ""}
+        @current_date = $1
+        @in_item = false
+        @business[:dates] << {:date => @current_date, :times => [], :note => ""}
       
       #a new time 
       when /^([A-Z])/
         p "new time detected, starting a new sub-section: #{line}" if debug
         @last_line_was_blank = false
-        target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+        @in_item = false
+        target = @business[:dates].select { |date|  date[:date] == @current_date  }
         target[0][:times] << {:time => line.strip, :items => []}
       
       #a numbered item 
       when /^(\d)/
         p "new business item, hello: #{line}" if debug
         @last_line_was_blank = false
-        @itemflag = $1
-        # puts "\t\t" + line
+        @in_item = true
         # first line of item
-        target = @business[:dates].select { |date|  date[:date] == @dateflag  }
+        target = @business[:dates].select { |date|  date[:date] == @current_date  }
         target[0][:times].last[:items] << {:item => line.strip}
         
       #a blank line
       when /^\n$/
+        if @last_line_was_blank
+          p "A blank following a blank line, resetting the itemflag" if debug
+          @in_item = false
+        end
         @last_line_was_blank = true
+      
+      #whole line in square brackets
+      when /^\s*\[.*\]\s*$/
+        p "Notes!? #{line}" if debug
+        @last_line_was_blank = false
       
       #all the other things
       else
         @last_line_was_blank = false
         p "Undetected otherness: #{line}" if debug
-        if @itemflag == ""
-          # not picking up everything correctly yet
-          target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-          target[0][:note] = line.strip
-        else
-          p
-          #puts @itemflag.to_s + "\t\t" + line
+        if @in_item
+          #last line was a business item, treat this as a continuation
+          target = @business[:dates].select { |date|  date[:date] == @current_date }
+          last_item = target[0][:times].last[:items].pop
+          last_line = "#{last_item[:item]} #{line.strip}"
+          target[0][:times].last[:items] << {:item => last_line}
+          
+          p "item text replaced with: #{last_line}" if debug
         end
       end
     end
