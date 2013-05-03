@@ -63,7 +63,7 @@ class Parser
         # puts "\t\t" + line
         # first line of item
         target = @business[:dates].select { |date|  date[:date] == @dateflag  }
-        target[0][:times][0][:items] << {:item => line.strip}
+        target[0][:times].last[:items] << {:item => line.strip}
         
       #a blank line
       when /^\n$/
