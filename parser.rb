@@ -1,8 +1,6 @@
 require "pdf/reader"
 require "nokogiri"
 require "open-uri"
-require "pp"
-require "yaml"
 
 # could loop over all possible dates?
 
