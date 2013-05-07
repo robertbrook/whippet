@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require './parser'
+require 'letters'
 
 describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
   before do
@@ -54,12 +55,17 @@ describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF 
 
       describe "when looking at 'Business in Grand Committee at 3.45pm'" do
 
-        it "must have one item" do
-          skip "Not pulling out items without numbers yet"
-          @parser.output[:dates].first[:times].last[:items].length.must_equal 1
+        it "must have no items" do
+          @parser.output[:dates].first[:times].last[:items].length.must_equal 0
         end
 
-        it "must have an item with the text 'No business scheduled'"
+        it "must have a note" do
+          @parser.output[:dates].first[:times][1][:note].wont_be_nil
+        end
+
+        it "must have a note with the text 'No business scheduled'" do
+          @parser.output[:dates].first[:times][1][:note].must_equal "No business scheduled"
+        end
 
       end
 
