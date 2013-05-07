@@ -1,6 +1,5 @@
 require 'minitest/autorun'
 require './parser'
-require 'letters'
 
 describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
   before do
