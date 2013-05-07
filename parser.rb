@@ -1,20 +1,11 @@
 require "pdf/reader"
 require "nokogiri"
-require "open-uri"
-
-# could loop over all possible dates?
 
 class Parser
-  
+
   #prepare to ingest a single pdf
   def initialize(target_pdf)
-    #target_link = ""
-    #forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/display/templatedisplay1.asp?sectionid=7"))
-    #target_link = forthcoming_business_page.css('a').reverse.select {|link| link['href'].include?("http://www.lordswhips.org.uk/documents/") }
-    
-    #io     = open(URI::encode(target_link[0]['href']))
-    #pdf = PDF::Reader.new(io)
-    
+
     @pdf = PDF::Reader.new(target_pdf)
     @mytext = ""
     @business = {:dates => []}
@@ -22,28 +13,28 @@ class Parser
     @in_item = false
     @current_date = ""
   end
-  
+
   def pages
     @pdf.pages
   end
-  
-  
+
+
   def process(debug=false)
     #concat all the page content into a single block of text
     @pdf.pages.each do |page|
       @mytext << "\n#{page.text}"
     end
-    
+
     #loop over all the lines
     @mytext.lines.each do |line|
       case line
-      
+
       #the end of the useful, the start of the notes section, we can stop now
       when /Information/
         p "ok, ignoring the rest of this" if debug
         break
-        
-      #a new day  
+
+        #a new day
       when /\b([A-Z]{2,}[DAY] \d.+)/
         p "new day detected, starting a new section: #{line}" if debug
         @last_line_was_blank = false
@@ -63,8 +54,8 @@ class Parser
       when /^\s*(\d+)\n/
         page_number = $1
         p "** end of page #{page_number} **" if debug
-      
-      #a numbered item 
+
+        #a numbered item
       when /^(\d)/
         p "new business item, hello: #{line}" if debug
         @last_line_was_blank = false
@@ -80,13 +71,13 @@ class Parser
           @in_item = false
         end
         @last_line_was_blank = true
-      
-      #whole line in square brackets
+
+        #whole line in square brackets
       when /^\s*\[.*\]\s*$/
         p "Meh, no need to process these #{line}" if debug
         @last_line_was_blank = false
-      
-      #all the other things
+
+        #all the other things
       else
         if @in_item
           @last_line_was_blank = false
@@ -96,7 +87,7 @@ class Parser
           last_item = target[0][:times].last[:items].pop
           last_line = "#{last_item[:item]} #{line.strip}"
           target.last[:times].last[:items] << {:item => last_line}
-          
+
           p "item text replaced with: #{last_line}" if debug
         else
           #the last line wasn't blank and we're not in item space - a note!
@@ -117,7 +108,7 @@ class Parser
       end
     end
   end
-  
+
   def output
     @business
   end

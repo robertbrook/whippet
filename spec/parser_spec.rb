@@ -4,7 +4,7 @@ require 'letters'
 
 describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
   before do
-    @parser = Parser.new("FB-TEST.pdf")
+    @parser = Parser.new("./spec/FB-TEST.pdf")
     @parser.process
     @parser.output
   end
@@ -60,7 +60,7 @@ describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF 
         end
 
         it "must have a note" do
-          @parser.output[:dates].first[:times][1][:note].wont_be_nil
+          @parser.output[:dates].first[:times][1][:note].wont_be_empty
         end
 
         it "must have a note with the text 'No business scheduled'" do
