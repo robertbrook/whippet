@@ -1,4 +1,7 @@
 require 'minitest/autorun'
+require 'simplecov'
+SimpleCov.start
+
 require './parser'
 
 describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
