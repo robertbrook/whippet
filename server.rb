@@ -1,4 +1,5 @@
 require 'sinatra'
+require 'mongoid'
 require './parser'
 
 get '/' do
