@@ -6,7 +6,6 @@ class TimelineTest < MiniTest::Spec
     before do
       @parser = Parser.new("./spec/FB-TEST.pdf")
       @parser.process
-      @parser.output
     end
     
     describe "having passed the PDF to the parser it" do
