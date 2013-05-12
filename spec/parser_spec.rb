@@ -47,6 +47,10 @@ class TimelineTest < MiniTest::Spec
           @day[:times].first[:time].must_equal "Business in the Chamber at 11.00am"
         end
         
+        it "must have a last time of 'Business in Grand Committee at 3.45pm'" do
+          @day[:times].last[:time].must_equal "Business in Grand Committee at 3.45pm"
+        end
+        
         describe "when looking at 'Business in the Chamber at 11.00am'" do
           before do
             @time = @day[:times].first
@@ -62,16 +66,20 @@ class TimelineTest < MiniTest::Spec
         end
         
         describe "when looking at 'Business in Grand Committee at 3.45pm'" do
+          before do
+            @time = @day[:times].last
+          end
+          
           it "must have no items" do
-            @day[:times].last[:items].length.must_equal 0
+            @time[:items].length.must_equal 0
           end
           
           it "must have a note" do
-            @day[:times][1][:note].wont_be_empty
+            @time[:note].wont_be_empty
           end
           
           it "must have a note with the text 'No business scheduled'" do
-            @day[:times][1][:note].must_equal "No business scheduled"
+            @time[:note].must_equal "No business scheduled"
           end
         end
       end
