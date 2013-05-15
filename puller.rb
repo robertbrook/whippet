@@ -1,11 +1,11 @@
 require "open-uri"
 require "./parser"
-require "pp"
+require "json"
 
 Dir.glob('./PDFs/*.pdf') do |pdf|
   @parser = Parser.new(pdf)
   @parser.process
-  pp @parser.output
+  puts @parser.output.to_json
 end
 
 
