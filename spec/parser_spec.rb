@@ -1,5 +1,5 @@
 require './spec/minitest_helper.rb'
-require './parser'
+require './lib/parser'
 
 class TimelineTest < MiniTest::Spec
   describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
