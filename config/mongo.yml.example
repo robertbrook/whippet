@@ -1,0 +1,15 @@
+development:
+  sessions:
+    default:
+      uri: mongodb://plausible_uri
+
+production:
+  sessions:
+    default:
+      uri: mongodb://plausible_uri_production
+      
+      
+production:
+  sessions:
+    default:
+      uri: mongodb://plausible_uri_test
