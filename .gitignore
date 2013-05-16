@@ -21,4 +21,4 @@ _yardoc
 doc/
 
 # duh
-config/mongo.yml
+config/*.yml
