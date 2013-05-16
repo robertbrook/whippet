@@ -1,3 +1,6 @@
+require 'bundler'
+Bundler.setup
+
 require 'rake/testtask'
 
 Rake::TestTask.new do |t|
