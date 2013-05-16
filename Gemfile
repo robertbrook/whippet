@@ -11,5 +11,7 @@ group :development do
 end
 
 group :test do
-  gem 'rspec'
+  gem 'minitest', :require => 'minitest'
+  gem 'simplecov', '0.7.1'
+  gem "mocha", :require => false
 end
