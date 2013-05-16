@@ -85,10 +85,6 @@ class TimelineTest < MiniTest::Spec
             @time.business_items.length.must_equal 0
           end
           
-          it "must have a note" do
-            @time.note.wont_be_empty
-          end
-          
           it "must have a note with the text 'No business scheduled'" do
             @time.note.must_equal "No business scheduled"
           end
