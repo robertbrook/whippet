@@ -43,7 +43,7 @@ class Parser
         @last_line_was_blank = false
         current_date = $1
         @in_item = false
-        @current_sitting_day = SittingDay.find_or_create_by(:date => Date.parse(current_date))
+        @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false)
       
       #a new time
       when /^\b([A-Z])/
@@ -103,12 +103,14 @@ class Parser
         else
           #the last line wasn't blank and we're not in item space - a note!
           if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
-            unless @current_time_block.business_items.empty?
+            unless @current_sitting_day.time_blocks.empty?
               p "notes about the time: #{line}" if debug
               @current_time_block.note = line.strip
+              @current_time_block.save
             else
               p "notes about the day: #{line}" if debug
               @current_sitting_day.note = line.strip
+              @current_sitting_day.save
             end
           else
             @last_line_was_blank = false

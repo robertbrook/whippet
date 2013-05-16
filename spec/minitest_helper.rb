@@ -1,3 +1,5 @@
+ENV["RACK_ENV"] = "test"
+
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start do
@@ -6,3 +8,4 @@ if ENV['COVERAGE']
 end
 
 require 'minitest/autorun'
+require 'mocha/setup'

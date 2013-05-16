@@ -6,6 +6,7 @@ class SittingDay
   
   field :date, type: Date
   field :note, type: String
+  field :accepted, type: Boolean
 end
 
 class TimeBlock
