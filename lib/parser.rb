@@ -1,16 +1,20 @@
 require "pdf/reader"
 require "nokogiri"
+require "mongoid"
+
+require "./models/sitting_day"
 
 class Parser
-
   #prepare to ingest a single pdf
   def initialize(target_pdf)
+    Mongoid.load!("./config/mongo.yml")
     @pdf = PDF::Reader.new(target_pdf)
     @mytext = ""
-    @business = {:dates => []}
     @last_line_was_blank = false
     @in_item = false
-    @current_date = ""
+    @current_sitting_day = nil
+    @current_time_block = nil
+    @business = []
   end
   
   def pages
@@ -35,18 +39,27 @@ class Parser
       #a new day
       when /\b([A-Z]{2,}[DAY] \d.+)/
         p "new day detected, starting a new section: #{line}" if debug
+        @business << @current_sitting_day if @current_sitting_day
         @last_line_was_blank = false
-        @current_date = $1
+        current_date = $1
         @in_item = false
-        @business[:dates] << {:date => @current_date, :times => [], :note => ""}
+        @current_sitting_day = SittingDay.find_or_create_by(:date => Date.parse(current_date))
       
       #a new time
       when /^\b([A-Z])/
         p "new time detected, starting a new sub-section: #{line}" if debug
         @last_line_was_blank = false
         @in_item = false
-        target = @business[:dates].select { |date|  date[:date] == @current_date }
-        target.last[:times] << {:time => line.strip, :items => []}
+        block = TimeBlock.new
+        time_matches = line.match(/at ((\d+)\.(\d\d)(a|p)m)/)
+        if time_matches[4] == "p"
+          block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
+        else
+          block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
+        end
+        block.title = line.strip
+        @current_time_block = block
+        @current_sitting_day.time_blocks << @current_time_block
       
       #a page number
       when /^\s*(\d+)\n/
@@ -59,8 +72,9 @@ class Parser
         @last_line_was_blank = false
         @in_item = true
         # first line of item
-        target = @business[:dates].select { |date|  date[:date] == @current_date }
-        target.last[:times].last[:items] << {:item => line.strip}
+        item = BusinessItem.new
+        item.description = line.strip
+        @current_time_block.business_items << item
       
       #a blank line
       when /^\n$/
@@ -81,22 +95,20 @@ class Parser
           @last_line_was_blank = false
           p "...item continuation line..." if debug
           #last line was a business item, treat this as a continuation
-          target = @business[:dates].select { |date|  date[:date] == @current_date }
-          last_item = target[0][:times].last[:items].pop
-          last_line = "#{last_item[:item]} #{line.strip}"
-          target.last[:times].last[:items] << {:item => last_line}
+          last_item = @current_time_block.business_items.last
+          new_desc = "#{last_item.description} #{line.strip}"
+          last_item.description = new_desc
 
           p "item text replaced with: #{last_line}" if debug
         else
           #the last line wasn't blank and we're not in item space - a note!
           if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
-            target = @business[:dates].select { |date|  date[:date] == @current_date }
-            unless target.last[:times].empty?
+            unless @current_time_block.business_items.empty?
               p "notes about the time: #{line}" if debug
-              target.last[:times].last[:note] = line.strip
+              @current_time_block.note = line.strip
             else
               p "notes about the day: #{line}" if debug
-              target.last[:note] = line.strip
+              @current_sitting_day.note = line.strip
             end
           else
             @last_line_was_blank = false
@@ -105,6 +117,8 @@ class Parser
         end
       end
     end
+    @business << @current_sitting_day if @current_sitting_day
+    nil
   end
   
   def output
