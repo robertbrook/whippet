@@ -4,7 +4,8 @@
     %small Calendar
 
   %p{:class => "lead"}
-    lorem ipsum
+    - @calendar_days.each do |day|
+      =haml(:_calendar_day, :locals => {:day => day})
     
   %p
     =@time

@@ -1,0 +1,12 @@
+%h2= day.date.strftime("%A, %e %B %Y")
+
+- if day.time_blocks.empty?
+  %p= day.note
+- else
+  - day.time_blocks.each do |block|
+    %h3= block.title
+    - if block.note
+      %p= block.note
+    - block.business_items.each do |item|
+      %p= item.description
+    
