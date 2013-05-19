@@ -7,6 +7,7 @@ gem 'mongoid'
 gem 'bson_ext'
 gem 'json', '~> 1.7.7'
 gem 'rake'
+gem 'haml'
 
 group :development do
   gem 'shotgun'

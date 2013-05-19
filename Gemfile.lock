@@ -13,6 +13,8 @@ GEM
     bson_ext (1.8.5)
       bson (~> 1.8.5)
     builder (3.0.4)
+    haml (4.0.2)
+      tilt
     hashery (2.1.0)
     i18n (0.6.1)
     json (1.7.7)
@@ -59,6 +61,7 @@ PLATFORMS
 
 DEPENDENCIES
   bson_ext
+  haml
   json (~> 1.7.7)
   minitest (= 5.0.1)
   mocha
