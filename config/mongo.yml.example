@@ -7,9 +7,8 @@ production:
   sessions:
     default:
       uri: mongodb://plausible_uri_production
-      
-      
-production:
+        
+test:
   sessions:
     default:
       uri: mongodb://plausible_uri_test
