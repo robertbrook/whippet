@@ -1,3 +1,12 @@
 !!! 5
-%html
-  Nothing here yet.
+%html{:lang => "en-GB"}
+  %head
+    %title LordsWhip
+    %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
+    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet", :media => "screen"}
+    %link{:href => "css/bootstrap-responsive.min.css", :rel => "stylesheet"}
+  %body
+    %div{:class => "container"}
+      =yield
+    %script{:src => "http://code.jquery.com/jquery.js"}
+    %script{:src => "js/bootstrap.min.js"}
