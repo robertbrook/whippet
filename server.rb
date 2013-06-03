@@ -8,6 +8,6 @@ end
 
 get '/' do
   @time = Time.now
-  @calendar_days = SittingDay.all.sort("date DESC").limit(4)
+  @calendar_days = SittingDay.all.sort("date DESC").limit(10)
   haml :index
 end
