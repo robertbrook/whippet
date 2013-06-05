@@ -2,9 +2,8 @@ require 'sinatra'
 require 'mongoid'
 require './lib/parser'
 
-# MONGO_CONFIG = @mongo_config_template || "./config/mongo.yml"
 
-@mongo_config_template = <<END
+@mongo_config = <<END
 development:
   sessions:
     default:
@@ -21,8 +20,13 @@ test:
       uri:
 END
 
+
 before do
-  Mongoid.load!(@mongo_config_template || "./config/mongo.yml")
+	if File.exist?("./config/mongo.yml")
+  		Mongoid.load!("./config/mongo.yml")
+  	else
+  		Mongoid.load!(@mongo_config)
+  	end
 end
 
 get '/' do
