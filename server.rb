@@ -1,25 +1,9 @@
 require 'sinatra'
 require 'mongoid'
 require './lib/parser'
+require 'haml'
 
-
-@mongo_config = <<END
-development:
-  sessions:
-    default:
-      uri: <%= ENV['MONGOHQ_DEV_URI'] %>
-
-production:
-  sessions:
-    default:
-      uri:
-         
-test:
-  sessions:
-    default:
-      uri:
-END
-
+@mongo_config = {"development"=>{"sessions"=>{"default"=>{"uri"=>ENV['MONGOHQ_DEV_URI']}}}, "production"=>{"sessions"=>{"default"=>{"uri"=>"mongodb://plausible_uri_production"}}}, "test"=>{"sessions"=>{"default"=>{"uri"=>"mongodb://admin:admin@dharma.mongohq.com:10061/whippet_test"}}}}
 
 before do
 	if File.exist?("./config/mongo.yml")
