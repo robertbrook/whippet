@@ -2,11 +2,27 @@ require 'sinatra'
 require 'mongoid'
 require './lib/parser'
 
-# to wire up with fake struct later
-# MONGOHQ_DEV_URI = ENV['MONGOHQ_DEV_URI'] || YAML::load(File.read("./config/mongo.yml"))[:websolr_url]
+# MONGO_CONFIG = @mongo_config_template || "./config/mongo.yml"
+
+@mongo_config_template = <<END
+development:
+  sessions:
+    default:
+      uri: <%= ENV['MONGOHQ_DEV_URI'] %>
+
+production:
+  sessions:
+    default:
+      uri:
+         
+test:
+  sessions:
+    default:
+      uri:
+END
 
 before do
-  Mongoid.load!("./config/mongo.yml")
+  Mongoid.load!(@mongo_config_template || "./config/mongo.yml")
 end
 
 get '/' do
