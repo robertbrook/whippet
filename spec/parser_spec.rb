@@ -52,6 +52,11 @@ class TimelineTest < MiniTest::Spec
           @sitting_day.pdf_file.must_equal 'FB-TEST.pdf'
         end
         
+        it "must have the page and line number info" do
+          @sitting_day.pdf_page.must_equal("1")
+          @sitting_day.pdf_line.must_equal(13)
+        end
+        
         it "must have two TimeBlocks" do
           @sitting_day.time_blocks.length.must_equal 2
         end
@@ -71,8 +76,18 @@ class TimelineTest < MiniTest::Spec
             @time = @sitting_day.time_blocks.first
           end
           
+          it "must have the page and line number info" do
+            @time.pdf_page.must_equal("1")
+            @time.pdf_line.must_equal(15)
+          end
+          
           it "must have four items" do
             @time.business_items.length.must_equal 4
+          end
+          
+          it "must set page and line info for the business items" do
+            @time.business_items[2].pdf_page.must_equal("1")
+            @time.business_items[2].pdf_line.must_equal(21)
           end
           
           it "must not have any notes" do
@@ -83,6 +98,11 @@ class TimelineTest < MiniTest::Spec
         describe "when looking at 'Business in Grand Committee at 3.45pm'" do
           before do
             @time = @sitting_day.time_blocks.last
+          end
+          
+          it "must have the page and line number info" do
+            @time.pdf_page.must_equal("1")
+            @time.pdf_line.must_equal(29)
           end
           
           it "must have no items" do
