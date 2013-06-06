@@ -1,13 +1,18 @@
 require "pdf/reader"
 require "nokogiri"
-require "mongoid"
+require "mongo_mapper"
 
 require "./models/sitting_day"
 
 class Parser
   #prepare to ingest a single pdf
   def initialize(target_pdf)
-    Mongoid.load!("./config/mongo.yml")
+    if db = ENV["MONGOHQ_DEV_URI"]
+      MongoMapper.setup({'production' => {'uri' => db}}, 'production')
+    else
+      env = ENV['RACK_ENV'] || "development"
+      MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
+    end
     @pdf = PDF::Reader.new(target_pdf)
     @mytext = ""
     @last_line_was_blank = false

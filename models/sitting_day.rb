@@ -1,29 +1,28 @@
-require "mongoid"
+require "mongo_mapper"
+require "./lib/mm_monkeypatch"
 
 class SittingDay
-  include Mongoid::Document
-  embeds_many :time_blocks
+  include MongoMapper::Document
+  many :time_blocks
   
-  field :date, type: Date
-  field :note, type: String
-  field :accepted, type: Boolean
+  key :date, Date
+  key :note, String
+  key :accepted, Boolean
 end
 
 class TimeBlock
-  include Mongoid::Document
-  embeds_many :business_items
-  embedded_in :sitting_day
+  include MongoMapper::EmbeddedDocument
+  many :business_items
   
-  field :time_as_number, type: Integer
-  field :title, type: String
-  field :note, type: String
-  field :is_provisional, type: Boolean
+  key :time_as_number, Integer
+  key :title, String
+  key :note, String
+  key :is_provisional, Boolean
 end
 
 class BusinessItem
-  include Mongoid::Document
-  embedded_in :time_block
+  include MongoMapper::EmbeddedDocument
   
-  field :description, type: String
-  field :note, type: String
+  key :description, String
+  key :note, String
 end

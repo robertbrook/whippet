@@ -45,7 +45,7 @@ class TimelineTest < MiniTest::Spec
         before do
           SittingDay.delete_all
           @parser.process
-          @sitting_day = SittingDay.find_by(:date => "2013-03-27")
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27")).first
         end
         
         it "must have two TimeBlocks" do
@@ -57,7 +57,7 @@ class TimelineTest < MiniTest::Spec
           @sitting_day.time_blocks.first.time_as_number.must_equal 1100
         end
                 
-        it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do
+        it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do          
           @sitting_day.time_blocks.last.title.must_equal "Business in Grand Committee at 3.45pm"
           @sitting_day.time_blocks.last.time_as_number.must_equal 1545
         end
