@@ -8,6 +8,7 @@ class SittingDay
   key :date, Date
   key :note, String
   key :accepted, Boolean
+  key :pdf_file, String
 end
 
 class TimeBlock

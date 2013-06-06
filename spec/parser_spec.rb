@@ -48,6 +48,10 @@ class TimelineTest < MiniTest::Spec
           @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27")).first
         end
         
+        it "must have the pdf file name" do
+          @sitting_day.pdf_file.must_equal 'FB-TEST.pdf'
+        end
+        
         it "must have two TimeBlocks" do
           @sitting_day.time_blocks.length.must_equal 2
         end

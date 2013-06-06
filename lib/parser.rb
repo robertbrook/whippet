@@ -14,6 +14,7 @@ class Parser
       MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
     end
     @pdf = PDF::Reader.new(target_pdf)
+    @pdf_name = target_pdf.split("/").last
     @mytext = ""
     @last_line_was_blank = false
     @in_item = false
@@ -48,7 +49,7 @@ class Parser
         @last_line_was_blank = false
         current_date = $1
         @in_item = false
-        @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false)
+        @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name)
       
       #a new time
       when /^\b([A-Z])/
