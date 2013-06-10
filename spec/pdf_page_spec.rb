@@ -45,6 +45,10 @@ class PdfPageTest < MiniTest::Spec
       line = @pdf_page.lines[29]
       line[:plain].must_equal "Business in Grand Committee at 3.45pm\n"
       line[:html].must_equal "<b>Business in Grand Committee at 3.45pm</b>"
+      
+      line = @pdf_page.lines[18]
+      line[:plain].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
+      line[:html].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012"
     end
     
     it "should find a font labelled F6 for page 2" do
