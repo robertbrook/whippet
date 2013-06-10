@@ -25,9 +25,7 @@ class PdfPage
           lines << {:plain => "", :html => ""}
         else
           markup = @markup_lines[offset]
-          #if line_matches_markup?(line, markup)
-            lines << {:plain => line, :html => line_to_html(line, markup)}
-          #end
+          lines << {:plain => line, :html => line_to_html(line, markup)}
           offset +=1
         end
       end
@@ -41,18 +39,13 @@ class PdfPage
       output.gsub(/\u0000/, "") #remove any stray nulls
     end
     
-    def line_matches_markup?(line, markup)
-      test_line = strip_high_ascii(line.strip)
-      test_markup = strip_high_ascii(markup).gsub(/<font [^>]*>/, "").gsub("</font>", "").strip
-      test_line == test_markup
-    end
-    
     def line_to_html(line, raw_markup)
       output = ""
       raw_markup = strip_high_ascii(raw_markup)
       line = line.strip
       parts = raw_markup.split("</font>")
       part = 0
+      part_char = ""
       offset = 0
       @font = {}
       
@@ -64,9 +57,10 @@ class PdfPage
         #check (until fixed) that we're not going to read past the end
         # of the current chunk of the raw_markup string
         part_char = @matches[3][i+offset..i+offset]
-        if part_char != char
+        while part_char != char
           offset +=1
           part_char = @matches[3][i+offset..i+offset]
+          break if offset > @matches[3].length
         end  
         if part+1 < parts.length and i+offset > @matches[3].length-1
           part += 1
@@ -75,7 +69,6 @@ class PdfPage
           offset = i * -1
         end
         part_char = @matches[3][i+offset..i+offset]
-        #check that part_char and char match or this is pointless??
         output = "#{output}#{char}"
       end
       append_font_info(output, @fonts[@matches[1].to_sym], {})
