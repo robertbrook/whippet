@@ -41,6 +41,7 @@ class PdfPage
     
     def line_to_html(line, raw_markup)
       output = ""
+      return "" if raw_markup.nil?
       raw_markup = strip_high_ascii(raw_markup)
       line = line.strip
       parts = raw_markup.split("</font>")
@@ -61,14 +62,13 @@ class PdfPage
           offset +=1
           part_char = @matches[3][i+offset..i+offset]
           break if offset > @matches[3].length
-        end  
+        end
         if part+1 < parts.length and i+offset > @matches[3].length-1
           part += 1
           @matches = parts[part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
           output = append_font_info(output, @font, @matches[1].to_sym)
           offset = i * -1
         end
-        part_char = @matches[3][i+offset..i+offset]
         output = "#{output}#{char}"
       end
       append_font_info(output, @fonts[@matches[1].to_sym], {})
@@ -76,8 +76,8 @@ class PdfPage
     
     def append_font_info(string, old_font, font_symbol)
       unless string == ""
-        string = "#{string}</i>" if old_font[:italic]
         string = "#{string}</b>" if old_font[:bold]
+        string = "#{string}</i>" if old_font[:italic]
       end
       
       unless font_symbol == {}
@@ -110,21 +110,28 @@ class PdfPage
 end
 
 class TextReceiver
-  attr_reader :content
-  
   def initialize(debug=false)
-    @content = []
+    @lines = []
     @text = []
     @last_line = 9999.9
     @font = {}
+    @footer = []
     @debug = debug
+  end
+  
+  def content
+    @lines + @footer
   end
   
   def set_text_matrix_and_text_line_matrix(_,_,_,_,_,y_axis)
     p "* #{y_axis}" if @debug
     if y_axis != @last_line
       line = dedup_font_tags(@text.join(""))
-      @content << line.strip
+      if @last_line < 50.00
+        @footer << line.strip
+      else
+        @lines << line.strip
+      end
       @text = []
       p "new line" if @debug
     end
