@@ -3,6 +3,7 @@ require "nokogiri"
 require "mongo_mapper"
 
 require "./models/sitting_day"
+require "./lib/pdf_page"
 
 class Parser
   #prepare to ingest a single pdf
@@ -27,12 +28,16 @@ class Parser
   end
   
   def process(debug=false)
-    #concat all the page content into a single block of text    
     @fin = false
     
-    @pdf.pages.each do |page|
+    pages.each do |page|
       break if @fin
-      page.text.lines.each_with_index do |line, line_no|
+      
+      pdf_page = PdfPage.new(page)
+      pdf_page.lines.each_with_index do |pdf_line, line_no|
+        line = pdf_line[:plain]
+        html = pdf_line[:html]
+        
         case line
         
         #the end of the useful, the start of the notes section, we can stop now
@@ -113,9 +118,14 @@ class Parser
             #the last line wasn't blank and we're not in item space - a note!
             if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
               unless @current_sitting_day.time_blocks.empty?
-                p "notes about the time: #{line}" if debug
-                @current_time_block.note = line.strip
-                @current_time_block.save
+                if html.include?("<i><b>")
+                  p html if debug
+                  #not what we first took it for, not sure what do do with it... yet
+                else
+                  p "notes about the time: #{line}" if debug
+                  @current_time_block.note = line.strip
+                  @current_time_block.save
+                end
               else
                 p "notes about the day: #{line}" if debug
                 @current_sitting_day.note = line.strip

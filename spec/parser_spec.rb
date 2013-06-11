@@ -1,7 +1,7 @@
 require './spec/minitest_helper.rb'
 require './lib/parser'
 
-class TimelineTest < MiniTest::Spec
+class ParserTest < MiniTest::Spec
   describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before do
       @parser = Parser.new("./data/FB-TEST.pdf")
