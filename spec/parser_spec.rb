@@ -20,6 +20,12 @@ class ParserTest < MiniTest::Spec
         @parser.process
       end
       
+      it "should not duplicate the items" do
+        SittingDay.all.count.must_equal(14)
+        @parser.process
+        SittingDay.all.count.must_equal(14)
+      end
+      
       it "must find eight pages of content" do
         @parser.pages.length.must_equal 8
       end
@@ -45,7 +51,7 @@ class ParserTest < MiniTest::Spec
         before do
           SittingDay.delete_all
           @parser.process
-          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00 UTC")).first
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00Z")).first
         end
         
         it "must not be flagged as provisional" do
@@ -128,7 +134,7 @@ class ParserTest < MiniTest::Spec
         before do
           SittingDay.delete_all
           @parser.process
-          @sitting_day = SittingDay.where(:date => Time.parse("2013-5-8 00:00:00 UTC")).first
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-05-08 00:00:00Z")).first
         end
         
         it "must the flagged as provisional" do

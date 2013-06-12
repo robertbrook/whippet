@@ -62,11 +62,21 @@ class Parser
           current_date = $1
           @in_item = false
           
-          Time.parse(@pdf.info[:ModDate])
+          parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
+          if pre = SittingDay.where(:date => Time.parse(parsed_time)).first
+            #prepare to replace the existing info if the supplied pdf is newer
+            if pre.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
+              @current_sitting_day = pre
+              pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            else
+              @current_sitting_day = nil
+            end
+          else
+            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+          end
           
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
-          if @provisional
+          if @provisional and @current_sitting_day
             @current_sitting_day.is_provisional = true
             @current_sitting_day.save
           end
@@ -74,24 +84,26 @@ class Parser
         #a new time
         when /^\s*Business/
           p "new time detected, starting a new sub-section: #{line}" if debug
-          @last_line_was_blank = false
-          @in_item = false
-          block = TimeBlock.new
-          time_matches = line.match(/at ((\d+)\.(\d\d)(a|p)m)/)
-          if time_matches[4] == "p"
-            block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
-          else
-            block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
+          if @current_sitting_day
+            @last_line_was_blank = false
+            @in_item = false
+            block = TimeBlock.new
+            time_matches = line.match(/at ((\d+)\.(\d\d)(a|p)m)/)
+            if time_matches[4] == "p"
+              block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
+            else
+              block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
+            end
+            block.title = line.strip
+          
+            Time.parse(@pdf.info[:ModDate])
+          
+            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            block.pdf_info = pdf_info
+            block.is_provisional = true if @provisional
+            @current_time_block = block
+            @current_sitting_day.time_blocks << @current_time_block
           end
-          block.title = line.strip
-          
-          Time.parse(@pdf.info[:ModDate])
-          
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-          block.pdf_info = pdf_info
-          block.is_provisional = true if @provisional
-          @current_time_block = block
-          @current_sitting_day.time_blocks << @current_time_block
         
         #a page number
         when /^\s*(\d+)\n/
@@ -101,59 +113,65 @@ class Parser
         #a numbered item
         when /^(\d)/
           p "new business item, hello: #{line}" if debug
-          @last_line_was_blank = false
-          @in_item = true
-          # first line of item
-          item = BusinessItem.new
-          item.description = line.strip
+          if @current_sitting_day
+            @last_line_was_blank = false
+            @in_item = true
+            # first line of item
+            item = BusinessItem.new
+            item.description = line.strip
           
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-          item.pdf_info = pdf_info
-          @current_time_block.business_items << item
+            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            item.pdf_info = pdf_info
+            @current_time_block.business_items << item
+          end
         
         #a blank line
         when /^\n$/
-          if @last_line_was_blank and @in_item
-            p "A blank following a blank line, resetting the itemflag" if debug
-            @in_item = false
+          if @current_sitting_day
+            if @last_line_was_blank and @in_item
+              p "A blank following a blank line, resetting the itemflag" if debug
+              @in_item = false
+            end
+            @last_line_was_blank = true
           end
-          @last_line_was_blank = true
         
         #whole line in square brackets
         when /^\s*\[.*\]\s*$/
           p "Meh, no need to process these #{line}" if debug
-          @last_line_was_blank = false
+          @last_line_was_blank = false if @current_sitting_day
         
         #all the other things
         else
-          if @in_item
-            @last_line_was_blank = false
-            p "...item continuation line..." if debug
-            #last line was a business item, treat this as a continuation
-            last_item = @current_time_block.business_items.last
-            new_desc = "#{last_item.description} #{line.strip}"
-            last_item.description = new_desc
+          if @current_sitting_day
+            if @in_item
+              @last_line_was_blank = false
+              p "...item continuation line..." if debug
+              #last line was a business item, treat this as a continuation
+              last_item = @current_time_block.business_items.last
+              new_desc = "#{last_item.description} #{line.strip}"
+              last_item.description = new_desc
             
-            p "item text replaced with: #{new_desc}" if debug
-          else
-            #the last line wasn't blank and we're not in item space - a note!
-            if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
-              unless @current_sitting_day.time_blocks.empty?
-                if html.include?("<i><b>")
-                  p html if debug
-                  #not what we first took it for, not sure what do do with it... yet
+              p "item text replaced with: #{new_desc}" if debug
+            else
+              #the last line wasn't blank and we're not in item space - a note!
+              if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
+                unless @current_sitting_day.time_blocks.empty?
+                  if html.include?("<i><b>")
+                    p html if debug
+                    #not what we first took it for, not sure what do do with it... yet
+                  else
+                    p "notes about the time: #{line}" if debug
+                    @current_time_block.note = line.strip
+                    @current_time_block.save
+                  end
                 else
-                  p "notes about the time: #{line}" if debug
-                  @current_time_block.note = line.strip
-                  @current_time_block.save
+                  p "notes about the day: #{line}" if debug
+                  @current_sitting_day.note = line.strip
                 end
               else
-                p "notes about the day: #{line}" if debug
-                @current_sitting_day.note = line.strip
+                @last_line_was_blank = false
+                p "Unhandled text: #{line}" if debug
               end
-            else
-              @last_line_was_blank = false
-              p "Unhandled text: #{line}" if debug
             end
           end
         end
