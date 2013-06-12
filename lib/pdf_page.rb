@@ -33,6 +33,7 @@ class PdfPage
     end
     
     def strip_high_ascii(input)
+      return "" if input.nil?
       ec = Encoding::Converter.new("ascii", "utf-8", :invalid => :replace, :replace => "")
       output = ec.convert(input)
       output.gsub!(/[\u0080-\u00ff]/,"")
