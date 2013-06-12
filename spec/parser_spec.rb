@@ -35,7 +35,9 @@ class ParserTest < MiniTest::Spec
       end
       
       it "must create all the BusinessItems" do
-        #BusinessItem.all.count.must_equal(43)
+        days = SittingDay.all
+        items = days.map { |x| x.time_blocks.business_items }
+        items.all.count.must_equal(43)
       end
       
       describe "the created object for Wednesday 27 March" do
