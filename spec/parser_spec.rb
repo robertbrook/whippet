@@ -45,7 +45,7 @@ class ParserTest < MiniTest::Spec
         before do
           SittingDay.delete_all
           @parser.process
-          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27")).first
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00 UTC")).first
         end
         
         it "must have the pdf file name" do
@@ -112,6 +112,28 @@ class ParserTest < MiniTest::Spec
           it "must have a note with the text 'No business scheduled'" do
             @time.note.must_equal "No business scheduled"
           end
+        end
+      end
+      
+      describe "the created object for Wednesday 8 May" do
+        before do
+          SittingDay.delete_all
+          @parser.process
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-5-8 00:00:00 UTC")).first
+        end
+        
+        it "must the flagged as provisional" do
+          @sitting_day.is_provisional.must_equal true
+        end
+        
+        it "must have three TimeBlocks" do
+          @sitting_day.time_blocks.length.must_equal 3
+        end
+        
+        it "the TimeBlocks should be flagged as provisional" do
+          @sitting_day.time_blocks[0].is_provisional.must_equal true
+          @sitting_day.time_blocks[1].is_provisional.must_equal true
+          @sitting_day.time_blocks[2].is_provisional.must_equal true
         end
       end
     end

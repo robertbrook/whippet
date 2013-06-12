@@ -20,6 +20,7 @@ class Parser
     @in_item = false
     @current_sitting_day = nil
     @current_time_block = nil
+    @provisional = false
     @business = []
   end
   
@@ -46,6 +47,9 @@ class Parser
           @fin = true
           break
         
+        when /^\s*PROVISIONAL\s*$/
+          @provisional = true
+        
         #a new day
         when /\b([A-Z]{2,}[DAY] \d.+)/
           p "new day detected, starting a new section: #{line}" if debug
@@ -54,6 +58,10 @@ class Parser
           current_date = $1
           @in_item = false
           @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_line => line_no)
+          if @provisional
+            @current_sitting_day.is_provisional = true
+            @current_sitting_day.save
+          end
         
         #a new time
         when /^\b([A-Z])/
@@ -70,6 +78,7 @@ class Parser
           block.title = line.strip
           block.pdf_page = page.number
           block.pdf_line = line_no
+          block.is_provisional = true if @provisional
           @current_time_block = block
           @current_sitting_day.time_blocks << @current_time_block
         
