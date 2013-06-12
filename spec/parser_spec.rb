@@ -55,7 +55,7 @@ class ParserTest < MiniTest::Spec
         
         it "must have the page and line number info" do
           @sitting_day.pdf_page.must_equal("1")
-          @sitting_day.pdf_line.must_equal(13)
+          @sitting_day.pdf_page_line.must_equal(13)
         end
         
         it "must have two TimeBlocks" do
@@ -80,7 +80,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_page.must_equal("1")
-            @time.pdf_line.must_equal(15)
+            @time.pdf_page_line.must_equal(15)
           end
           
           it "must have four items" do
@@ -89,7 +89,7 @@ class ParserTest < MiniTest::Spec
           
           it "must set page and line info for the business items" do
             @time.business_items[2].pdf_page.must_equal("1")
-            @time.business_items[2].pdf_line.must_equal(21)
+            @time.business_items[2].pdf_page_line.must_equal(21)
           end
           
           it "must not have any notes" do
@@ -104,7 +104,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_page.must_equal("1")
-            @time.pdf_line.must_equal(29)
+            @time.pdf_page_line.must_equal(29)
           end
           
           it "must have no items" do

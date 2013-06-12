@@ -35,9 +35,9 @@ class Parser
       break if @fin
       
       pdf_page = PdfPage.new(page)
-      pdf_page.lines.each_with_index do |pdf_line, line_no|
-        line = pdf_line[:plain]
-        html = pdf_line[:html]
+      pdf_page.lines.each_with_index do |pdf_page_line, line_no|
+        line = pdf_page_line[:plain]
+        html = pdf_page_line[:html]
         
         case line
         
@@ -61,7 +61,7 @@ class Parser
           @last_line_was_blank = false
           current_date = $1
           @in_item = false
-          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_line => line_no)
+          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_page_line => line_no)
           if @provisional
             @current_sitting_day.is_provisional = true
             @current_sitting_day.save
@@ -81,7 +81,7 @@ class Parser
           end
           block.title = line.strip
           block.pdf_page = page.number
-          block.pdf_line = line_no
+          block.pdf_page_line = line_no
           block.is_provisional = true if @provisional
           @current_time_block = block
           @current_sitting_day.time_blocks << @current_time_block
@@ -100,7 +100,7 @@ class Parser
           item = BusinessItem.new
           item.description = line.strip
           item.pdf_page = page.number
-          item.pdf_line = line_no
+          item.pdf_page_line = line_no
           @current_time_block.business_items << item
         
         #a blank line
