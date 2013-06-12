@@ -56,6 +56,10 @@ class ParserTest < MiniTest::Spec
           @sitting_day.pdf_info[:filename].must_equal 'FB-TEST.pdf'
         end
         
+        it "must store the pdf last edited datetime" do
+          @sitting_day.pdf_info[:last_edited].must_equal Time.parse("D:20130328102303Z")
+        end
+        
         it "must have the page and line number info" do
           @sitting_day.pdf_info[:page].must_equal(1)
           @sitting_day.pdf_info[:line].must_equal(13)

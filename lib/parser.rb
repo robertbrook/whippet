@@ -61,7 +61,10 @@ class Parser
           @last_line_was_blank = false
           current_date = $1
           @in_item = false
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no}
+          
+          Time.parse(@pdf.info[:ModDate])
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
           @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
           if @provisional
             @current_sitting_day.is_provisional = true
@@ -81,7 +84,10 @@ class Parser
             block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
           end
           block.title = line.strip
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no}
+          
+          Time.parse(@pdf.info[:ModDate])
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
           block.pdf_info = pdf_info
           block.is_provisional = true if @provisional
           @current_time_block = block
@@ -100,7 +106,8 @@ class Parser
           # first line of item
           item = BusinessItem.new
           item.description = line.strip
-          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no}
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
           item.pdf_info = pdf_info
           @current_time_block.business_items << item
         
