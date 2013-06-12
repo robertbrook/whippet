@@ -2,7 +2,7 @@
 require "./lib/parser"
 require "haml"
 
-Dir.glob('./PDFs/*.pdf') do |pdf|
+Dir.glob('./data/*.pdf') do |pdf|
   @parser = Parser.new(pdf)
   @parser.process
   p @parser.output
