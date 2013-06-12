@@ -30,14 +30,15 @@ class ParserTest < MiniTest::Spec
       
       it "must create all the TimeBlocks" do
         days = SittingDay.all
-        blocks = days.map { |x| x.time_blocks }
-        blocks.flatten.count.must_equal(23)
+        blocks = days.map { |x| x.time_blocks }.flatten
+        blocks.count.must_equal(23)
       end
       
       it "must create all the BusinessItems" do
         days = SittingDay.all
-        items = days.map { |x| x.time_blocks.business_items }
-        items.all.count.must_equal(43)
+        blocks = days.map { |x| x.time_blocks }.flatten
+        items = blocks.map { |x| x.business_items }.flatten
+        items.count.must_equal(43)
       end
       
       describe "the created object for Wednesday 27 March" do
@@ -52,12 +53,12 @@ class ParserTest < MiniTest::Spec
         end
         
         it "must have the pdf file name" do
-          @sitting_day.pdf_file.must_equal 'FB-TEST.pdf'
+          @sitting_day.pdf_info[:filename].must_equal 'FB-TEST.pdf'
         end
         
         it "must have the page and line number info" do
-          @sitting_day.pdf_page.must_equal("1")
-          @sitting_day.pdf_page_line.must_equal(13)
+          @sitting_day.pdf_info[:page].must_equal(1)
+          @sitting_day.pdf_info[:line].must_equal(13)
         end
         
         it "must have two TimeBlocks" do
@@ -70,7 +71,7 @@ class ParserTest < MiniTest::Spec
           @sitting_day.time_blocks.first.is_provisional.wont_equal true
         end
                 
-        it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do          
+        it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do
           @sitting_day.time_blocks.last.title.must_equal "Business in Grand Committee at 3.45pm"
           @sitting_day.time_blocks.last.time_as_number.must_equal 1545
         end
@@ -81,8 +82,8 @@ class ParserTest < MiniTest::Spec
           end
           
           it "must have the page and line number info" do
-            @time.pdf_page.must_equal("1")
-            @time.pdf_page_line.must_equal(15)
+            @time.pdf_info[:page].must_equal(1)
+            @time.pdf_info[:line].must_equal(15)
           end
           
           it "must have four items" do
@@ -90,8 +91,8 @@ class ParserTest < MiniTest::Spec
           end
           
           it "must set page and line info for the business items" do
-            @time.business_items[2].pdf_page.must_equal("1")
-            @time.business_items[2].pdf_page_line.must_equal(21)
+            @time.business_items[2].pdf_info[:page].must_equal(1)
+            @time.business_items[2].pdf_info[:line].must_equal(21)
           end
           
           it "must not have any notes" do
@@ -105,8 +106,8 @@ class ParserTest < MiniTest::Spec
           end
           
           it "must have the page and line number info" do
-            @time.pdf_page.must_equal("1")
-            @time.pdf_page_line.must_equal(29)
+            @time.pdf_info[:page].must_equal(1)
+            @time.pdf_info[:line].must_equal(29)
           end
           
           it "must have no items" do
