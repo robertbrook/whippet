@@ -1,5 +1,5 @@
 #require "open-uri"
-require "./parser"
+require "./lib/parser"
 require "haml"
 
 Dir.glob('./PDFs/*.pdf') do |pdf|
