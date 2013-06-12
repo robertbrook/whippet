@@ -15,7 +15,7 @@ class Parser
       MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
     end
     @pdf = PDF::Reader.new(target_pdf)
-    @pdf_name = target_pdf.split("/").last
+    @pdf_filename = target_pdf.split("/").last
     @business = []
   end
   
@@ -52,7 +52,7 @@ class Parser
           @provisional = true
         
         #a new day
-        when /\b([A-Z]{2,}[DAY] \d.+)/
+        when /\b([A-Z]{2,}[DAY] \d+ [A-Z]+ \d{4})/
           p "new day detected, starting a new section: #{line}" if debug
           if @current_sitting_day
             @current_sitting_day.save
@@ -61,7 +61,11 @@ class Parser
           @last_line_was_blank = false
           current_date = $1
           @in_item = false
-          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_page_line => line_no)
+          
+          Time.parse(@pdf.info[:ModDate])
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
           if @provisional
             @current_sitting_day.is_provisional = true
             @current_sitting_day.save
@@ -80,8 +84,11 @@ class Parser
             block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
           end
           block.title = line.strip
-          block.pdf_page = page.number
-          block.pdf_page_line = line_no
+          
+          Time.parse(@pdf.info[:ModDate])
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+          block.pdf_info = pdf_info
           block.is_provisional = true if @provisional
           @current_time_block = block
           @current_sitting_day.time_blocks << @current_time_block
@@ -99,8 +106,9 @@ class Parser
           # first line of item
           item = BusinessItem.new
           item.description = line.strip
-          item.pdf_page = page.number
-          item.pdf_page_line = line_no
+          
+          pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+          item.pdf_info = pdf_info
           @current_time_block.business_items << item
         
         #a blank line

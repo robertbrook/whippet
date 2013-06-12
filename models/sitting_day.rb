@@ -9,9 +9,7 @@ class SittingDay
   key :note, String
   key :accepted, Boolean
   key :is_provisional, Boolean
-  key :pdf_file, String
-  key :pdf_page, String
-  key :pdf_page_line, Integer
+  key :pdf_info, Hash
 end
 
 class TimeBlock
@@ -22,8 +20,7 @@ class TimeBlock
   key :title, String
   key :note, String
   key :is_provisional, Boolean
-  key :pdf_page, String
-  key :pdf_page_line, Integer
+  key :pdf_info, Hash
 end
 
 class BusinessItem
@@ -31,6 +28,5 @@ class BusinessItem
   
   key :description, String
   key :note, String
-  key :pdf_page, String
-  key :pdf_page_line, Integer
+  key :pdf_info, Hash
 end
