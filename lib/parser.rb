@@ -16,10 +16,6 @@ class Parser
     end
     @pdf = PDF::Reader.new(target_pdf)
     @pdf_name = target_pdf.split("/").last
-    @last_line_was_blank = false
-    @in_item = false
-    @current_sitting_day = nil
-    @current_time_block = nil
     @business = []
   end
   
@@ -29,14 +25,19 @@ class Parser
   
   def process(debug=false)
     @fin = false
+    @provisional = false
+    @last_line_was_blank = false
+    @in_item = false
+    @current_sitting_day = nil
+    @current_time_block = nil
     
     pages.each do |page|
       break if @fin
       
       pdf_page = PdfPage.new(page)
-      pdf_page.lines.each_with_index do |pdf_line, line_no|
-        line = pdf_line[:plain]
-        html = pdf_line[:html]
+      pdf_page.lines.each_with_index do |pdf_page_line, line_no|
+        line = pdf_page_line[:plain]
+        html = pdf_page_line[:html]
         
         case line
         
@@ -46,17 +47,28 @@ class Parser
           @fin = true
           break
         
+        when /^\s*PROVISIONAL\s*$/
+          p "/sets provisional flag" if debug
+          @provisional = true
+        
         #a new day
         when /\b([A-Z]{2,}[DAY] \d.+)/
           p "new day detected, starting a new section: #{line}" if debug
-          @business << @current_sitting_day if @current_sitting_day
+          if @current_sitting_day
+            @current_sitting_day.save
+            @business << @current_sitting_day
+          end
           @last_line_was_blank = false
           current_date = $1
           @in_item = false
-          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_line => line_no)
+          @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_file => @pdf_name, :pdf_page => page.number, :pdf_page_line => line_no)
+          if @provisional
+            @current_sitting_day.is_provisional = true
+            @current_sitting_day.save
+          end
         
         #a new time
-        when /^\b([A-Z])/
+        when /^\s*Business/
           p "new time detected, starting a new sub-section: #{line}" if debug
           @last_line_was_blank = false
           @in_item = false
@@ -69,7 +81,8 @@ class Parser
           end
           block.title = line.strip
           block.pdf_page = page.number
-          block.pdf_line = line_no
+          block.pdf_page_line = line_no
+          block.is_provisional = true if @provisional
           @current_time_block = block
           @current_sitting_day.time_blocks << @current_time_block
         
@@ -87,7 +100,7 @@ class Parser
           item = BusinessItem.new
           item.description = line.strip
           item.pdf_page = page.number
-          item.pdf_line = line_no
+          item.pdf_page_line = line_no
           @current_time_block.business_items << item
         
         #a blank line
@@ -113,7 +126,7 @@ class Parser
             new_desc = "#{last_item.description} #{line.strip}"
             last_item.description = new_desc
             
-            p "item text replaced with: #{last_line}" if debug
+            p "item text replaced with: #{new_desc}" if debug
           else
             #the last line wasn't blank and we're not in item space - a note!
             if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
@@ -129,7 +142,6 @@ class Parser
               else
                 p "notes about the day: #{line}" if debug
                 @current_sitting_day.note = line.strip
-                @current_sitting_day.save
               end
             else
               @last_line_was_blank = false
@@ -139,7 +151,10 @@ class Parser
         end
       end
     end
-    @business << @current_sitting_day if @current_sitting_day
+    if @current_sitting_day
+      @current_sitting_day.save
+      @business << @current_sitting_day
+    end
     nil
   end
   

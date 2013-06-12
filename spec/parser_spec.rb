@@ -12,40 +12,41 @@ class ParserTest < MiniTest::Spec
       it "must return a Parser" do
         @parser.must_be_instance_of Parser
       end
+    end
+    
+    describe "when asked to process the document" do
+      before do
+        SittingDay.delete_all
+        @parser.process
+      end
       
       it "must find eight pages of content" do
         @parser.pages.length.must_equal 8
-        @parser.process
       end
-    end
-    
-    describe "when asked to process the document" do      
+      
       it "must create a SittingDay for each date" do
-        sitting_day = SittingDay.new
-        SittingDay.expects(:create).times(14).returns(sitting_day)
-        @parser.process
+        SittingDay.all.count.must_equal(14)
       end
       
       it "must create all the TimeBlocks" do
-        block = TimeBlock.new
-        TimeBlock.expects(:new).times(23).returns(block)
-        block.expects(:title=).times(23)
-        block.expects(:time_as_number=).times(23)
-        @parser.process
+        days = SittingDay.all
+        blocks = days.map { |x| x.time_blocks }
+        blocks.flatten.count.must_equal(23)
       end
       
       it "must create all the BusinessItems" do
-        item = BusinessItem.new
-        BusinessItem.expects(:new).times(43).returns(item)
-        item.expects(:description=).at_least(43) #could be more - corrections
-        @parser.process
+        #BusinessItem.all.count.must_equal(43)
       end
       
       describe "the created object for Wednesday 27 March" do
         before do
           SittingDay.delete_all
           @parser.process
-          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27")).first
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00 UTC")).first
+        end
+        
+        it "must not be flagged as provisional" do
+          @sitting_day.is_provisional.wont_equal true
         end
         
         it "must have the pdf file name" do
@@ -54,7 +55,7 @@ class ParserTest < MiniTest::Spec
         
         it "must have the page and line number info" do
           @sitting_day.pdf_page.must_equal("1")
-          @sitting_day.pdf_line.must_equal(13)
+          @sitting_day.pdf_page_line.must_equal(13)
         end
         
         it "must have two TimeBlocks" do
@@ -64,6 +65,7 @@ class ParserTest < MiniTest::Spec
         it "must have a first TimeBlock entitled 'Business in the Chamber at 11.00am'" do
           @sitting_day.time_blocks.first.title.must_equal "Business in the Chamber at 11.00am"
           @sitting_day.time_blocks.first.time_as_number.must_equal 1100
+          @sitting_day.time_blocks.first.is_provisional.wont_equal true
         end
                 
         it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do          
@@ -78,7 +80,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_page.must_equal("1")
-            @time.pdf_line.must_equal(15)
+            @time.pdf_page_line.must_equal(15)
           end
           
           it "must have four items" do
@@ -87,7 +89,7 @@ class ParserTest < MiniTest::Spec
           
           it "must set page and line info for the business items" do
             @time.business_items[2].pdf_page.must_equal("1")
-            @time.business_items[2].pdf_line.must_equal(21)
+            @time.business_items[2].pdf_page_line.must_equal(21)
           end
           
           it "must not have any notes" do
@@ -102,7 +104,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_page.must_equal("1")
-            @time.pdf_line.must_equal(29)
+            @time.pdf_page_line.must_equal(29)
           end
           
           it "must have no items" do
@@ -112,6 +114,28 @@ class ParserTest < MiniTest::Spec
           it "must have a note with the text 'No business scheduled'" do
             @time.note.must_equal "No business scheduled"
           end
+        end
+      end
+      
+      describe "the created object for Wednesday 8 May" do
+        before do
+          SittingDay.delete_all
+          @parser.process
+          @sitting_day = SittingDay.where(:date => Time.parse("2013-5-8 00:00:00 UTC")).first
+        end
+        
+        it "must the flagged as provisional" do
+          @sitting_day.is_provisional.must_equal true
+        end
+        
+        it "must have three TimeBlocks" do
+          @sitting_day.time_blocks.length.must_equal 3
+        end
+        
+        it "the TimeBlocks should be flagged as provisional" do
+          @sitting_day.time_blocks[0].is_provisional.must_equal true
+          @sitting_day.time_blocks[1].is_provisional.must_equal true
+          @sitting_day.time_blocks[2].is_provisional.must_equal true
         end
       end
     end
