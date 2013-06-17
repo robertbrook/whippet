@@ -9,7 +9,7 @@ gem 'bson_ext'
 gem 'json', '~> 1.7.7'
 gem 'rake'
 gem 'haml', :require => 'haml'
-
+gem 'ri_cal'
 
 group :development do
   gem 'shotgun'
