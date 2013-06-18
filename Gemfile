@@ -1,6 +1,9 @@
 source "http://rubygems.org"
 
-ruby '1.9.3'
+group :production do
+  ruby '1.9.3'
+end
+
 gem 'sinatra'
 gem 'pdf-reader'
 gem 'nokogiri'
