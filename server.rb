@@ -3,6 +3,7 @@ require 'mongo_mapper'
 require './lib/parser'
 require 'haml'
 require 'ri_cal'
+require 'pp'
 
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
@@ -20,22 +21,26 @@ get '/' do
 end
 
 get '/cal' do
-  @time = Time.now
-  @calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
+  calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
   # content_type 'text/calendar'
-  @calendar_days.each do |day|
-#   puts day._id
-  @cal = RiCal.Calendar do
-    event do
-      summary    "The 'title' of the event"
-      description "MA-6 First US Manned Spaceflight"
-      dtstart     DateTime.parse("2013-06-17 3pm")
-      dtend       DateTime.parse("2013-06-17 6pm")
-      location    "Cape Canaveral"
+
+kal = RiCal.Calendar do |cal|
+calendar_days.each do |calendar_day|
+  calendar_day.time_blocks.each do |block|
+    cal.event do |event|
+      time_as_string = block.time_as_number.to_s.insert(2, ':')
+      event.uid = block._id.to_s
+      event.dtend = DateTime.parse(calendar_day.date.iso8601 + " " + time_as_string)
+      event.dtstart = DateTime.parse(calendar_day.date.iso8601 + " " + time_as_string)
+      event.transp = "OPAQUE"
+      event.summary = block.title
+      event.description = block.title
+      pp block
     end
-    
+    end
   end
   end
-  @cal.export
+
+  kal.export
 
 end
