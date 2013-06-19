@@ -88,9 +88,11 @@ class Parser
             @last_line_was_blank = false
             @in_item = false
             block = TimeBlock.new
-            time_matches = line.match(/at ((\d+)\.(\d\d)(a|p)m)/)
+            time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
             if time_matches[4] == "p"
               block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
+            elsif time_matches[5] == "noon"
+              block.time_as_number = (time_matches[2].to_i) * 100
             else
               block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
             end
