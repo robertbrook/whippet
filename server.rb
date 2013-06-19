@@ -20,9 +20,16 @@ get '/' do
   haml :index
 end
 
+get '/app' do
+  params[:text].class.to_s
+end
+
+
 get '/cal' do
   calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
-  # content_type 'text/calendar'
+  if params.has_key?("ics") # will respond to cal?ics
+    content_type 'text/calendar'
+  end
 
 ical_content = RiCal.Calendar { |ical|
 calendar_days.each { |calendar_day|
@@ -34,7 +41,7 @@ calendar_days.each { |calendar_day|
       event.dtstart = DateTime.parse(calendar_day.date.iso8601 + " " + time_as_string)
       event.summary = block.title
       event.description = block.title
-      pp block
+      # pp block
     }
     }
   }
