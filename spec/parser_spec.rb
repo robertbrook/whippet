@@ -1,11 +1,11 @@
 require './spec/minitest_helper.rb'
 require './lib/parser'
 
-class ParserTest < MiniTest::Spec
+class ParserTest < MiniTest::Spec  
   describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before do
-      @parser = Parser.new("./data/FB-TEST.pdf")
-      SittingDay.delete_all
+      @@parser ||= Parser.new("./data/FB-TEST.pdf")
+      @parser = @@parser
     end
     
     describe "in general" do
@@ -16,8 +16,12 @@ class ParserTest < MiniTest::Spec
     
     describe "when asked to process the document" do
       before do
-        SittingDay.delete_all
-        @parser.process
+        @@doc_processed ||= false
+        unless @@doc_processed
+          SittingDay.delete_all
+          @parser.process
+          @@doc_processed = true
+        end
       end
       
       it "should not duplicate the items" do
@@ -49,8 +53,6 @@ class ParserTest < MiniTest::Spec
       
       describe "the created object for Wednesday 27 March" do
         before do
-          SittingDay.delete_all
-          @parser.process
           @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00Z")).first
         end
         
@@ -132,8 +134,6 @@ class ParserTest < MiniTest::Spec
       
       describe "the created object for Wednesday 8 May" do
         before do
-          SittingDay.delete_all
-          @parser.process
           @sitting_day = SittingDay.where(:date => Time.parse("2013-05-08 00:00:00Z")).first
         end
         
