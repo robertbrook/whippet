@@ -4,7 +4,8 @@ require './lib/pdf_page'
 class PdfPageTest < MiniTest::Spec
   describe "PdfPage", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before do
-      @pdf = PDF::Reader.new("./data/FB-TEST.pdf")
+      @@pdf ||= PDF::Reader.new("./data/FB-TEST.pdf")
+      @pdf = @@pdf
     end
     
     describe "when asked to load page 1" do
