@@ -20,11 +20,6 @@ get '/' do
   haml :index
 end
 
-get '/app' do
-  params[:text].class.to_s
-end
-
-
 get '/cal' do
   calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
   if params.has_key?("ics") # will respond to cal?ics
