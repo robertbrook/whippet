@@ -21,21 +21,31 @@ get '/' do
 end
 
 get '/cal' do
-  calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
+
+  if params[:limit].to_i.between?(1, 20)
+  	limit = params[:limit]
+  else
+  	limit = 4
+  end
+  	
+  sitting_days = SittingDay.all(:order => :date.desc, :limit => limit)
+  
   if params.has_key?("ics") # will respond to cal?ics
     content_type 'text/calendar'
+  else
+  	content_type 'text/plain'
   end
 
 ical_content = RiCal.Calendar { |ical|
-calendar_days.each { |calendar_day|
-  calendar_day.time_blocks.each { |block|
+sitting_days.each { |sitting_day|
+  sitting_day.time_blocks.each { |time_block|
     ical.event { |event|
-      time_as_string = block.time_as_number.to_s.insert(2, ':')
-      event.uid = block._id.to_s
-      event.dtend = DateTime.parse(calendar_day.date.iso8601 + " " + time_as_string)
-      event.dtstart = DateTime.parse(calendar_day.date.iso8601 + " " + time_as_string)
-      event.summary = block.title
-      event.description = block.title
+      time_as_string = time_block.time_as_number.to_s.insert(2, ':')
+      event.uid = time_block._id.to_s
+      event.dtend = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
+      event.dtstart = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
+      event.summary = time_block.title
+      event.description = time_block.title
       # pp block
     }
     }
