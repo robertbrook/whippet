@@ -179,8 +179,10 @@ class ParserTest < MiniTest::Spec
         SittingDay.all.count.must_equal(16)
       end
       
-      it "must cope with business items scheduled for 12 noon"
-      it "must go to the moon"
+      it "must cope with business items scheduled for 12 noon" do
+        sitting_day = SittingDay.where(:date => Time.parse("2013-05-22 00:00:00Z")).first
+        sitting_day.time_blocks[1].time_as_number.must_equal 1200
+      end
       
       # Should it note the Whitsun adjournment? And if so, how?
       # Multiple notes/marshalled list notes - needs to deal with these
