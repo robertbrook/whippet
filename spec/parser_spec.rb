@@ -158,4 +158,31 @@ class ParserTest < MiniTest::Spec
       end
     end
   end
+  
+  describe "Parser", "when given the Forthcoming Business for 9th May 2013 PDF as FB-TEST-2.PDF" do
+    before do
+      @@parser2 ||= Parser.new("./data/FB-TEST-2.pdf")
+      @paser = @@parser
+    end
+    
+    describe "when asked to process the document" do
+      before do
+        @@doc2_processed ||= false
+        unless @@doc2_processed
+          SittingDay.delete_all
+          @parser2.process
+          @@doc2_processed = true
+        end
+      end
+      
+      it "must create the expected number of sitting days" do
+        SittingDay.all.count.must_equal(16)
+      end
+      
+      it "must cope with business items scheduled for 12 noon"
+      
+      #Should it note the Whitsun adjournemnt? And if so, how?
+      #Multiple notes/marshalled list notes - needs to deal with these
+    end
+  end
 end
