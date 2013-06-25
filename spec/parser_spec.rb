@@ -144,7 +144,7 @@ class ParserTest < MiniTest::Spec
           @sitting_day = SittingDay.where(:date => Time.parse("2013-05-08 00:00:00Z")).first
         end
         
-        it "must the flagged as provisional" do
+        it "must be flagged as provisional" do
           @sitting_day.is_provisional.must_equal true
         end
         
@@ -178,7 +178,7 @@ class ParserTest < MiniTest::Spec
       end
       
       it "must create the expected number of sitting days" do
-        SittingDay.all.count.must_equal(16)
+        SittingDay.all.count.must_equal 16
       end
       
       it "must cope with business items scheduled for 12 noon" do
@@ -188,12 +188,17 @@ class ParserTest < MiniTest::Spec
       
       it "must cope with simple marshalled list notes" do
         sitting_day = SittingDay.where(:date => Time.parse("2013-05-31 00:00:00Z")).first
-        sitting_day.note.must_equal ("Last day to table amendments for the marshalled list for: Care Bill - Committee Day 1")
+        sitting_day.note.must_equal "Last day to table amendments for the marshalled list for: Care Bill - Committee Day 1"
       end
       
       it "must cope with multi-line marshalled list notes" do
         sitting_day = SittingDay.where(:date => Time.parse("2013-06-03 00:00:00Z")).first
-        sitting_day.note.must_equal ("House dinner in the Peers’ Dining Room at 7.30pm; Last day to table amendments for the marshalled list for: Rehabilitation of Offenders Bill - Committee Day 1; Mesothelioma Bill – Committee Day 1")
+        sitting_day.note.must_equal "House dinner in the Peers’ Dining Room at 7.30pm; Last day to table amendments for the marshalled list for: Rehabilitation of Offenders Bill - Committee Day 1; Mesothelioma Bill – Committee Day 1"
+      end
+      
+      it "should mark 9 of the sitting days as provisional" do
+        sitting_day = SittingDay.where(:is_provisional => true)
+        sitting_day.count.must_equal 9
       end
       
       # Should it note the Whitsun adjournment? And if so, how?
