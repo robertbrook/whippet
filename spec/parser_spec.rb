@@ -162,7 +162,7 @@ class ParserTest < MiniTest::Spec
   describe "Parser", "when given the Forthcoming Business for 9th May 2013 PDF as FB-TEST-2.PDF" do
     before do
       @@parser2 ||= Parser.new("./data/FB-TEST-2.pdf")
-      @paser = @@parser
+      @parser = @@parser2
     end
     
     describe "when asked to process the document" do
@@ -170,9 +170,7 @@ class ParserTest < MiniTest::Spec
         @@doc2_processed ||= false
         unless @@doc2_processed
           SittingDay.delete_all
-          
-          skip "Awaiting wiring"
-          @parser2.process
+          @parser.process
           @@doc2_processed = true
         end
       end
