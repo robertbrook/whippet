@@ -142,7 +142,7 @@ class ParserTest < MiniTest::Spec
           @sitting_day = SittingDay.where(:date => Time.parse("2013-05-08 00:00:00Z")).first
         end
         
-        it "must the flagged as provisional" do
+        it "must be flagged as provisional" do
           @sitting_day.is_provisional.must_equal true
         end
         
@@ -162,7 +162,7 @@ class ParserTest < MiniTest::Spec
   describe "Parser", "when given the Forthcoming Business for 9th May 2013 PDF as FB-TEST-2.PDF" do
     before do
       @@parser2 ||= Parser.new("./data/FB-TEST-2.pdf")
-      @paser = @@parser
+      @parser = @@parser2
     end
     
     describe "when asked to process the document" do
@@ -170,26 +170,54 @@ class ParserTest < MiniTest::Spec
         @@doc2_processed ||= false
         unless @@doc2_processed
           SittingDay.delete_all
-          
-          skip "Awaiting wiring"
-          @parser2.process
+          @parser.process
           @@doc2_processed = true
         end
       end
       
       it "must create the expected number of sitting days" do
-        SittingDay.all.count.must_equal(16)
+        SittingDay.all.count.must_equal 16
       end
       
       it "must cope with business items scheduled for 12 noon" do
-        skip "must cope with business items scheduled for 12 noon"
+        sitting_day = SittingDay.where(:date => Time.parse("2013-05-22 00:00:00Z")).first
+        sitting_day.time_blocks[1].time_as_number.must_equal 1200
       end
-            
-      # LC: Should it note the Whitsun adjournment? And if so, how?
-      # RB: no, let's defer that for now
       
-      # LC: Multiple notes/marshalled list notes - needs to deal with these
+      it "must cope with simple marshalled list notes" do
+        sitting_day = SittingDay.where(:date => Time.parse("2013-05-31 00:00:00Z")).first
+        sitting_day.note.must_equal "Last day to table amendments for the marshalled list for: Care Bill - Committee Day 1"
+      end
       
+      it "must cope with multi-line marshalled list notes" do
+        sitting_day = SittingDay.where(:date => Time.parse("2013-06-03 00:00:00Z")).first
+        sitting_day.note.must_equal "House dinner in the Peers’ Dining Room at 7.30pm; Last day to table amendments for the marshalled list for: Rehabilitation of Offenders Bill - Committee Day 1; Mesothelioma Bill – Committee Day 1"
+      end
+      
+      it "should mark 9 of the sitting days as provisional" do
+        sitting_day = SittingDay.where(:is_provisional => true)
+        sitting_day.count.must_equal 9
+      end
+      
+      # Should it note the Whitsun adjournment? And if so, how?
+    end
+  end
+
+  describe "Parser", "when given consecutive Forthcoming Business documents where one overrides the other" do
+    before do
+      @@parser3 ||= Parser.new("./data/FB 2013 03 13.pdf")
+      @@doc3_processed ||= false
+      unless @@doc3_processed
+        SittingDay.delete_all
+        @@parser3.process
+        @@parser3 = Parser.new("./data/FB 2013 03 20 r.pdf")
+        @@parser3.process
+        @@doc3_processed = true
+      end
+    end
+    
+    it "should create the expected number of sitting days" do
+      SittingDay.all.count.must_equal 24
     end
   end
 end

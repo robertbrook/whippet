@@ -42,7 +42,7 @@ class Parser
         case line
         
         #the end of the useful, the start of the notes section, we can stop now
-        when /Information/
+        when /^\s*Information\s*$/
           p "ok, ignoring the rest of this" if debug
           @fin = true
           break
@@ -168,11 +168,32 @@ class Parser
                   end
                 else
                   p "notes about the day: #{line}" if debug
-                  @current_sitting_day.note = line.strip
+                  if @current_sitting_day.note
+                    if @current_sitting_day.note[-1] == ":"
+                      @current_sitting_day.note += " #{line.strip}"
+                    else
+                      @current_sitting_day.note += "; #{line.strip}"
+                    end
+                  else
+                    @current_sitting_day.note = line.strip
+                  end
                 end
               else
                 @last_line_was_blank = false
-                p "Unhandled text: #{line}" if debug
+                if line.strip =~ /(L|l)ast day to table amendments/
+                  p "notes about the day (again!): #{line}" if debug
+                  if @current_sitting_day.note
+                    if @current_sitting_day.note[-1] == ":"
+                      @current_sitting_day.note += " #{line.strip}"
+                    else
+                      @current_sitting_day.note += "; #{line.strip}"
+                    end
+                  else
+                    @current_sitting_day.note = line.strip
+                  end
+                else                
+                  p "Unhandled text: #{line}" if debug
+                end
               end
             end
           end
