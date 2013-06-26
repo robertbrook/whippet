@@ -204,4 +204,22 @@ class ParserTest < MiniTest::Spec
       # Should it note the Whitsun adjournment? And if so, how?
     end
   end
+
+  describe "Parser", "when given consecutive Forthcoming Business documents where one overrides the other" do
+    before do
+      @@parser3 ||= Parser.new("./data/FB 2013 03 13.pdf")
+      @@doc3_processed ||= false
+      unless @@doc3_processed
+        SittingDay.delete_all
+        @@parser3.process
+        @@parser3 = Parser.new("./data/FB 2013 03 20 r.pdf")
+        @@parser3.process
+        @@doc3_processed = true
+      end
+    end
+    
+    it "should create the expected number of sitting days" do
+      SittingDay.all.count.must_equal 24
+    end
+  end
 end
