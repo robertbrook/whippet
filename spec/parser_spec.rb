@@ -181,11 +181,15 @@ class ParserTest < MiniTest::Spec
         SittingDay.all.count.must_equal(16)
       end
       
-      it "must cope with business items scheduled for 12 noon"
-      it "must go to the moon"
+      it "must cope with business items scheduled for 12 noon" do
+        skip "must cope with business items scheduled for 12 noon"
+      end
+            
+      # LC: Should it note the Whitsun adjournment? And if so, how?
+      # RB: no, let's defer that for now
       
-      # Should it note the Whitsun adjournment? And if so, how?
-      # Multiple notes/marshalled list notes - needs to deal with these
+      # LC: Multiple notes/marshalled list notes - needs to deal with these
+      
     end
   end
 end
