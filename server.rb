@@ -16,7 +16,7 @@ end
 
 get '/' do  
   @time = Time.now
-  @calendar_days = SittingDay.all(:order => :date.desc, :limit => 10)
+  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
   haml :index
 end
 
@@ -28,7 +28,7 @@ get '/cal' do
   	limit = 4
   end
   	
-  sitting_days = SittingDay.all(:order => :date.desc, :limit => limit)
+  sitting_days = CalendarDay.all(:order => :date.desc, :limit => limit)
   
   if params.has_key?("ics") # will respond to cal?ics
     content_type 'text/calendar'

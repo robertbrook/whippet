@@ -2,7 +2,7 @@ require "pdf/reader"
 require "nokogiri"
 require "mongo_mapper"
 
-require "./models/sitting_day"
+require "./models/calendar_day"
 require "./lib/pdf_page"
 
 class Parser
@@ -55,6 +55,9 @@ class Parser
         when /\b([A-Z]{2,}[DAY] \d+ [A-Z]+ \d{4})/
           p "new day detected, starting a new section: #{line}" if debug
           if @current_sitting_day
+            unless @current_sitting_day.respond_to?(:time_blocks)
+              @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
+            end
             @current_sitting_day.save
             @business << @current_sitting_day
           end
@@ -63,7 +66,7 @@ class Parser
           @in_item = false
           
           parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
-          if pre = SittingDay.where(:date => Time.parse(parsed_time)).first
+          if pre = CalendarDay.where(:date => Time.parse(parsed_time)).first
             #prepare to replace the existing info if the supplied pdf is newer
             if pre.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
               @current_sitting_day = pre
@@ -73,18 +76,18 @@ class Parser
             end
           else
             pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-            @current_sitting_day = SittingDay.create(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+            @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
           end
           
           if @provisional and @current_sitting_day
             @current_sitting_day.is_provisional = true
-            @current_sitting_day.save
           end
         
         #a new time
         when /^\s*Business/
           p "new time detected, starting a new sub-section: #{line}" if debug
           if @current_sitting_day
+            @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
             @last_line_was_blank = false
             @in_item = false
             block = TimeBlock.new
@@ -121,7 +124,7 @@ class Parser
             # first line of item
             item = BusinessItem.new
             item.description = line.strip
-          
+            
             pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
             item.pdf_info = pdf_info
             @current_time_block.business_items << item
@@ -157,7 +160,7 @@ class Parser
             else
               #the last line wasn't blank and we're not in item space - a note!
               if line =~ /^\s+\b[A-Z][a-z]/ and @last_line_was_blank == false
-                unless @current_sitting_day.time_blocks.empty?
+                if @current_sitting_day.respond_to?(:time_blocks) and @current_sitting_day.time_blocks.count > 0
                   if html.include?("<i><b>")
                     p html if debug
                     #not what we first took it for, not sure what do do with it... yet
@@ -201,6 +204,7 @@ class Parser
       end
     end
     if @current_sitting_day
+      @current_sitting_day = @current_sitting_day.becomes(NonSittingDay) unless @current_sitting_day.respond_to?(:time_blocks)
       @current_sitting_day.save
       @business << @current_sitting_day
     end
