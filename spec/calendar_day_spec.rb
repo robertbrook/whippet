@@ -4,13 +4,29 @@ require './spec/minitest_helper.rb'
 require './models/calendar_day'
 
 class CalendarDayTest < MiniTest::Spec  
-  describe "CalendarDay" do
+  describe "CalendarDay" do    
     describe "in general" do
       it "must be allow casting from CalendarDay to SittingDay" do
         day = CalendarDay.new(:note => "test")
         sitting_day = day.becomes(SittingDay)
         sitting_day.must_be_kind_of SittingDay
         sitting_day.note.must_equal "test"
+      end
+      
+      it "must return false for has_time_blocks? if not a SittingDay" do
+        ns = NonSittingDay.new
+        ns.has_time_blocks?.must_equal false
+      end
+      
+      it "must return false for has_time_blocks? if a SittingDay has no time_blocks" do
+        sit = SittingDay.new
+        sit.has_time_blocks?.must_equal false
+      end
+      
+      it "must return true for has_time_blocks? if a SittingDay has 1 or more time_blocks" do
+        sit = SittingDay.new
+        sit.time_blocks = [TimeBlock.new]
+        sit.has_time_blocks?.must_equal true
       end
       
       it "must be allow casting from CalendarDay to NonSittingDay" do

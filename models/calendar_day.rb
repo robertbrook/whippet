@@ -4,6 +4,11 @@ require "./lib/mm_monkeypatch"
 class CalendarDay
   include MongoMapper::Document
   
+  def has_time_blocks?
+    return true if respond_to?(:time_blocks) and time_blocks.count > 0
+    false
+  end
+  
   def diff(other)
     change = {}
     unless other.is_a?(CalendarDay)
