@@ -1,9 +1,5 @@
 source "http://rubygems.org"
 
-group :production do
-  ruby '1.9.3'
-end
-
 gem 'sinatra'
 gem 'pdf-reader'
 gem 'nokogiri'
@@ -13,6 +9,10 @@ gem 'json', '~> 1.7.7'
 gem 'rake'
 gem 'haml', :require => 'haml'
 gem 'ri_cal'
+
+group :production do
+  ruby '1.9.3'
+end
 
 group :development do
   gem 'shotgun'
