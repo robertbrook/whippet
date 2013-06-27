@@ -30,6 +30,7 @@ class Parser
     @in_item = false
     @current_sitting_day = nil
     @current_time_block = nil
+    @old_day = nil
     
     pages.each do |page|
       break if @fin
@@ -66,12 +67,17 @@ class Parser
           @in_item = false
           
           parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
-          if pre = CalendarDay.where(:date => Time.parse(parsed_time)).first
-            #prepare to replace the existing info if the supplied pdf is newer
-            if pre.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
-              @current_sitting_day = pre
+          prev = CalendarDay.where(:date => Time.parse(parsed_time)).first
+          if prev
+            if prev.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
+              #the found version is old, delete it and allow the new info to replace it
+              @old_day = prev.dup
+              prev.delete
               pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+              @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
             else
+              #the new data is old or a duplicate, ignore it
+              @old_day = nil
               @current_sitting_day = nil
             end
           else

@@ -17,6 +17,7 @@ class CalendarDay
   key :note, String
   key :accepted, Boolean
   key :is_provisional, Boolean
+  key :changes, Array
   key :pdf_info, Hash
 end
 

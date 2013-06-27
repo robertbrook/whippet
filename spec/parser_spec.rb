@@ -228,7 +228,6 @@ class ParserTest < MiniTest::Spec
     end
     
     it "should replace the older content with the new version" do
-      skip("code for this doesn't exist yet")
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
       sitting_day.time_blocks.count.must_equal 2
       sitting_day.time_blocks[0].business_items.count.must_equal 4
@@ -236,13 +235,43 @@ class ParserTest < MiniTest::Spec
     end
     
     it "should remove provisional status where elements are no longer down as provisional" do
-      skip("code for this doesn't exist yet")
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
       sitting_day.is_provisional.wont_equal true
     end
     
-    it "should archive all the [overlapping] things"
+    it "should capture the changes" do
+      skip "the code for this doesn't exist yet"
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.changes.wont_be_empty
+    end
+  end
+
+  describe "Parser", "when given consecutive Forthcoming Business documents in reverse order" do
+    before do
+      @@parser4 ||= Parser.new("./data/FB 2013 03 20 r.pdf")
+      @@doc4_processed ||= false
+      unless @@doc4_processed
+        CalendarDay.delete_all
+        @@parser4.process
+        @@parser4 = Parser.new("./data/FB 2013 03 13.pdf")
+        @@parser4.process
+        @@doc4_processed = true
+      end
+    end
     
-    it "should capture the changes"
+    it "should create the expected number of sitting days" do
+      CalendarDay.all.count.must_equal 24
+    end
+    
+    it "should create the expected number of sitting days" do
+      CalendarDay.all.count.must_equal 24
+    end
+    
+    it "should not replace new content with the older version" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.time_blocks.count.must_equal 2
+      sitting_day.time_blocks[0].business_items.count.must_equal 4
+      sitting_day.time_blocks[1].business_items.count.must_equal 6
+    end
   end
 end
