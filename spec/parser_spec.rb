@@ -25,24 +25,29 @@ class ParserTest < MiniTest::Spec
       before do
         @@doc_processed ||= false
         unless @@doc_processed
-          SittingDay.delete_all
+          CalendarDay.delete_all
           @parser.process
           @@doc_processed = true
         end
       end
       
       it "should not duplicate the items" do
-        SittingDay.all.count.must_equal(14)
+        CalendarDay.all.count.must_equal(14)
         @parser.process
-        SittingDay.all.count.must_equal(14)
+        CalendarDay.all.count.must_equal(14)
       end
       
       it "must find eight pages of content" do
         @parser.pages.length.must_equal 8
       end
       
-      it "must create a SittingDay for each date" do
-        SittingDay.all.count.must_equal(14)
+      it "must create a CalendarDay for each date" do
+        CalendarDay.all.count.must_equal(14)
+      end
+      
+      it "must create expected SittingDays and NonSittingDays" do
+        SittingDay.all.count.must_equal 11
+        NonSittingDay.all.count.must_equal 3
       end
       
       it "must create all the TimeBlocks" do
@@ -171,14 +176,14 @@ class ParserTest < MiniTest::Spec
       before do
         @@doc2_processed ||= false
         unless @@doc2_processed
-          SittingDay.delete_all
+          CalendarDay.delete_all
           @parser.process
           @@doc2_processed = true
         end
       end
       
-      it "must create the expected number of sitting days" do
-        SittingDay.all.count.must_equal 16
+      it "must create the expected number of days" do
+        CalendarDay.all.count.must_equal 16
       end
       
       it "must cope with business items scheduled for 12 noon" do
@@ -187,7 +192,7 @@ class ParserTest < MiniTest::Spec
       end
       
       it "must cope with simple marshalled list notes" do
-        sitting_day = SittingDay.where(:date => Time.parse("2013-05-31 00:00:00Z")).first
+        sitting_day = CalendarDay.where(:date => Time.parse("2013-05-31 00:00:00Z")).first
         sitting_day.note.must_equal "Last day to table amendments for the marshalled list for: Care Bill - Committee Day 1"
       end
       
@@ -197,7 +202,7 @@ class ParserTest < MiniTest::Spec
       end
       
       it "should mark 9 of the sitting days as provisional" do
-        sitting_day = SittingDay.where(:is_provisional => true)
+        sitting_day = CalendarDay.where(:is_provisional => true)
         sitting_day.count.must_equal 9
       end
       
@@ -210,7 +215,7 @@ class ParserTest < MiniTest::Spec
       @@parser3 ||= Parser.new("./data/FB 2013 03 13.pdf")
       @@doc3_processed ||= false
       unless @@doc3_processed
-        SittingDay.delete_all
+        CalendarDay.delete_all
         @@parser3.process
         @@parser3 = Parser.new("./data/FB 2013 03 20 r.pdf")
         @@parser3.process
@@ -219,7 +224,54 @@ class ParserTest < MiniTest::Spec
     end
     
     it "should create the expected number of sitting days" do
-      SittingDay.all.count.must_equal 24
+      CalendarDay.all.count.must_equal 24
+    end
+    
+    it "should replace the older content with the new version" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.time_blocks.count.must_equal 2
+      sitting_day.time_blocks[0].business_items.count.must_equal 4
+      sitting_day.time_blocks[1].business_items.count.must_equal 6
+    end
+    
+    it "should remove provisional status where elements are no longer down as provisional" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.is_provisional.wont_equal true
+    end
+    
+    it "should capture the changes" do
+      skip "the code for this doesn't exist yet"
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.changes.wont_be_empty
+    end
+  end
+
+  describe "Parser", "when given consecutive Forthcoming Business documents in reverse order" do
+    before do
+      @@parser4 ||= Parser.new("./data/FB 2013 03 20 r.pdf")
+      @@doc4_processed ||= false
+      unless @@doc4_processed
+        CalendarDay.delete_all
+        @@parser4.process
+        @@parser4 = Parser.new("./data/FB 2013 03 13.pdf")
+        @@parser4.process
+        @@doc4_processed = true
+      end
+    end
+    
+    it "should create the expected number of sitting days" do
+      CalendarDay.all.count.must_equal 24
+    end
+    
+    it "should create the expected number of sitting days" do
+      CalendarDay.all.count.must_equal 24
+    end
+    
+    it "should not replace new content with the older version" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.time_blocks.count.must_equal 2
+      sitting_day.time_blocks[0].business_items.count.must_equal 4
+      sitting_day.time_blocks[1].business_items.count.must_equal 6
     end
   end
 end

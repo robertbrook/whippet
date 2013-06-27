@@ -1,6 +1,6 @@
 %h2= day.date.strftime("%A, %e %B %Y")
 
-- if day.time_blocks.empty?
+- unless day.has_time_blocks?
   %p= day.note
 - else
   - day.time_blocks.each do |block|
