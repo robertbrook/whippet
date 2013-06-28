@@ -37,26 +37,29 @@ class ParserTest < MiniTest::Spec
         CalendarDay.all.count.must_equal(14)
       end
       
-      it "must find eight pages of content" do
+      it "must find all (8) pages of content" do
         @parser.pages.length.must_equal 8
       end
       
-      it "must create a CalendarDay for each date" do
+      it "must create a CalendarDay for each date (14 days)" do
         CalendarDay.all.count.must_equal(14)
       end
       
-      it "must create expected SittingDays and NonSittingDays" do
+      it "must create expected SittingDays (11)" do
         SittingDay.all.count.must_equal 11
+      end
+      
+      it "must create expected NonSittingDays (3)" do
         NonSittingDay.all.count.must_equal 3
       end
       
-      it "must create all the TimeBlocks" do
+      it "must create all the TimeBlocks (23)" do
         days = SittingDay.all
         blocks = days.map { |x| x.time_blocks }.flatten
         blocks.count.must_equal(23)
       end
       
-      it "must create all the BusinessItems" do
+      it "must create all the BusinessItems (43)" do
         days = SittingDay.all
         blocks = days.map { |x| x.time_blocks }.flatten
         items = blocks.map { |x| x.business_items }.flatten
@@ -80,11 +83,14 @@ class ParserTest < MiniTest::Spec
           @sitting_day.pdf_info[:last_edited].must_equal Time.parse("D:20130328102303Z")
         end
         
-        it "must have the page and line number info" do
+        it "must have the page numbered '1'" do
           @sitting_day.pdf_info[:page].must_equal(1)
+        end
+
+        it "must have the line numbered '13'" do
           @sitting_day.pdf_info[:line].must_equal(13)
         end
-        
+               
         it "must have two TimeBlocks" do
           @sitting_day.time_blocks.length.must_equal 2
         end
@@ -122,6 +128,11 @@ class ParserTest < MiniTest::Spec
           it "must not have any notes" do
             @time.note.must_be_nil
           end
+          
+          it "must have a first item with the text '1.  Oral questions (30 minutes) '" do
+            @time.business_items.first.must_equal "1.  Oral questions (30 minutes) "
+          end
+          
         end
         
         describe "when looking at 'Business in Grand Committee at 3.45pm'" do
@@ -206,7 +217,11 @@ class ParserTest < MiniTest::Spec
         sitting_day.count.must_equal 9
       end
       
-      # Should it note the Whitsun adjournment? And if so, how?
+      it "should it note the Whitsun adjournment" do
+      	skip "undecided"
+      end
+      	
+      	
     end
   end
 
