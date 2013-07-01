@@ -16,6 +16,7 @@ end
 
 group :development do
   gem 'shotgun'
+  gem 'thin'
 end
 
 group :test do
