@@ -13,6 +13,7 @@ GEM
     bson_ext (1.9.0)
       bson (~> 1.9.0)
     builder (3.0.4)
+    diff-lcs (1.2.4)
     haml (4.0.3)
       tilt
     hashery (2.1.0)
@@ -64,6 +65,7 @@ PLATFORMS
 
 DEPENDENCIES
   bson_ext
+  diff-lcs
   haml
   json (~> 1.7.7)
   minitest (= 5.0.1)
