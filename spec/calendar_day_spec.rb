@@ -79,6 +79,16 @@ class CalendarDayTest < MiniTest::Spec
         diff[:time_block_headings].to_s.must_equal "[[[\"+\", 1, \"Business in Grand Committee at 3.45pm\"]]]"
       end
       
+      it "must not return a list of changes if the time blocks are the same" do
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+        day1 = SittingDay.new()
+        day2 = SittingDay.new()
+        day1.time_blocks = [tb1]
+        day2.time_blocks = [tb2]
+        day1.diff(day2).must_be_empty
+      end
+      
       it "must return a list of changes and file info when a new time block is added" do
         tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
         tb2 = TimeBlock.new(

@@ -35,9 +35,12 @@ class CalendarDay
       else
         previous_block_headings = []
       end      
-      change[:time_block_headings] = Diff::LCS.diff(current_block_headings, previous_block_headings)
-      #now analyse that...
-      
+      diffs = Diff::LCS.diff(current_block_headings, previous_block_headings)
+      unless diffs == []
+        change[:time_block_headings] = diffs
+        diffs = change[:time_block_headings].first
+        #analyse changes
+      end
     end
     
     #the last bit - no change, no report; simples
