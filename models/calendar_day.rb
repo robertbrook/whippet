@@ -40,6 +40,19 @@ class CalendarDay
         change[:time_block_headings] = diffs
         diffs = change[:time_block_headings].first
         #analyse changes
+        if diffs.length > 1
+          #things were added, things were taken away
+          added_blocks = diffs.select { |x| x.adding? == false }
+          removed_blocks = diffs.select { |x| x.adding? }
+          removed_headings = removed_blocks.collect { |x| x.to_a.last }
+          added_blocks.each do |added|
+            heading = added.to_a.last
+            if removed_headings.include?(heading)
+              #it's been moved, not _removed_
+              #something different needs to be done
+            end
+          end
+        end
       end
     end
     
