@@ -1,5 +1,6 @@
 require "mongo_mapper"
 require "./lib/mm_monkeypatch"
+require "diff/lcs"
 
 class CalendarDay
   include MongoMapper::Document
@@ -14,12 +15,32 @@ class CalendarDay
     unless other.is_a?(CalendarDay)
       raise "Unable to compare #{self.class} to #{other.class}"
     end
-    #the easy bit
-    change[:note] = other.note if note != other.note
+    
+    #the easy bit - fixed simple values
+    comp_note = note.nil? ? "" : note
+    other_note = other.note.nil? ? "" : other.note
+    change[:note] = Diff::LCS.diff(comp_note, other_note) if note != other.note
     change[:_type] = other._type if _type != other._type
     change[:accepted] = other.accepted if accepted != other.accepted
     change[:is_provisional] = other.is_provisional if is_provisional != other.is_provisional
     
+    if self.has_time_blocks? or other.has_time_blocks?
+      if self.has_time_blocks?
+        current_block_headings = time_blocks.collect { |x| x.title }
+      else
+        current_block_headings = []
+      end
+      if other.has_time_blocks?
+        previous_block_headings = other.time_blocks.collect { |x| x.title }
+      else
+        previous_block_headings = []
+      end      
+      change[:time_block_headings] = Diff::LCS.diff(current_block_headings, previous_block_headings)
+      #now analyse that...
+      
+    end
+    
+    #the last bit - no change, no report; simples
     change[:pdf_info] = other.pdf_info unless change.empty?
     change
   end
