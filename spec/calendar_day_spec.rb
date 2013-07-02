@@ -114,7 +114,6 @@ class CalendarDayTest < MiniTest::Spec
       it "must record only the position change and origin data of a repositioned block if the contents have not changed"
       
       it "must see a time_block with a different time as an alteration to an existing block"
-      #wait, does this actually happen? There's no example of it among our sample files
       
       it "must not return any extra data for an added block"
     end
