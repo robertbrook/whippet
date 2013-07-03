@@ -11,11 +11,11 @@ desc "Parse PDFs in data directory"
 task :puller do |t|
   require "./lib/parser"
 
-Dir.glob('./data/*.pdf') do |pdf|
-  @parser = Parser.new(pdf)
-  @parser.process
-  p pdf
-end
+  Dir.glob('./data/*.pdf') do |pdf|
+    @parser = Parser.new(pdf)
+    @parser.process
+    p pdf
+  end
 
 end
 
