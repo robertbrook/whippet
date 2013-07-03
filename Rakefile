@@ -17,14 +17,18 @@ Dir.glob('./data/*.pdf') do |pdf|
   p pdf
 end
 
+end
 
+desc "Show target URL"
+task :target do
+  require "open-uri"
+  require "nokogiri"
 
-#require "open-uri"
-
-#target_link = ""
-#forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/display/templatedisplay1.asp?sectionid=7"))
-#target_link = forthcoming_business_page.css('a').reverse.select {|link| link['href'].include?("http://www.lordswhips.org.uk/documents/") }
+  forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/fb"))
+  target_link = forthcoming_business_page.css('a').detect {|link| link['href'].class == String and  link['href'].include? 'www.lordswhips.org.uk/download.axd?id='}
+  
+  
+  p URI::encode(target_link['href'])
 #io     = open(URI::encode(target_link[0]['href']))
-
 end
 
