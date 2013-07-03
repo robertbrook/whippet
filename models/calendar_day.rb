@@ -38,8 +38,8 @@ class CalendarDay
       previous_block_headings = other.has_time_blocks? ? other.time_blocks.collect { |x| x.title } : []
       current_block_headings.each do |heading|
         #assumes that the heading is unique
-        current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title = heading }.first : {}
-        previous_block = other.has_time_blocks? ? other.time_blocks.select { |x| x.title = heading }.first : {}
+        current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title == heading }.first : {}
+        previous_block = other.has_time_blocks? ? other.time_blocks.select { |x| x.title == heading }.first : {}
         if heading_in_list?(heading, previous_block_headings)
           block = {}
           #pre-existing thing...
@@ -52,15 +52,17 @@ class CalendarDay
       deleted_headings = previous_block_headings - current_block_headings
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        previous_block = other.time_blocks.select { |x| x.title = heading }.first        
+        previous_block = other.time_blocks.select { |x| x.title == heading }.first
+        
         block = {}
         block[:change_type] = "deleted"
         block[:title] = previous_block.title
-        block[:note] = previous_block.note
+        block[:note] = previous_block.note if previous_block.note
         block[:position] = previous_block.position
-        block[:is_provisional] = previous_block.is_provisional
+        block[:is_provisional] = previous_block.is_provisional if previous_block.is_provisional
         block[:pdf_info] = previous_block.pdf_info
-        #stash all the business_items also
+        #ToDo: stash all the business_items also
+        blocks << block
       end
       change[:time_blocks] = blocks unless blocks.empty?
     end
