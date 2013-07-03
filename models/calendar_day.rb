@@ -28,10 +28,17 @@ class CalendarDay
     if self.has_time_blocks? or other.has_time_blocks?
       current_block_headings = self.has_time_blocks? ? time_blocks.collect { |x| x.title } : []
       previous_block_headings = other.has_time_blocks? ? other.time_blocks.collect { |x| x.title } : []
-      diffs = Diff::LCS.diff(current_block_headings, previous_block_headings)
-      unless diffs == []
-        change[:time_block_headings] = diffs
-        analyse_diffs(change, change[:time_block_headings].first, self.time_blocks, other.time_blocks)
+      current_block_headings.each do |heading|
+        if heading_in_list?(heading, previous_block_headings)
+          #pre-existing thing...
+          #do comparisons, including positioning
+        else
+          #a new thing!
+        end
+        deleted_headings = previous_block_headings - current_block_headings
+        unless deleted_headings.empty?
+          #process the deleted things
+        end
       end
     end
     
@@ -57,46 +64,8 @@ class CalendarDay
   key :pdf_info, Hash
   
   private
-    def analyse_diffs(change, diffs, new_time_blocks, old_time_blocks)
-      added_blocks = diffs.select { |x| x.adding? == false }
-      removed_blocks = diffs.select { |x| x.adding? }
-      if diffs.length > 1
-        #things were added and things were taken away
-        removed_headings = removed_blocks.collect { |x| x.to_a.last }
-        added_blocks.each do |added|
-          heading = added.to_a.last
-          if heading_moved?(heading, removed_headings, true)
-            #it's been moved, not _removed_
-            #something different needs to be done
-            diff_business_items(added)
-          end
-        end
-      elsif added_blocks.empty?
-        #thing(s) removed
-        removed_blocks.each do |block|
-          #record what the thing used to be
-          #and where it (last) came from
-          diff_business_items(block)
-        end
-      end
-    end
-    
-    def heading_moved?(heading, heading_list, check_time=false)
+    def heading_in_list?(heading, heading_list)
       return true if heading_list.include?(heading)
-      if check_time
-        heading_list.each do |old_heading|
-          if old_heading =~ /Business in (.*) at (.*)/
-            chamber = $1
-            time = $2
-            if heading =~ /Business in (.*) at (.*)/
-              if $1 == chamber and $2 != time
-                #p "time change: was #{$2}, now #{time}"
-                return true
-              end
-            end
-          end
-        end
-      end
       false
     end
     
