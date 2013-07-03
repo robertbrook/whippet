@@ -64,20 +64,6 @@ class CalendarDayTest < MiniTest::Spec
         diff[:_type].must_equal "NonSittingDay"
       end
       
-      it "must return a list of changes when a time block is removed" do
-        skip ("being rewritten")
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
-        current_day = SittingDay.new()
-        longer_day = SittingDay.new()
-        current_day.time_blocks = [tb1]
-        longer_day.time_blocks = [tb1, tb2]
-        
-        # We're comparing the current (new, incoming) position with the old one
-        # therefore the diff therefore represents the changes that would be applied on rollback?
-        diff = current_day.diff(longer_day)
-      end
-      
       it "must not return a list of changes if the time blocks are the same" do
         tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
         tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
@@ -88,7 +74,21 @@ class CalendarDayTest < MiniTest::Spec
         day1.diff(day2).must_be_empty
       end
       
-      it "must return a list of changes and file info when a new time block is added" do
+      it "must return a change_type of 'new' and the title when a time block is added" do
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+        current_day = SittingDay.new()
+        shorter_day = SittingDay.new()
+        shorter_day.time_blocks = [tb1]
+        current_day.time_blocks = [tb1, tb2]
+        
+        diff = current_day.diff(shorter_day)
+        
+        block_changes = diff[:time_blocks]
+        block_changes.must_equal [{:change_type => "new", :title => "Business in Grand Committee at 3.45pm"}]
+      end
+      
+      it "must return a change_type of 'deleted' and all the original info when a time block is removed" do
         skip ("being rewritten")
         tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
         tb2 = TimeBlock.new(
@@ -98,12 +98,12 @@ class CalendarDayTest < MiniTest::Spec
             line: 29,
             last_edited: "2013-03-28T10:23:03Z"
           })
-        shorter_day = SittingDay.new()
+        longer_day = SittingDay.new()
         current_day = SittingDay.new()
-        shorter_day.time_blocks = [tb1]
-        current_day.time_blocks = [tb1, tb2]
+        current_day.time_blocks = [tb1]
+        longer_day.time_blocks = [tb1, tb2]
         
-        diff = current_day.diff(shorter_day)
+        diff = current_day.diff(longer_day)
       end
       
       it "must be able to tell the difference between a removed and a repositioned block"
