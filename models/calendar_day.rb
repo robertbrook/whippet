@@ -118,6 +118,7 @@ class TimeBlock
   key :time_as_number, Integer
   key :title, String
   key :note, String
+  key :position, Integer
   key :is_provisional, Boolean
   key :pdf_info, Hash
 end
@@ -126,6 +127,7 @@ class BusinessItem
   include MongoMapper::EmbeddedDocument
   
   key :description, String
+  key :position, Integer
   key :note, String
   key :pdf_info, Hash
 end

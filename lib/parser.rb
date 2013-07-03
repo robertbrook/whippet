@@ -31,6 +31,8 @@ class Parser
     @current_sitting_day = nil
     @current_time_block = nil
     @old_day = nil
+    @block_position = 0
+    @item_position = 0
     
     pages.each do |page|
       break if @fin
@@ -75,6 +77,8 @@ class Parser
               prev.delete
               pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
               @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+              @block_position = 0
+              @item_position = 0
             else
               #the new data is old or a duplicate, ignore it
               @old_day = nil
@@ -83,6 +87,8 @@ class Parser
           else
             pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
             @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+            @block_position = 0
+            @item_position = 0
           end
           
           if @provisional and @current_sitting_day
@@ -96,7 +102,10 @@ class Parser
             @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
             @last_line_was_blank = false
             @in_item = false
+            @block_position +=1
+            @item_position = 0
             block = TimeBlock.new
+            block.position = @block_position
             time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
             if time_matches[4] == "p"
               block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
@@ -128,7 +137,9 @@ class Parser
             @last_line_was_blank = false
             @in_item = true
             # first line of item
+            @item_position +=1
             item = BusinessItem.new
+            item.position = @item_position
             item.description = line.strip
             
             pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}

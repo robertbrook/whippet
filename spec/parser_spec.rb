@@ -99,6 +99,11 @@ class ParserTest < MiniTest::Spec
           @sitting_day.time_blocks.last.title.must_equal "Business in Grand Committee at 3.45pm"
           @sitting_day.time_blocks.last.time_as_number.must_equal 1545
         end
+        
+        it "must record the position of each TimeBlock" do
+          @sitting_day.time_blocks.first.position.must_equal 1
+          @sitting_day.time_blocks.last.position.must_equal 2
+        end
                 
         describe "when looking at 'Business in the Chamber at 11.00am'" do
           before do
@@ -117,6 +122,13 @@ class ParserTest < MiniTest::Spec
           it "must set page and line info for the business items" do
             @time.business_items[2].pdf_info[:page].must_equal(1)
             @time.business_items[2].pdf_info[:line].must_equal(21)
+          end
+          
+          it "must record the positions of the business items" do
+            @time.business_items[0].position.must_equal 1
+            @time.business_items[1].position.must_equal 2
+            @time.business_items[2].position.must_equal 3
+            @time.business_items[3].position.must_equal 4
           end
           
           it "must not have any notes" do
