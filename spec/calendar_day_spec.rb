@@ -175,23 +175,49 @@ class CalendarDayTest < MiniTest::Spec
       end
       
       describe "when a block is modified" do
+        before do
+          @tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+          @tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
+          @longer_day = SittingDay.new()
+          @current_day = SittingDay.new()
+        end
+        
         it "must return a change_type of 'modified' for the block" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-          tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
+          @current_day.time_blocks = [@tb1]
+          @longer_day.time_blocks = [@tb2]
           
-          longer_day = SittingDay.new()
-          current_day = SittingDay.new()
-          current_day.time_blocks = [tb1]
-          longer_day.time_blocks = [tb2]
-          
-          diff = current_day.diff(longer_day)
+          diff = @current_day.diff(@longer_day)
           
           block_changes = diff[:time_blocks]
           block_changes.first[:change_type].must_equal "modified"
         end
+        
+        describe "when a business item has been added" do
+          it "must return a change_type of 'new' for the item" do
+            item = BusinessItem.new(:description => "description goes here", :position => 1)
+            @tb1.business_items = [item]
+            @current_day.time_blocks = [@tb1]
+            @longer_day.time_blocks = [@tb2]
+            
+            diff = @current_day.diff(@longer_day)
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.first[:change_type].must_equal "new"
+          end
+          
+          it "must return the description for the item" do
+            item = BusinessItem.new(:description => "description goes here", :position => 1)
+            @tb1.business_items = [item]
+            @current_day.time_blocks = [@tb1]
+            @longer_day.time_blocks = [@tb2]
+            
+            diff = @current_day.diff(@longer_day)
+            
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.must_be_instance_of Array
+            item_changes.must_equal [{:change_type => "new", :description => "description goes here"}]
+          end
+        end
       end
-      
-      it "must record only the position change and origin data of a repositioned block if the contents have not changed"
     end
   end
 end

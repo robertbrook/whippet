@@ -112,9 +112,28 @@ class CalendarDay
       items
     end
     
-    def compare_business_items(current_block, previous_block)
+    def compare_business_items(current_block, last_block)
       items = []
-      #do stuff
+      
+      current_headings = current_block.business_items.empty? ? [] : current_block.business_items.collect { |x| x.description }
+      previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.collect { |x| x.description }
+      
+      current_headings.each do |heading|
+        if heading_in_list?(heading, previous_headings)
+          #pre-existing thing...
+        else
+          #a new thing, just need to note it's arrival
+          item = {}
+          item[:change_type] = "new"
+          item[:description] = heading
+          items << item
+        end
+      end
+      deleted_headings = previous_headings - current_headings
+      deleted_headings.each do |heading|
+        #assumes that the heading is unique
+        previous_item = last_item.business_item.select { |x| x.description == heading }.first
+      end
       items
     end
 end
