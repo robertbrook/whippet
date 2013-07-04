@@ -41,9 +41,19 @@ class CalendarDay
         current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title == heading }.first : {}
         previous_block = other.has_time_blocks? ? other.time_blocks.select { |x| x.title == heading }.first : {}
         if heading_in_list?(heading, previous_block_headings)
-          block = {}
           #pre-existing thing...
-          #do comparisons, including positioning
+          block = {}
+          
+          block[:note] = previous_block.note unless previous_block.note == current_block.note
+          block[:position] = previous_block.position unless previous_block.position == current_block.position
+          block[:is_provisional] = previous_block.is_provisional unless previous_block.is_provisional == current_block.is_provisional
+          
+          #ToDo: full comparisons, including positioning
+          unless block.empty?
+            block[:change_type] = "modified"
+            block[:pdf_info] = previous_block.pdf_info
+            blocks << block
+          end
         else
           #a new thing, just need to note it's arrival
           blocks << {:title => current_block.title, :change_type => "new"}

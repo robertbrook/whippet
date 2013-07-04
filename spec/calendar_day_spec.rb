@@ -74,54 +74,101 @@ class CalendarDayTest < MiniTest::Spec
         day1.diff(day2).must_be_empty
       end
       
-      it "must return a change_type of 'new' and the title when a time block is added" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
-        current_day = SittingDay.new()
-        shorter_day = SittingDay.new()
-        shorter_day.time_blocks = [tb1]
-        current_day.time_blocks = [tb1, tb2]
+      describe "when a time block is added" do
+        it "must return change_type of 'new' for the block" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          current_day = SittingDay.new()
+          shorter_day = SittingDay.new()
+          shorter_day.time_blocks = [tb1]
+          current_day.time_blocks = [tb1, tb2]
+          
+          diff = current_day.diff(shorter_day)
+          
+          block_changes = diff[:time_blocks]
+          block_changes.first[:change_type].must_equal "new"
+        end
         
-        diff = current_day.diff(shorter_day)
-        
-        block_changes = diff[:time_blocks]
-        block_changes.must_be_instance_of Array
-        block_changes.must_equal [{:change_type => "new", :title => "Business in Grand Committee at 3.45pm"}]
+        it "must return the title for the block" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          current_day = SittingDay.new()
+          shorter_day = SittingDay.new()
+          shorter_day.time_blocks = [tb1]
+          current_day.time_blocks = [tb1, tb2]
+          
+          diff = current_day.diff(shorter_day)
+          
+          block_changes = diff[:time_blocks]
+          block_changes.must_be_instance_of Array
+          block_changes.must_equal [{:change_type => "new", :title => "Business in Grand Committee at 3.45pm"}]
+        end
       end
       
-      it "must return a change_type of 'deleted' and all the original info when a time block is removed" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
-        tb2.position = 2
-        tb2.pdf_info = {
-            filename: "FB-TEST.pdf",
-            page: 1,
-            line: 29,
-            last_edited: "2013-03-28T10:23:03Z"
-          }
+      describe "when a time block is deleted" do
+        it "must return a change_type of 'deleted' for the block" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm",)
+          tb2.position = 2
+          
+          longer_day = SittingDay.new()
+          current_day = SittingDay.new()
+          current_day.time_blocks = [tb1]
+          longer_day.time_blocks = [tb1, tb2]
+          
+          diff = current_day.diff(longer_day)
+          
+          block_changes = diff[:time_blocks]
+          block_changes.first[:change_type].must_equal "deleted"
+        end
         
-        longer_day = SittingDay.new()
-        current_day = SittingDay.new()
-        current_day.time_blocks = [tb1]
-        longer_day.time_blocks = [tb1, tb2]
+        it "must return all the details of the deleted block" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb2.position = 2
+          tb2.pdf_info = {
+              filename: "FB-TEST.pdf",
+              page: 1,
+              line: 29,
+              last_edited: "2013-03-28T10:23:03Z"
+            }
+          
+          longer_day = SittingDay.new()
+          current_day = SittingDay.new()
+          current_day.time_blocks = [tb1]
+          longer_day.time_blocks = [tb1, tb2]
+          
+          diff = current_day.diff(longer_day)
+          
+          block_changes = diff[:time_blocks]
+          block_changes.must_equal [
+            {:change_type => "deleted", 
+             :title => "Business in Grand Committee at 3.45pm",
+             :position => 2,
+             :pdf_info=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}]
+        end
         
-        diff = current_day.diff(longer_day)
-        
-        block_changes = diff[:time_blocks]
-        block_changes.must_equal [
-          {:change_type => "deleted", 
-           :title => "Business in Grand Committee at 3.45pm",
-           :position => 2,
-           :pdf_info=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}]
+        it "must return all the business_item data for removed time_blocks"
       end
       
-      it "must return all the business_item data for removed time_blocks"
-      
-      it "must be able to tell the difference between a removed and a repositioned block"
+      describe "when a block is modified" do
+        it "must return a change_type of 'modified' for the block" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+          tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
+          
+          longer_day = SittingDay.new()
+          current_day = SittingDay.new()
+          current_day.time_blocks = [tb1]
+          longer_day.time_blocks = [tb2]
+          
+          diff = current_day.diff(longer_day)
+          
+          block_changes = diff[:time_blocks]
+          block_changes.first[:change_type].must_equal "modified"
+        end
+      end
       
       it "must record only the position change and origin data of a repositioned block if the contents have not changed"
-      
-      it "must not return any extra data for an added block"
     end
   end
 end
