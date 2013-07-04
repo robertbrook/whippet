@@ -218,10 +218,11 @@ class ParserTest < MiniTest::Spec
       end
       
       it "should it note the Whitsun adjournment" do
-      	skip "undecided"
+        skip "undecided"
       end
-      	
-      	
+      
+      it "should not append the page number to the last business item on the page"
+      # 2013-06-05, "Business in Grand Committee at 3.45pm", Lord Freud 6
     end
   end
 
