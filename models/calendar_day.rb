@@ -46,8 +46,9 @@ class CalendarDay
           block[:note] = previous_block.note unless previous_block.note == current_block.note
           block[:position] = previous_block.position unless previous_block.position == current_block.position
           block[:is_provisional] = previous_block.is_provisional unless previous_block.is_provisional == current_block.is_provisional
+          bus_items = compare_business_items(current_block, previous_block)
+          block[:business_items] = bus_items unless bus_items.empty?
           
-          compare_business_items(current_block, previous_block, block)
           unless block.empty?
             block[:change_type] = "modified"
             block[:pdf_info] = previous_block.pdf_info
@@ -111,8 +112,10 @@ class CalendarDay
       items
     end
     
-    def compare_business_items(current_block, previous_block, changes)
-      
+    def compare_business_items(current_block, previous_block)
+      items = []
+      #do stuff
+      items
     end
 end
 
