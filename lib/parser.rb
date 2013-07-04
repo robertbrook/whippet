@@ -58,6 +58,11 @@ class Parser
           if @current_sitting_day
             unless @current_sitting_day.respond_to?(:time_blocks)
               @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
+            else  
+              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
+                item = @current_sitting_day.time_blocks.last.business_items.last
+                item.description = item.description.rstrip
+              end
             end
             @current_sitting_day.save
             @business << @current_sitting_day
@@ -94,6 +99,10 @@ class Parser
           p "new time detected, starting a new sub-section: #{line}" if debug
           if @current_sitting_day
             @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
+            if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
+              item = @current_sitting_day.time_blocks.last.business_items.last
+              item.description = item.description.rstrip
+            end
             @last_line_was_blank = false
             @in_item = false
             block = TimeBlock.new
@@ -117,7 +126,7 @@ class Parser
           end
         
         #a page number
-        when /^\s*(\d+)\n/
+        when /^\s*(\d+)\n?$/
           page_number = $1
           p "** end of page #{page_number} **" if debug
         
@@ -141,6 +150,10 @@ class Parser
           if @current_sitting_day
             if @last_line_was_blank and @in_item
               p "A blank following a blank line, resetting the itemflag" if debug
+              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
+                item = @current_sitting_day.time_blocks.last.business_items.last
+                item.description = item.description.rstrip
+              end
               @in_item = false
             end
             @last_line_was_blank = true
@@ -161,7 +174,7 @@ class Parser
               last_item = @current_time_block.business_items.last
               new_desc = "#{last_item.description} #{line.strip}"
               last_item.description = new_desc
-            
+              
               p "item text replaced with: #{new_desc}" if debug
             else
               #the last line wasn't blank and we're not in item space - a note!

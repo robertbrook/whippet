@@ -225,7 +225,7 @@ class ParserTest < MiniTest::Spec
         # 2013-06-05, "Business in Grand Committee at 3.45pm", Lord Freud 6
         sitting_day = SittingDay.where(:date => Time.parse("2013-06-05 000:000:00Z")).first
         block = sitting_day.time_blocks.last
-        block.business_items.first.description.must_equal "1. Mesothelioma Bill [HL] – Committee (Day 1) – Lord Freud"
+        block.business_items.first.description.must_equal "1.  Mesothelioma Bill [HL] – Committee (Day 1) – Lord Freud"
       end
     end
   end
