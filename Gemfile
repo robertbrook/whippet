@@ -12,11 +12,11 @@ gem 'ri_cal'
 
 group :production do
   ruby '1.9.3'
+  gem 'thin'
 end
 
 group :development do
   gem 'shotgun'
-  gem 'thin'
 end
 
 group :test do
