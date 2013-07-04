@@ -64,7 +64,7 @@ class CalendarDay
             blocks << block
           end
         else
-          #a new thing, just need to note it's arrival
+          #a new thing, just need to note its arrival
           blocks << {:title => current_block.title, :change_type => "new"}
         end
       end
@@ -122,7 +122,7 @@ class CalendarDay
         if heading_in_list?(heading, previous_headings)
           #pre-existing thing...
         else
-          #a new thing, just need to note it's arrival
+          #a new thing, just need to note its arrival
           item = {}
           item[:change_type] = "new"
           item[:description] = heading
