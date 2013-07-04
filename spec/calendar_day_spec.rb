@@ -148,7 +148,30 @@ class CalendarDayTest < MiniTest::Spec
              :pdf_info=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}]
         end
         
-        it "must return all the business_item data for removed time_blocks"
+        it "must return all the business_item data for removed time_blocks" do
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb2.position = 2
+          item = BusinessItem.new(:description => "Further business will be scheduled", :position => 1)
+          tb2.business_items = [item]
+          
+          longer_day = SittingDay.new()
+          current_day = SittingDay.new()
+          current_day.time_blocks = [tb1]
+          longer_day.time_blocks = [tb1, tb2]
+          
+          diff = current_day.diff(longer_day)
+          
+          block_change = diff[:time_blocks].first
+          block_change[:change_type].must_equal "deleted"
+          item_changes = block_change[:business_items]
+          item_changes.must_be_instance_of Array
+          item_changes.length.must_equal 1
+          change = item_changes.first
+          change[:change_type].must_equal "deleted"
+          change[:description].must_equal "Further business will be scheduled"
+          change[:position].must_equal 1
+        end
       end
       
       describe "when a block is modified" do

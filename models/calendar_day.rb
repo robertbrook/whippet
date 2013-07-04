@@ -43,12 +43,11 @@ class CalendarDay
         if heading_in_list?(heading, previous_block_headings)
           #pre-existing thing...
           block = {}
-          
           block[:note] = previous_block.note unless previous_block.note == current_block.note
           block[:position] = previous_block.position unless previous_block.position == current_block.position
           block[:is_provisional] = previous_block.is_provisional unless previous_block.is_provisional == current_block.is_provisional
           
-          #ToDo: full comparisons, including positioning
+          compare_business_items(current_block, previous_block, block)
           unless block.empty?
             block[:change_type] = "modified"
             block[:pdf_info] = previous_block.pdf_info
@@ -71,7 +70,8 @@ class CalendarDay
         block[:position] = previous_block.position
         block[:is_provisional] = previous_block.is_provisional if previous_block.is_provisional
         block[:pdf_info] = previous_block.pdf_info
-        #ToDo: stash all the business_items also
+        bus_items = copy_business_items(previous_block, block)
+        block[:business_items] = bus_items unless bus_items.empty?
         blocks << block
       end
       change[:time_blocks] = blocks unless blocks.empty?
@@ -97,7 +97,22 @@ class CalendarDay
       false
     end
     
-    def diff_business_items(block, other_block=nil)
+    def copy_business_items(previous_block, changes)
+      items = []
+      previous_block.business_items.each do |prev_item|
+        item = {}
+        item[:change_type] = "deleted"
+        item[:description] = prev_item.description
+        item[:position] = prev_item.position
+        item[:note] = prev_item.note if prev_item.note
+        item[:pdf_info] = prev_item.pdf_info
+        items << item
+      end
+      items
+    end
+    
+    def compare_business_items(current_block, previous_block, changes)
+      
     end
 end
 
