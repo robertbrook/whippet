@@ -217,6 +217,18 @@ class CalendarDayTest < MiniTest::Spec
             item_changes.must_equal [{:change_type => "new", :description => "description goes here"}]
           end
         end
+        
+        describe "when a business item has been deleted" do
+          it "must return a change_type of 'deleted' for the item"
+          
+          it "must return all the details of the item"
+        end
+        
+        describe "when a business item has been modified" do
+          it "must return a change_type of 'modified' for the item"
+          
+          it "must return the diffs/new values for the changed fields"
+        end
       end
     end
   end
