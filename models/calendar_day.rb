@@ -17,6 +17,15 @@ class CalendarDay
     false
   end
   
+  def becomes(klass)
+    became = klass.new
+    self.instance_variables.each do |var|
+      became.instance_variable_set("#{var}", self.instance_variable_get(var))
+    end
+    became._type = klass.name
+    became
+  end
+  
   def diff(other)
     change = {}
     unless other.is_a?(CalendarDay)
@@ -81,15 +90,6 @@ class CalendarDay
     #the last bit - no change, no report; simples
     change[:pdf_info] = other.pdf_info unless change.empty?
     change
-  end
-  
-  def becomes(klass)
-    became = klass.new
-    self.instance_variables.each do |var|
-      became.instance_variable_set("#{var}", self.instance_variable_get(var))
-    end
-    became._type = klass.name
-    became
   end
   
   private
