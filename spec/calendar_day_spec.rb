@@ -53,7 +53,7 @@ class CalendarDayTest < MiniTest::Spec
         day.diff(day2).must_be_empty
       end
       
-      it "must return alt values for each of the simple attributes when they change" do
+      it "must return the original values for each of the simple attributes that have changed" do
         current_day = SittingDay.new(:accepted => true)
         previous_day = NonSittingDay.new(:note => "House not expected to sit", :accepted => false, :is_provisional => false)
         diff = current_day.diff(previous_day)
@@ -276,7 +276,7 @@ class CalendarDayTest < MiniTest::Spec
             item_changes.first[:change_type].must_equal "modified"
           end
           
-          it "must return the new values for the changed fields" do
+          it "must return the original values of the changed fields" do
             item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
             item2 = BusinessItem.new(:description => "2.  description goes here")
             item2.position = 2
