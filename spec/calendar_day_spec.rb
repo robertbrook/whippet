@@ -53,12 +53,12 @@ class CalendarDayTest < MiniTest::Spec
         day.diff(day2).must_be_empty
       end
       
-      it "must return diffs/alt values for each of the simple attributes when they change" do
+      it "must return alt values for each of the simple attributes when they change" do
         current_day = SittingDay.new(:accepted => true)
         previous_day = NonSittingDay.new(:note => "House not expected to sit", :accepted => false, :is_provisional => false)
         diff = current_day.diff(previous_day)
         
-        diff[:note].to_s.must_equal "[[[\"+\", 0, \"H\"], [\"+\", 1, \"o\"], [\"+\", 2, \"u\"], [\"+\", 3, \"s\"], [\"+\", 4, \"e\"], [\"+\", 5, \" \"], [\"+\", 6, \"n\"], [\"+\", 7, \"o\"], [\"+\", 8, \"t\"], [\"+\", 9, \" \"], [\"+\", 10, \"e\"], [\"+\", 11, \"x\"], [\"+\", 12, \"p\"], [\"+\", 13, \"e\"], [\"+\", 14, \"c\"], [\"+\", 15, \"t\"], [\"+\", 16, \"e\"], [\"+\", 17, \"d\"], [\"+\", 18, \" \"], [\"+\", 19, \"t\"], [\"+\", 20, \"o\"], [\"+\", 21, \" \"], [\"+\", 22, \"s\"], [\"+\", 23, \"i\"], [\"+\", 24, \"t\"]]]"
+        diff[:note].must_equal "House not expected to sit"
         diff[:accepted].must_equal false
         diff[:is_provisional].must_equal false
         diff[:_type].must_equal "NonSittingDay"
@@ -276,7 +276,7 @@ class CalendarDayTest < MiniTest::Spec
             item_changes.first[:change_type].must_equal "modified"
           end
           
-          it "must return the diffs/new values for the changed fields" do
+          it "must return the new values for the changed fields" do
             item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
             item2 = BusinessItem.new(:description => "2.  description goes here")
             item2.position = 2

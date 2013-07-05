@@ -13,7 +13,6 @@ GEM
     bson_ext (1.9.0)
       bson (~> 1.9.0)
     builder (3.0.4)
-    diff-lcs (1.2.4)
     haml (4.0.3)
       tilt
     hashery (2.1.0)
@@ -44,7 +43,7 @@ GEM
     rack (1.5.2)
     rack-protection (1.5.0)
       rack
-    rake (10.0.4)
+    rake (10.1.0)
     ri_cal (0.8.8)
     ruby-rc4 (0.1.5)
     shotgun (0.9)
@@ -65,7 +64,6 @@ PLATFORMS
 
 DEPENDENCIES
   bson_ext
-  diff-lcs
   haml
   json (~> 1.7.7)
   minitest (= 5.0.1)

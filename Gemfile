@@ -9,7 +9,6 @@ gem 'json', '~> 1.7.7'
 gem 'rake'
 gem 'haml', :require => 'haml'
 gem 'ri_cal'
-gem 'diff-lcs'
 
 group :production do
   ruby '1.9.3'

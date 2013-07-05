@@ -1,6 +1,5 @@
 require "mongo_mapper"
 require "./lib/mm_monkeypatch"
-require "diff/lcs"
 
 class CalendarDay
   include MongoMapper::Document
@@ -35,7 +34,7 @@ class CalendarDay
     #the easy bit - fixed simple values
     comp_note = note.nil? ? "" : note
     other_note = other.note.nil? ? "" : other.note
-    change[:note] = Diff::LCS.diff(comp_note, other_note) if note != other.note
+    change[:note] = other_note if note != other.note
     change[:_type] = other._type if _type != other._type
     change[:accepted] = other.accepted if accepted != other.accepted
     change[:is_provisional] = other.is_provisional if is_provisional != other.is_provisional
