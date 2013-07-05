@@ -194,7 +194,7 @@ class CalendarDayTest < MiniTest::Spec
         
         describe "when a business item has been added" do
           it "must return a change_type of 'new' for the item" do
-            item = BusinessItem.new(:description => "description goes here", :position => 1)
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb1]
             @longer_day.time_blocks = [@tb2]
@@ -205,7 +205,7 @@ class CalendarDayTest < MiniTest::Spec
           end
           
           it "must return the description for the item" do
-            item = BusinessItem.new(:description => "description goes here", :position => 1)
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb1]
             @longer_day.time_blocks = [@tb2]
@@ -214,18 +214,67 @@ class CalendarDayTest < MiniTest::Spec
             
             item_changes = diff[:time_blocks].first[:business_items]
             item_changes.must_be_instance_of Array
-            item_changes.must_equal [{:change_type => "new", :description => "description goes here"}]
+            item_changes.must_equal [{:change_type => "new", :description => "1.  description goes here"}]
           end
         end
         
         describe "when a business item has been deleted" do
-          it "must return a change_type of 'deleted' for the item"
+          it "must return a change_type of 'deleted' for the item" do
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            @tb1.business_items = [item]
+            @current_day.time_blocks = [@tb2]
+            @longer_day.time_blocks = [@tb1]
+            
+            diff = @current_day.diff(@longer_day)
+            
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.first[:change_type].must_equal "deleted"
+          end
           
-          it "must return all the details of the item"
+          it "must return all the details of the original item" do
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :pdf_info => {})
+            @tb1.business_items = [item]
+            @current_day.time_blocks = [@tb2]
+            @longer_day.time_blocks = [@tb1]
+            
+            diff = @current_day.diff(@longer_day)
+            
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.must_be_instance_of Array
+            item_changes.must_equal [
+                {:change_type => "deleted", 
+                 :description => "1.  description goes here",
+                 :position => 1, 
+                 :pdf_info => {}}]
+          end
         end
         
         describe "when a business item has been modified" do
-          it "must return a change_type of 'modified' for the item"
+          it "must return a change_type of 'modified' for the item" do
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :note => "note added")
+            @tb1.business_items = [item1]
+            @tb2.business_items = [item2]
+            @current_day.time_blocks = [@tb1]
+            @longer_day.time_blocks = [@tb2]
+            
+            diff = @current_day.diff(@longer_day)
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.first[:change_type].must_equal "modified"
+          end
+          
+          it "must see a positional change as a modification, despite the effect on the description text" do
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item2 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :note => "note added")
+            @tb1.business_items = [item1]
+            @tb2.business_items = [item2]
+            @current_day.time_blocks = [@tb1]
+            @longer_day.time_blocks = [@tb2]
+            
+            diff = @current_day.diff(@longer_day)
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.first[:change_type].must_equal "modified"
+          end
           
           it "must return the diffs/new values for the changed fields"
         end

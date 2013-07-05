@@ -119,8 +119,11 @@ class CalendarDay
       previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.collect { |x| x.description }
       
       current_headings.each do |heading|
-        if heading_in_list?(heading, previous_headings)
+        if heading_in_list?(heading.gsub(/^\d+\.\s*/, ""), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "") })
           #pre-existing thing...
+          item = {}
+          item[:change_type] = "modified"
+          items << item
         else
           #a new thing, just need to note its arrival
           item = {}
@@ -132,7 +135,17 @@ class CalendarDay
       deleted_headings = previous_headings - current_headings
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        previous_item = last_item.business_item.select { |x| x.description == heading }.first
+        desc = heading.gsub(/^\d+\.\s*/, "")
+        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
+        
+        item = {}
+        item[:change_type] = "deleted"
+        item[:description] = previous_item.description
+        item[:note] = previous_item.note if previous_item.note
+        item[:position] = previous_item.position
+        item[:pdf_info] = previous_item.pdf_info
+        
+        items << item
       end
       items
     end
