@@ -276,7 +276,29 @@ class CalendarDayTest < MiniTest::Spec
             item_changes.first[:change_type].must_equal "modified"
           end
           
-          it "must return the diffs/new values for the changed fields"
+          it "must return the diffs/new values for the changed fields" do
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item2 = BusinessItem.new(:description => "2.  description goes here")
+            item2.position = 2
+            item2.note = "note added"
+            item2.pdf_info = {}
+            
+            @tb1.business_items = [item1]
+            @tb2.business_items = [item2]
+            @current_day.time_blocks = [@tb1]
+            @longer_day.time_blocks = [@tb2]
+            
+            diff = @current_day.diff(@longer_day)
+            item_changes = diff[:time_blocks].first[:business_items]
+            item_changes.must_be_instance_of Array
+            item_changes.must_equal [
+              {:change_type => "modified", 
+               :description => "2.  description goes here",
+               :note => "note added",
+               :position => 2,
+               :pdf_info => {}
+               }]
+          end
         end
       end
     end

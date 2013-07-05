@@ -43,8 +43,8 @@ class CalendarDay
     #analyse the time_blocks
     if self.has_time_blocks? or other.has_time_blocks?
       blocks = []
-      current_block_headings = self.has_time_blocks? ? time_blocks.collect { |x| x.title } : []
-      previous_block_headings = other.has_time_blocks? ? other.time_blocks.collect { |x| x.title } : []
+      current_block_headings = self.has_time_blocks? ? time_blocks.map { |x| x.title } : []
+      previous_block_headings = other.has_time_blocks? ? other.time_blocks.map { |x| x.title } : []
       current_block_headings.each do |heading|
         #assumes that the heading is unique
         current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title == heading }.first : {}
@@ -115,14 +115,22 @@ class CalendarDay
     def compare_business_items(current_block, last_block)
       items = []
       
-      current_headings = current_block.business_items.empty? ? [] : current_block.business_items.collect { |x| x.description }
-      previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.collect { |x| x.description }
+      current_headings = current_block.business_items.empty? ? [] : current_block.business_items.map { |x| x.description }
+      previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.map { |x| x.description }
       
       current_headings.each do |heading|
         if heading_in_list?(heading.gsub(/^\d+\.\s*/, ""), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "") })
+          desc = heading.gsub(/^\d+\.\s*/, "")
+          current_item = current_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
+          previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
+          
           #pre-existing thing...
           item = {}
           item[:change_type] = "modified"
+          item[:description] = previous_item.description
+          item[:note] = previous_item.note unless previous_item.note == current_item.note
+          item[:position] = previous_item.position unless previous_item.position == current_item.position
+          item[:pdf_info] = previous_item.pdf_info
           items << item
         else
           #a new thing, just need to note its arrival
@@ -132,11 +140,10 @@ class CalendarDay
           items << item
         end
       end
-      deleted_headings = previous_headings - current_headings
+      deleted_headings = previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "") } - current_headings.map { |x| x.gsub(/^\d+\.\s*/, "") }
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        desc = heading.gsub(/^\d+\.\s*/, "")
-        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
+        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == heading }.first
         
         item = {}
         item[:change_type] = "deleted"
