@@ -299,6 +299,22 @@ class CalendarDayTest < MiniTest::Spec
                :pdf_info => {}
                }]
           end
+          
+          it "must report a block as modified when only a business item has been altered" do
+            day1 = SittingDay.new
+            day2 = SittingDay.new
+            tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+            tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item2 = BusinessItem.new(:description => "2.  description goes here")
+            tb1.business_items = [item1]
+            tb2.business_items = [item2]
+            day1.time_blocks = [tb1]
+            day2.time_blocks = [tb2]
+            
+            diff = day1.diff(day2)
+            diff[:time_blocks].first[:change_type].must_equal "modified"
+          end
         end
       end
     end
