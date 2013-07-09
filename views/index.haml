@@ -2,7 +2,3 @@
 %div#calendar-days
   - @calendar_days.each do |day|
     =haml(:_calendar_day, :locals => {:day => day})
-%p.lead
-  %time{:datetime => @time}
-    Page generated &mdash; 
-    =@time

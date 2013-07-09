@@ -12,7 +12,7 @@
           %form.form-search.pull-right
             %input.input-medium.search-query{:type => "text", :name => "q"}
             %button.btn{:type => "submit"} Search
-          %ul.nav.nav-pills
+          %ul.nav.nav-pills.lead
             %li.disabled
               %a LordsWhip
             %li
@@ -21,3 +21,7 @@
               %a{:href => "/cal?ics"} ics
 
           =yield
+          %p
+            %time{:datetime => @time}
+              Page generated &mdash; 
+              =@time
