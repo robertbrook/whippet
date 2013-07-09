@@ -1,22 +1,22 @@
-%p.text-center
+
+%p.lead.text-center
   %strong
     = day.date.strftime("%A, %e %B %Y")
 
 - unless day.has_time_blocks?
-  %p.text-center
+  %p.lead.text-center
     %em
       = day.note
 - else
   - day.time_blocks.each do |block|
-    %p
+    %p.lead
       %strong
         = block.title
     - if block.note
-      %p
+      %p.lead
         = block.note
     - block.business_items.each do |item|
-      %p
+      %p.lead
         = item.description
-        
+
 %hr
-    

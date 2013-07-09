@@ -5,17 +5,19 @@
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet", :media => "screen"}
     %link{:href => "css/bootstrap-responsive.min.css", :rel => "stylesheet"}
-  %body{:style => "padding:3%;"}
-    %div.container
+  %body
+    %div.container{:style => "padding:3%;"}
       %div.row
         %div.span8
-          %div
-            %div
-              %p
-                Links to appear here
-              %p
-              %form.pull-right{:action=>"search"}
-                %input.span2{:type=>"text", :placeholder=>"Search", :name=>"q"}
-                %button.btn{:type=>"submit"}
-                  Search
+          %form.form-search.pull-right
+            %input.input-medium.search-query{:type => "text", :name => "q"}
+            %button.btn{:type => "submit"} Search
+          %ul.nav.nav-pills
+            %li.disabled
+              %a LordsWhip
+            %li
+              %a{:href => "/cal"} cal
+            %li
+              %a{:href => "/cal?ics"} ics
+
           =yield
