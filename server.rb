@@ -38,6 +38,8 @@ get '/cal' do
 
 ical_content = RiCal.Calendar { |ical|
 sitting_days.each { |sitting_day|
+
+  if sitting_day.has_time_blocks?
   sitting_day.time_blocks.each { |time_block|
     ical.event { |event|
       time_as_string = time_block.time_as_number.to_s.insert(2, ':')
@@ -49,6 +51,7 @@ sitting_days.each { |sitting_day|
       # pp block
     }
     }
+  end
   }
   }
 

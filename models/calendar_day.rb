@@ -14,7 +14,7 @@ class CalendarDay
     unless other.is_a?(CalendarDay)
       raise "Unable to compare #{self.class} to #{other.class}"
     end
-    #the easy bit
+    # the easy bit
     change[:note] = other.note if note != other.note
     change[:_type] = other._type if _type != other._type
     change[:accepted] = other.accepted if accepted != other.accepted
