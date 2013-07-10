@@ -20,6 +20,12 @@ get '/' do
   haml :index
 end
 
+get '/index.json' do  
+  content_type :json
+  @time = Time.now
+  CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+end
+
 get '/cal' do
 
   if params[:limit].to_i.between?(1, 20)
