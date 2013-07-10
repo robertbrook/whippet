@@ -317,6 +317,46 @@ class CalendarDayTest < MiniTest::Spec
           end
         end
       end
+      
+      it "must cope with complex time blocks changes" do
+        tb0 = TimeBlock.new(:title => "Business in the Chamber at 10am", :position => 0)
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 1)
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
+        tb3 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+        tb4 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 2)
+        tb5 = TimeBlock.new(:title => "Business in Grand Committee at 3.30pm", :position => 3)
+        
+        day1 = SittingDay.new()
+        day1.time_blocks = [tb1, tb2, tb5]
+        day2 = SittingDay.new()
+        day2.time_blocks = [tb0, tb3, tb4]
+        
+        diff = day1.diff(day2)
+        
+        diff[:time_blocks].count.must_equal 4
+        
+        block0 = diff[:time_blocks][0]
+        block1 = diff[:time_blocks][1]
+        block2 = diff[:time_blocks][2]
+        block3 = diff[:time_blocks][3]
+        
+        block0[:change_type].must_equal "modified"
+        block0[:title].must_equal "Business in the Chamber at 3.30pm"
+        block0[:position].must_equal 2
+        
+        block1[:change_type].must_equal "modified"
+        block1[:title].must_equal "Business in the Chamber at 11.00am"
+        block1[:position].must_equal 1
+        
+        block2[:change_type].must_equal "new"
+        block2[:title].must_equal "Business in Grand Committee at 3.30pm"
+        
+        block3[:change_type].must_equal "deleted"
+        block3[:title].must_equal "Business in the Chamber at 10am"
+        block3[:position].must_equal 0
+      end
+      
+      it "must cope with complex business_item changes"
     end
   end
 end

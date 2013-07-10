@@ -58,8 +58,10 @@ class CalendarDay
           block[:business_items] = bus_items unless bus_items.empty?
           
           unless block.empty?
+            block[:title] = current_block.title
             block[:change_type] = "modified"
             block[:pdf_info] = previous_block.pdf_info
+            
             blocks << block
           end
         else
@@ -87,7 +89,7 @@ class CalendarDay
     end
     
     #the last bit - no change, no report; simples
-    change[:pdf_info] = other.pdf_info unless change.empty?
+    #change[:pdf_info] = other.pdf_info unless change.empty?
     change
   end
   
