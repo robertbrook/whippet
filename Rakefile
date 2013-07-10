@@ -9,14 +9,23 @@ end
 
 desc "Parse PDFs in data directory"
 task :puller do |t|
+  if ENV["MONGOHQ_DEV_URI"]
+    p "running in production..."
+  else
+    if ENV["RACK_ENV"]
+      p "running in #{ENV["RACK_ENV"]}..."
+    else
+      p "defaulting to development..."
+    end
+  end
+  
   require "./lib/parser"
-
+  
   Dir.glob('./data/*.pdf') do |pdf|
     @parser = Parser.new(pdf)
     @parser.process
     p pdf
   end
-
 end
 
 desc "Show target URL"
