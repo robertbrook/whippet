@@ -356,7 +356,42 @@ class CalendarDayTest < MiniTest::Spec
         block3[:position].must_equal 0
       end
       
-      it "must cope with complex business_item changes"
+      it "must cope with complex business_item changes" do
+        day1 = SittingDay.new
+        day2 = SittingDay.new
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+        
+        item0 = BusinessItem.new(:description => "1.  surplus to requirements", :position => 1)
+        item1 = BusinessItem.new(:description => "2.  description goes here", :position => 2)
+        item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+        item3 = BusinessItem.new(:description => "2.  hello, I'm new", :position => 2)
+        
+        tb1.business_items = [item2, item3]
+        tb2.business_items = [item0, item1]
+        day1.time_blocks = [tb1]
+        day2.time_blocks = [tb2]
+        
+        diff = day1.diff(day2)
+        
+        diff[:time_blocks].count.must_equal 1
+        diff[:time_blocks].first[:business_items].count.must_equal 3
+        
+        diffs = diff[:time_blocks].first[:business_items]
+        diff0 = diffs[0]
+        diff1 = diffs[1]
+        diff2 = diffs[2]
+        
+        diff0[:change_type].must_equal "modified"
+        diff0[:description].must_equal "2.  description goes here"
+        diff0[:position].must_equal 2
+        
+        diff1[:change_type].must_equal "new"
+        diff1[:description].must_equal "2.  hello, I'm new"
+        
+        diff2[:change_type].must_equal "deleted"
+        diff2[:description].must_equal "1.  surplus to requirements"
+      end
     end
   end
 end
