@@ -9,22 +9,27 @@ end
 
 desc "Parse PDFs in data directory"
 task :puller do |t|
-  if ENV["MONGOHQ_DEV_URI"]
-    p "running in production..."
-  else
-    if ENV["RACK_ENV"]
-      p "running in #{ENV["RACK_ENV"]}..."
-    else
-      p "defaulting to development..."
-    end
-  end
-  
+  report_env()
   require "./lib/parser"
   
   Dir.glob('./data/*.pdf') do |pdf|
     @parser = Parser.new(pdf)
     @parser.process
     p pdf
+  end
+end
+
+desc "import a single pdf file"
+task :import_pdf_file do
+  report_env()
+  require "./lib/parser"
+  
+  input_file = ENV['pdf']
+  if input_file
+    parser = Parser.new(input_file)
+    parser.process
+  else
+    p 'USAGE: rake import_pdf_file pdf=data/FB-TEST.pdf'
   end
 end
 
@@ -41,3 +46,14 @@ task :target do
 #io     = open(URI::encode(target_link[0]['href']))
 end
 
+def report_env
+  if ENV["MONGOHQ_DEV_URI"]
+    p "running in production..."
+  else
+    if ENV["RACK_ENV"]
+      p "running in #{ENV["RACK_ENV"]}..."
+    else
+      p "defaulting to development..."
+    end
+  end
+end
