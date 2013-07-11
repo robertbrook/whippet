@@ -8,7 +8,7 @@ class CalendarDay
   key :note, String
   key :accepted, Boolean
   key :is_provisional, Boolean
-  key :changes, Array
+  key :diffs, Array
   key :pdf_info, Hash
   
   def has_time_blocks?
@@ -127,12 +127,15 @@ class CalendarDay
           
           #pre-existing thing...
           item = {}
-          item[:change_type] = "modified"
-          item[:description] = previous_item.description
           item[:note] = previous_item.note unless previous_item.note == current_item.note
           item[:position] = previous_item.position unless previous_item.position == current_item.position
-          item[:pdf_info] = previous_item.pdf_info
-          items << item
+          
+          unless item.empty?
+            item[:change_type] = "modified"
+            item[:description] = previous_item.description
+            item[:pdf_info] = previous_item.pdf_info
+            items << item
+          end
         else
           #a new thing, just need to note its arrival
           item = {}
