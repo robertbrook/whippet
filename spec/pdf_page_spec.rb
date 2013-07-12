@@ -178,6 +178,22 @@ class PdfPageTest < MiniTest::Spec
       end
     end
     
+    describe "when asked to load page 3" do
+      before do
+        @pdf_page = PdfPage.new(@pdf.pages[2])
+      end
+      
+      it "should return both the original plain text and the html markup for each line" do
+        line = @pdf_page.lines[45]
+        line[:plain].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger\n"
+        line[:html].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger"
+        
+        line = @pdf_page.lines[46]
+        line[:plain].must_equal "    of Leckie\n"
+        line[:html].must_equal "of Leckie"
+      end
+    end
+    
     describe "when asked to load page 6" do
       before do
         @pdf_page = PdfPage.new(@pdf.pages[5])

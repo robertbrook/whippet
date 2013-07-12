@@ -194,6 +194,10 @@ class TextReceiver
     process_linebreak(y_axis)
   end
   
+  def move_to_start_of_next_line
+    process_linebreak(-1)
+  end
+  
   def set_text_font_and_size(label, size)
     @font = {:label => label, :size => size}
   end
