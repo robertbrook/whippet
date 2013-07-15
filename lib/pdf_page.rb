@@ -49,6 +49,13 @@ class PdfPage
       @parts = raw_markup.split("</font>")
       @part = 0
       @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
+      while @matches[3].strip.empty? and @part < @parts.length-1
+        @part += 1
+        @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
+      end
+      if @parts == @parts.length-1 and @matches[3].strip.empty?
+        return {:plain => "", :html => ""}
+      end
       output = append_font_info(output, {}, @matches[1].to_sym)
       @font = {}
       
@@ -77,12 +84,23 @@ class PdfPage
               offset -=1
               break
             end
-          elsif part_char == " " and char =~ /[a-zA-Z]/ and output.strip.length > 0
-            rewrite = "#{line[0..i-1]} #{line[i..-1]}"
-            output = "#{output}#{part_char}"
-            offset +=1
-            part_char = @matches[3][i+offset]
-            break
+          elsif part_char == " " and char =~ /[a-zA-Z]/
+            if output.strip.length > 0
+              rewrite = "#{line[0..i-1]} #{line[i..-1]}"
+              output = "#{output}#{part_char}"
+              offset +=1
+              part_char = @matches[3][i+offset]
+              break
+            else
+              offset += 1
+              if @part+1 < @parts.length and i+offset > @matches[3].length-1
+                @part+=1
+                @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
+                output = append_font_info(output, @font, @matches[1].to_sym)
+                offset = (i * -1)
+              end
+              part_char = @matches[3][i+offset]
+            end
           else
             offset +=1
             part_char = @matches[3][i+offset]

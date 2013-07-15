@@ -184,6 +184,10 @@ class PdfPageTest < MiniTest::Spec
       end
       
       it "should return both the original plain text and the html markup for each line" do
+        line = @pdf_page.lines[9]
+        line[:plain].must_equal "2.  Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of\n"
+        line[:html].must_equal "2.  Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of"
+        
         line = @pdf_page.lines[45]
         line[:plain].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger\n"
         line[:html].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger"
@@ -191,6 +195,18 @@ class PdfPageTest < MiniTest::Spec
         line = @pdf_page.lines[46]
         line[:plain].must_equal "    of Leckie\n"
         line[:html].must_equal "of Leckie"
+      end
+    end
+    
+    describe "when asked to load page 5" do
+      before do
+        @pdf_page = PdfPage.new(@pdf.pages[4])
+      end
+      
+      it "should return the plain text and html markup for each line" do
+        line = @pdf_page.lines[15]
+        line[:plain].must_equal "    No business yet scheduled\n"
+        line[:html].must_equal "No business yet scheduled"
       end
     end
     
