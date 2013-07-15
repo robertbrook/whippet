@@ -34,18 +34,17 @@ class PdfPage
       lines
     end
     
-    def strip_high_ascii(input)
+    # making an assumption at this point
+    def windows_to_utf8(input)
       return "" if input.nil?
-      ec = Encoding::Converter.new("ascii", "utf-8", :invalid => :replace, :replace => "")
-      output = ec.convert(input)
-      output.gsub!(/[\u0080-\u00ff]/,"")
-      output.gsub(/\u0000/, "") #remove any stray nulls
+      input.force_encoding("windows-1252")
+      input.encode("utf-8")
     end
     
     def fetch_line_data(line, raw_markup)
       output = ""
       return {:plain => "", :html => ""} if raw_markup.nil?
-      raw_markup = strip_high_ascii(raw_markup)
+      raw_markup = windows_to_utf8(raw_markup)
       
       @parts = raw_markup.split("</font>")
       @part = 0
@@ -78,10 +77,6 @@ class PdfPage
               offset -=1
               break
             end
-          elsif char.bytesize > 1
-            output = "#{output}#{char}"
-            offset -=1
-            break
           elsif part_char == " " and char =~ /[a-zA-Z]/ and output.strip.length > 0
             rewrite = "#{line[0..i-1]} #{line[i..-1]}"
             output = "#{output}#{part_char}"
