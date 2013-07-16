@@ -96,6 +96,9 @@ class PdfPage
               offset -=1
               break
             end
+          elsif char == " "
+            offset -=1
+            break
           elsif part_char == " " and char =~ /[a-zA-Z]/
             if output.strip.length > 0
               rewrite = "#{line[0..i-1]} #{line[i..-1]}"

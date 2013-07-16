@@ -101,6 +101,17 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page.fonts.count.must_equal 4
       end
     end
+    
+    describe "when asked to load page 7" do
+      before do
+        @pdf_page = PdfPage.new(@pdf.pages[6])
+      end
+      
+      it "should cope with the information text"  do
+        line = @pdf_page.lines[5]
+        line[:plain].must_equal "  This document informally advertises the business which the Government anticipates the House will\n"
+      end
+    end
   end
   
   describe "PdfPage", "when given the Forthcoming Business for 13th March 2013 PDF as FB 2013 03 13.pdf" do
