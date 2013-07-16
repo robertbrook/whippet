@@ -41,6 +41,10 @@ class PdfPageTest < MiniTest::Spec
       end
       
       it "should return both the original plain text and the html markup for each line" do
+        line = @pdf_page.lines[0]
+        line[:plain].must_equal "               GOVERNMENT WHIPS’ OFFICE\n"
+        line[:html].must_equal "GOVERNMENT WHIPS’ OFFICE"
+        
         line = @pdf_page.lines[4]
         line[:plain].must_equal "                 FORTHCOMING BUSINESS\n"
         line[:html].must_equal "<b>FORTHCOMING BUSINESS</b>"
@@ -126,7 +130,7 @@ class PdfPageTest < MiniTest::Spec
         fonts[:TT2][:italic].must_equal true
       end
       
-      it "should return both the original plain text and the html markup for each line" do
+      it "should return both the original plain text and the html markup for each line" do        
         line = @pdf_page.lines[5]
         line[:plain].must_equal "                  FORTHCOMING BUSINESS\n"
         line[:html].must_equal "<b>FORTHCOMING BUSINESS</b>"
@@ -227,7 +231,11 @@ class PdfPageTest < MiniTest::Spec
         
         line = @pdf_page.lines[7]
         line[:plain].must_equal "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness\n"
-        line[:html].must_equal "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness"
+        line[:html].must_equal  "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness"
+        
+        line = @pdf_page.lines[19]
+        line[:plain].must_equal "2.  Further business will be scheduled\n"
+        line[:html].must_equal  "2.  <i>Further business will be scheduled</i>"
       end
     end
   end

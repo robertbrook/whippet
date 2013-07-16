@@ -6,6 +6,7 @@ class PdfPage
   attr_reader :fonts, :lines
   
   def initialize(page)
+    @objects = page.objects
     @fonts = enumerate_fonts(page)
     @markup_lines = walk_page(page)
     @lines = reconcile_lines(page)
@@ -13,7 +14,7 @@ class PdfPage
   
   private
     def walk_page(page)
-      receiver = TextReceiver.new()
+      receiver = TextReceiver.new(@fonts)
       page.walk(receiver)
       markup_lines = receiver.content
       markup_lines.delete_if{ |x| x.strip == "" }
@@ -34,19 +35,12 @@ class PdfPage
       lines
     end
     
-    # making an assumption at this point
-    def windows_to_utf8(input)
-      return "" if input.nil?
-      input.force_encoding("windows-1252")
-      input.encode("utf-8")
-    end
-    
     def fetch_line_data(line, raw_markup)
       output = ""
       return {:plain => "", :html => ""} if raw_markup.nil?
-      raw_markup = windows_to_utf8(raw_markup)
       
       @parts = raw_markup.split("</font>")
+      
       @part = 0
       @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
       while @matches[3].strip.empty? and @part < @parts.length-1
@@ -73,14 +67,32 @@ class PdfPage
       offset = 0
       rewrite = ""
       line = input.dup.strip
+      
       (0..line.length-1).each do |i|
         char = line[i]
+        
         part_char = @matches[3][i+offset]
+        
+        if part_char.nil?
+          if offset+i == @matches[3].length and @part+1 < @parts.length
+            @part+=1
+            @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
+            output = append_font_info(output, @font, @matches[1].to_sym)
+            offset = (i * -1)
+            part_char = @matches[3][i+offset]
+          end
+        end
+        
         while part_char != char
-          if char == " " and output =~ /^\d\.\s+$/
+          if char == " " and output =~ /^\d\.\s+(<(?:i|b)>)*$/
             temp_char = line[i+1]
             if part_char == temp_char
-              output = "#{output} "
+              if $1
+                markup = $1
+                output = "#{output.gsub(markup, "")} #{markup}"
+              else
+                output = "#{output} "
+              end
               offset -=1
               break
             end
@@ -104,27 +116,16 @@ class PdfPage
           else
             offset +=1
             part_char = @matches[3][i+offset]
-          end
-          
-          #trying to read past the end of the current segment - error!
-          if i+offset > @matches[3].length - 1
-            break
-          end
-          
-          #fallen off the edge of the world
-          if i > line.length - 1
-            break
+            if offset+i == @matches[3].length and @part+1 < @parts.length
+              @part+=1
+              @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
+              output = append_font_info(output, @font, @matches[1].to_sym)
+              offset = (i * -1)
+              part_char = @matches[3][i+offset]
+            end
           end
         end
         if part_char == char
-          output = "#{output}#{part_char}"
-        end
-        if @part+1 < @parts.length and i+offset > @matches[3].length-1
-          @part += 1
-          @matches = @parts[@part].match(/<font label='([^']+)' size='([^']+)'>([^<]*)/)
-          output = append_font_info(output, @font, @matches[1].to_sym)
-          offset = (i * -1)
-          part_char = @matches[3][i+offset..i+offset]
           output = "#{output}#{part_char}"
         end
       end
@@ -153,6 +154,7 @@ class PdfPage
     end
     
     def enumerate_fonts(page)
+      font_objs = build_fonts(page.fonts)
       fonts = {}
       page.fonts.each do |label, font|
         bold = false
@@ -167,20 +169,31 @@ class PdfPage
           italic = true
         end
         
-        fonts[label] = {:family => family, :bold => bold, :italic => italic}
+        obj = font_objs[label]
+        
+        fonts[label] = {:family => family, :bold => bold, :italic => italic, :pdf_object => font_objs[label] }
       end
       fonts
+    end
+    
+    #stolen from PDF::Reader::PageState
+    def build_fonts(raw_fonts)
+      wrapped_fonts = raw_fonts.map { |label, font|
+        [label, PDF::Reader::Font.new(@objects, @objects.deref(font))]
+      }
+      
+      ::Hash[wrapped_fonts]
     end
 end
 
 class TextReceiver
-  def initialize(debug=false)
+  def initialize(page_fonts)
+    @fonts = page_fonts
     @lines = []
     @text = []
     @last_line = 9999.9
     @font = {}
     @footer = []
-    @debug = true
   end
   
   def content
@@ -216,12 +229,14 @@ class TextReceiver
   end
    
   def show_text(text)
-    @text << "<font label='#{@font[:label]}' size='#{@font[:size]}'>#{text}</font>"
+    utf8 = @fonts[@font[:label]][:pdf_object].to_utf8(text)
+    @text << "<font label='#{@font[:label]}' size='#{@font[:size]}'>#{utf8}</font>"
   end
   
   def show_text_with_positioning(array)
     text = array.select{|i| i.is_a?(String)}.join("")
-    @text << "<font label='#{@font[:label]}' size='#{@font[:size]}'>#{text}</font>"
+    utf8 = @fonts[@font[:label]][:pdf_object].to_utf8(text)
+    @text << "<font label='#{@font[:label]}' size='#{@font[:size]}'>#{utf8}</font>"
   end
   
   private
