@@ -3,7 +3,6 @@ require 'mongo_mapper'
 require './lib/parser'
 require 'haml'
 require 'ri_cal'
-require 'pp'
 
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
@@ -54,7 +53,6 @@ sitting_days.each { |sitting_day|
       event.dtstart = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
       event.summary = time_block.title
       event.description = time_block.title
-      # pp block
     }
     }
   end
