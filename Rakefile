@@ -5,12 +5,7 @@ require 'rake/testtask'
 
 Rake::TestTask.new do |t|
   t.pattern = "spec/**/*_spec.rb"
-end
-
-Rake::TestTask.new(:specs) do |spec|
-    spec.pattern = "spec/**/*_spec.rb"
-	ENV['TESTOPTS'] = "-v"
-	ENV['COVERAGE'] = "1"
+  puts t.inspect
 end
   
 desc "Parse PDFs in data directory"
