@@ -75,7 +75,7 @@ class ParserTest < MiniTest::Spec
           @sitting_day.is_provisional.wont_equal true
         end
         
-        it "must have the pdf file name" do
+        it "must have the pdf file name (FB-TEST.pdf)" do
           @sitting_day.pdf_info[:filename].must_equal 'FB-TEST.pdf'
         end
         
@@ -91,40 +91,55 @@ class ParserTest < MiniTest::Spec
           @sitting_day.pdf_info[:line].must_equal(13)
         end
                
-        it "must have two TimeBlocks" do
+        it "must have two (2) TimeBlocks" do
           @sitting_day.time_blocks.length.must_equal 2
         end
         
         it "must have a first TimeBlock entitled 'Business in the Chamber at 11.00am'" do
           @sitting_day.time_blocks.first.title.must_equal "Business in the Chamber at 11.00am"
+        end
+        
+        it "must have a first TimeBlock with a time_as_number of '1100'" do
           @sitting_day.time_blocks.first.time_as_number.must_equal 1100
+        end
+        
+        it "must have a first TimeBlock not marked as provisional" do
           @sitting_day.time_blocks.first.is_provisional.wont_equal true
         end
                 
         it "must have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do
           @sitting_day.time_blocks.last.title.must_equal "Business in Grand Committee at 3.45pm"
+        end
+          
+        it "must have a last TimeBlock with a time_as_number of '1545'" do
           @sitting_day.time_blocks.last.time_as_number.must_equal 1545
         end
-                
+              
         describe "when looking at 'Business in the Chamber at 11.00am'" do
           before do
             @time = @sitting_day.time_blocks.first
           end
           
-          it "must have the page and line number info" do
+          it "must have the page number '1'" do
             @time.pdf_info[:page].must_equal(1)
+          end
+          
+          it "must have the line number '15'" do
             @time.pdf_info[:line].must_equal(15)
           end
           
-          it "must have four items" do
+          it "must have four (4) items" do
             @time.business_items.length.must_equal 4
           end
           
-          it "must set page and line info for the business items" do
+          it "must have business items with page number '1'" do
             @time.business_items[2].pdf_info[:page].must_equal(1)
+          end
+
+          it "must have business items with line number '22'" do
             @time.business_items[2].pdf_info[:line].must_equal(21)
           end
-          
+                    
           it "must not have any notes" do
             @time.note.must_be_nil
           end
