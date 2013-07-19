@@ -57,51 +57,6 @@ module PDF
         lines.join("\n")
       end
       
-      def dedup_markup_tags(input)
-        output = ""
-        last_tag = ""
-        bits = []
-        
-        bits = input.split(/<\/(?:b|i)>/)
-        
-        bits.each_with_index do |bit, pos|
-          matches = bit.match(/([^<]*)(?:<(b|i)>)?(.*)/)
-          pre = matches[1].nil? ? "" : matches[1]
-          tag = matches[2].nil? ? "" : matches[2]
-          content = matches[3]
-          
-          if pos == 0
-            output = bit
-            last_tag = tag
-          else
-            if last_tag == tag
-              if pre.empty?
-                output = "#{output}#{content}"
-              else
-                output = "#{output}</#{tag}>#{pre}<#{tag}>#{content}"
-              end
-            elsif last_tag == ""
-              output = "#{output}<#{tag}>#{content}"
-              last_tag = tag
-            else
-              if tag == ""
-                output = "#{output}</#{last_tag}>#{content}"
-              else
-                output = "#{output}</#{last_tag}>#{pre}<#{tag}>#{content}"
-              end
-              last_tag = tag
-            end
-          end
-        end
-        if output == ""
-          output = ""
-        else
-          output = "#{output.strip}</#{last_tag}>"
-        end
-        
-        return output
-      end
-      
       def internal_show_text(string)
         if @state.current_font.nil?
           raise PDF::Reader::MalformedPDFError, "current font is invalid"
