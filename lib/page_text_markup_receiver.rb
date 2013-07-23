@@ -52,7 +52,7 @@ module PDF
         string = Nokogiri::HTML::fragment(string).to_html
         
         #strip empty markup tags
-        string.gsub(/<(?:b|i)><\/(?:b|i)>/, "").strip
+        string.gsub(/<(?:b|i)>\s*<\/(?:b|i)>/, "").strip
       end
       
       def markup_tags(font)
