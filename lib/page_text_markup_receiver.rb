@@ -29,12 +29,8 @@ module PDF
         offset = 0
         formatted_lines = markup.lines.to_a
         lines.each_with_index do |line, index|
-          if line.strip == ""
-            if formatted_lines[index + offset].strip == ""
-              fixed << line
-            else
-              offset -= 1
-            end
+          if line.strip == "" and formatted_lines[index + offset].strip != ""
+            offset -= 1
           else
             fixed << line
           end
@@ -56,7 +52,6 @@ module PDF
       def markup_tags(font)
         open = ""
         close = ""
-        
         unless @state.current_font.font_descriptor.nil?
           if @state.current_font.font_descriptor.font_weight > 400
             open = "<b>"
@@ -90,8 +85,6 @@ module PDF
           @characters << run
           @state.process_glyph_displacement(glyph_width, 0, utf8_chars == SPACE)
           
-          
-          crlf = ""
           tags = markup_tags(@state.current_font)
           if tags[:open] == @open_tag
             if newy < 50
