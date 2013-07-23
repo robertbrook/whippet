@@ -10,8 +10,6 @@ module PDF
       
       def page=(page)
         super(page)
-        @last_font = nil
-        @stored_end_tag = ""
         @last_tag_end = ""
         @open_tag = ""
         @lasty = 0.0
