@@ -1,6 +1,7 @@
 #encoding: utf-8
 
 require "pdf/reader"
+require "nokogiri"
 
 module PDF
   class Reader
@@ -10,51 +11,65 @@ module PDF
       def page=(page)
         super(page)
         @last_font = nil
+        @stored_end_tag = ""
         @last_tag_end = ""
+        @open_tag = ""
         @lasty = 0.0
         @footer = []
         @text = []
+        @lines = []
       end
       
       def markup
-        %Q|#{fix_markup(@text.join(""))}#{@footer.join("")}|
+        %Q|#{@lines.join("\n")}#{@footer.join("")}|
       end
       
+      def content
+        lines = super.lines.to_a
+        fixed = []
+        current_line = 0
+        offset = 0
+        formatted_lines = markup.lines.to_a
+        lines.each_with_index do |line, index|
+          if line.strip == ""
+            if formatted_lines[index + offset].strip == ""
+              fixed << line
+            else
+              offset -= 1
+            end
+          else
+            fixed << line
+          end
+        end
+        fixed.join("")
+      end
       
       
       private
       
-      def fix_markup(input)
-        stack = []
-        lines = input.split("\n")
+      def fix_markup(string)
+        #get Nokogiri to close any open tags
+        string = Nokogiri::HTML::fragment(string).to_html
         
-        last_line = lines.pop
-        while last_line.strip.empty?
-          stack << last_line
-          last_line = lines.pop
-        end
-        if last_line.strip =~ /(<b>)?(<i>)?(.*)/
-          is_bold = !($1.nil?)
-          is_italic = !($2.nil?)
-          content = $3
-          
-          unless content.empty?
-            if is_italic
-              last_line = "#{last_line}</i>"
-            end
-            if is_bold
-              last_line = "#{last_line}</b>"
-            end
-          else
-            last_line = ""
+        #strip empty markup tags
+        string.gsub(/<(?:b|i)><\/(?:b|i)>/, "").strip
+      end
+      
+      def markup_tags(font)
+        open = ""
+        close = ""
+        
+        unless @state.current_font.font_descriptor.nil?
+          if @state.current_font.font_descriptor.font_weight > 400
+            open = "<b>"
+            close = "</b>"
           end
-          lines << last_line
+          if @state.current_font.font_descriptor.italic_angle != 0
+            open = "#{open}<i>"
+            close = "</i>#{close}"
+          end
         end
-        stack.reverse!
-        while !stack.empty?
-          lines << stack.pop
-        end
-        lines.join("\n")
+        {:open => open, :close => close}
       end
       
       def internal_show_text(string)
@@ -75,46 +90,40 @@ module PDF
           scaled_glyph_width = glyph_width * @state.font_size * th
           run = TextRun.new(newx, newy, scaled_glyph_width, @state.font_size, utf8_chars)
           @characters << run
-          @state.process_glyph_displacement(glyph_width, 0, utf8_chars == SPACE)  
+          @state.process_glyph_displacement(glyph_width, 0, utf8_chars == SPACE)
           
           
           crlf = ""
-          if @state.current_font == @last_font
+          tags = markup_tags(@state.current_font)
+          if tags[:open] == @open_tag
             if newy < 50
               @footer << run.to_s
             else
               if newy < @lasty
-                crlf  = "\n"
+                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
+                @lines << line
+                @last_tag_end = ""
+                @text = ["#{tags[:open]}#{run.to_s}"]
+              else
+                @text << "#{run.to_s}"
               end
-              @text << "#{crlf}#{run.to_s}"
             end
           else
-            if newy < @lasty
-              crlf  = "\n"
-            end
-            if @state.current_font.font_descriptor.font_weight > 400
-              if @state.current_font.font_descriptor.italic_angle != 0
-                @text << "#{@last_tag_end}#{crlf}<b><i>#{run.to_s}"
-                @last_tag_end = "</i></b>"
-              else
-                @text << "#{@last_tag_end}#{crlf}<b>#{run.to_s}"
-                @last_tag_end = "</b>"
-              end
+            if newy < 50
+              @footer << "#{@last_tag_end}#{run.to_s}"
             else
-              if @state.current_font.font_descriptor.italic_angle != 0
-                @text << "#{@last_tag_end}#{crlf}<i>#{run.to_s}"
-                @last_tag_end = "</i>"
-              else
-                if newy < 50
-                  @footer << "#{@last_tag_end}#{run.to_s}"
-                else
-                  @text << "#{@last_tag_end}#{crlf}#{run.to_s}"
-                end
+              if newy < @lasty
+                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
+                @lines << line
                 @last_tag_end = ""
+                @text = ["#{tags[:open]}#{run.to_s}"]
+              else
+                @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
               end
             end
+            @last_tag_end = tags[:close]
           end
-          @last_font = @state.current_font
+          @open_tag = tags[:open]
           @lasty = newy
         end
       end

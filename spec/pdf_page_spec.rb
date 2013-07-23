@@ -15,65 +15,25 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page = PdfPage.new(@pdf.pages.first)
       end
       
-      it "should correctly identify 5 different font variations" do
-        fonts = @pdf_page.fonts
-        fonts.length.must_equal 5
-        fonts[:F1][:family].must_equal "Book Antiqua"
-        fonts[:F1][:bold].must_equal false
-        fonts[:F1][:italic].must_equal false
-        
-        fonts[:F2][:bold].must_equal false
-        fonts[:F2][:italic].must_equal false
-        
-        fonts[:F3][:bold].must_equal true
-        fonts[:F3][:italic].must_equal false
-        
-        fonts[:F4][:bold].must_equal false
-        fonts[:F4][:italic].must_equal true
-        
-        fonts[:F5][:bold].must_equal true
-        fonts[:F5][:italic].must_equal true
-      end
-      
       it "should return the expected number of lines" do
-        @pdf_page.lines.count.must_equal @pdf.pages.first.text.lines.count
-        @pdf_page.lines.count.must_equal 42
+        @pdf_page.lines.count.must_equal 31
       end
       
       it "should return both the original plain text and the html markup for each line" do
-        line = @pdf_page.lines[0]
-        line[:plain].must_equal "               GOVERNMENT WHIPS’ OFFICE\n"
-        line[:html].must_equal "GOVERNMENT WHIPS’ OFFICE"
+        @pdf_page.lines[0].must_equal "                   GOVERNMENT WHIPS’ OFFICE\n"
+        @pdf_page.formatted_lines[0].must_equal "GOVERNMENT WHIPS’ OFFICE\n"
         
-        line = @pdf_page.lines[4]
-        line[:plain].must_equal "                 FORTHCOMING BUSINESS\n"
-        line[:html].must_equal "<b>FORTHCOMING BUSINESS</b>"
+        @pdf_page.lines[3].must_equal "                     FORTHCOMING BUSINESS\n"
+        @pdf_page.formatted_lines[3].must_equal "<b>FORTHCOMING BUSINESS</b>\n"
         
-        line = @pdf_page.lines[8]
-        line[:plain].must_equal "                   [Notes about this document are set out at the end]\n"
-        line[:html].must_equal "[<i>Notes about this document are set out at the end</i>]"
+        @pdf_page.lines[6].must_equal "                        [Notes about this document are set out at the end]\n"
+        @pdf_page.formatted_lines[6].must_equal "[<i>Notes about this document are set out at the end</i>]\n"
         
-        line = @pdf_page.lines[29]
-        line[:plain].must_equal "Business in Grand Committee at 3.45pm\n"
-        line[:html].must_equal "<b>Business in Grand Committee at 3.45pm</b>"
+        @pdf_page.lines[14].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
+        @pdf_page.formatted_lines[14].must_equal "2. Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
         
-        line = @pdf_page.lines[18]
-        line[:plain].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
-        line[:html].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012"
-      end
-    end
-    
-    describe "when asked to load page 2" do
-      before do
-        @pdf_page = PdfPage.new(@pdf.pages[1])
-      end
-      
-      it "should find 5 fonts" do
-        @pdf_page.fonts.length.must_equal 5
-      end
-      
-      it "should find a font labelled F6 for page 2" do
-        @pdf_page.fonts[:F6][:family].must_equal "Book Antiqua"
+        @pdf_page.lines[23].must_equal "Business in Grand Committee at 3.45pm\n"
+        @pdf_page.formatted_lines[23].must_equal "<b>Business in Grand Committee at 3.45pm</b>\n"
       end
     end
     
@@ -82,23 +42,9 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page = PdfPage.new(@pdf.pages[2])
       end
       
-      it "should find 6 fonts" do
-        @pdf_page.fonts.count.must_equal 6
-      end
-      
       it "should close the markup tags correctly" do
-        line = @pdf_page.lines[50]
-        line[:html].must_equal "[<i><b>The date and time for the prorogation of Parliament</b></i>"
-      end
-    end
-    
-    describe "when asked to load page 4" do
-      before do
-        @pdf_page = PdfPage.new(@pdf.pages[3])
-      end
-      
-      it "should find 4 fonts" do
-        @pdf_page.fonts.count.must_equal 4
+        @pdf_page.lines[40].must_equal "           [The date and time for the prorogation of Parliament\n"
+        @pdf_page.formatted_lines[40].must_equal "[<b><i>The date and time for the prorogation of Parliament</i></b>\n"
       end
     end
     
@@ -108,8 +54,8 @@ class PdfPageTest < MiniTest::Spec
       end
       
       it "should cope with the information text"  do
-        line = @pdf_page.lines[5]
-        line[:plain].must_equal "  This document informally advertises the business which the Government anticipates the House will\n"
+        line = @pdf_page.lines[2]
+        line.must_equal "  This document informally advertises the business which the Government anticipates the House will\n"
       end
     end
   end
@@ -125,42 +71,21 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page = PdfPage.new(@pdf.pages.first)
       end
       
-      it "should correctly identify 3 different font variations" do
-        fonts = @pdf_page.fonts
-        fonts.length.must_equal 3
-        fonts[:TT0][:family].must_equal "BookAntiqua"
-        fonts[:TT0][:bold].must_equal false
-        fonts[:TT0][:italic].must_equal false
+      it "should return both the original plain text and the html markup for each line" do
+        @pdf_page.lines[3].must_equal "                     FORTHCOMING BUSINESS\n"
+        @pdf_page.formatted_lines[3].must_equal "<b>FORTHCOMING BUSINESS</b>\n"
         
-        fonts[:TT1][:family].must_equal "BookAntiqua-Bold"
-        fonts[:TT1][:bold].must_equal true
-        fonts[:TT1][:italic].must_equal false
+        @pdf_page.lines[6].must_equal "                        [Notes about this document are set out at the end]\n"
+        @pdf_page.formatted_lines[6].must_equal "[<i>Notes about this document are set out at the end</i>]\n"
         
-        fonts[:TT2][:family].must_equal "BookAntiqua-Italic"
-        fonts[:TT2][:bold].must_equal false
-        fonts[:TT2][:italic].must_equal true
-      end
-      
-      it "should return both the original plain text and the html markup for each line" do        
-        line = @pdf_page.lines[5]
-        line[:plain].must_equal "                  FORTHCOMING BUSINESS\n"
-        line[:html].must_equal "<b>FORTHCOMING BUSINESS</b>"
+        @pdf_page.lines[13].must_equal "1.  Oral questions (30 minutes)\n"
+        @pdf_page.formatted_lines[13].must_equal "1. Oral questions (30 minutes)\n"
         
-        line = @pdf_page.lines[8]
-        line[:plain].must_equal "                    [Notes about this document are set out at the end]\n"
-        line[:html].must_equal "[<i>Notes about this document are set out at the end</i>]"
+        @pdf_page.lines[22].must_equal "Business in Grand Committee at 3.45pm\n"
+        @pdf_page.formatted_lines[22].must_equal "<b>Business in Grand Committee at 3.45pm</b>\n"
         
-        line = @pdf_page.lines[17]
-        line[:plain].must_equal "1.  Oral questions (30 minutes)\n"
-        line[:html].must_equal "1.  Oral questions (30 minutes)"
-        
-        line = @pdf_page.lines[29]
-        line[:plain].must_equal "Business in Grand Committee at 3.45pm\n"
-        line[:html].must_equal "<b>Business in Grand Committee at 3.45pm</b>"
-        
-        line = @pdf_page.lines[30]
-        line[:plain].must_equal "    No business scheduled\n"
-        line[:html].must_equal "No business scheduled"
+        @pdf_page.lines[23].must_equal "    No business scheduled\n"
+        @pdf_page.formatted_lines[23].must_equal "No business scheduled\n"
       end
     end
     
@@ -169,27 +94,18 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page = PdfPage.new(@pdf.pages[1])
       end
       
-      it "should correctly identify 3 different font variations" do
-        fonts = @pdf_page.fonts
-        fonts.length.must_equal 3
-      end
-      
       it "should return both the original plain text and the html markup for each line" do
-        line = @pdf_page.lines[1]
-        line[:plain].must_equal "                             The House is expected not to sit\n"
-        line[:html].must_equal "<i>The House is expected not to sit</i>"
+        @pdf_page.lines[1].must_equal "                               The House is expected not to sit\n"
+        @pdf_page.formatted_lines[1].must_equal "<i>The House is expected not to sit</i>\n"
         
-        line = @pdf_page.lines[3]
-        line[:plain].must_equal "Last day to table amendments for the marshalled list for:\n"
-        line[:html].must_equal "Last day to table amendments for the marshalled list for:"
+        @pdf_page.lines[3].must_equal "Last day to table amendments for the marshalled list for:\n"
+        @pdf_page.formatted_lines[3].must_equal "Last day to table amendments for the marshalled list for:\n"
         
-        line = @pdf_page.lines[4]
-        line[:plain].must_equal "       Welfare Benefits Up-rating Bill - Report Day 1\n"
-        line[:html].must_equal "<i>Welfare Benefits Up-rating Bill - Report Day 1</i>"
+        @pdf_page.lines[4].must_equal "        Welfare Benefits Up-rating Bill - Report Day 1\n"
+        @pdf_page.formatted_lines[4].must_equal "<i>Welfare Benefits Up-rating Bill - Report Day 1</i>\n"
         
-        line = @pdf_page.lines[42]
-        line[:plain].must_equal "    (3, 4 and 5 expected to be debated together)\n"
-        line[:html].must_equal "(<i>3, 4 and 5 expected to be debated together</i>)"
+        @pdf_page.lines[33].must_equal "     (3, 4 and 5 expected to be debated together)\n"
+        @pdf_page.formatted_lines[33].must_equal "(<i>3, 4 and 5 expected to be debated together</i>)\n"
       end
     end
     
@@ -199,17 +115,14 @@ class PdfPageTest < MiniTest::Spec
       end
       
       it "should return both the original plain text and the html markup for each line" do
-        line = @pdf_page.lines[9]
-        line[:plain].must_equal "2.  Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of\n"
-        line[:html].must_equal "2.  Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of"
+        @pdf_page.lines[8].must_equal "2.  Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of\n"
+        @pdf_page.formatted_lines[8].must_equal "2. Welfare Benefits Up-rating Bill – Report (Day 1 of 1†) – Baroness Stowell of\n"
         
-        line = @pdf_page.lines[45]
-        line[:plain].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger\n"
-        line[:html].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger"
+        @pdf_page.lines[35].must_equal "3.  Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger\n"
+        @pdf_page.formatted_lines[35].must_equal "3. Enterprise and Regulatory Reform Bill – Third Reading – Viscount Younger\n"
         
-        line = @pdf_page.lines[46]
-        line[:plain].must_equal "    of Leckie\n"
-        line[:html].must_equal "of Leckie"
+        @pdf_page.lines[36].must_equal "     of Leckie\n"
+        @pdf_page.formatted_lines[36].must_equal "of Leckie\n"
       end
     end
     
@@ -219,9 +132,8 @@ class PdfPageTest < MiniTest::Spec
       end
       
       it "should return the plain text and html markup for each line" do
-        line = @pdf_page.lines[15]
-        line[:plain].must_equal "    No business yet scheduled\n"
-        line[:html].must_equal "No business yet scheduled"
+        @pdf_page.lines[12].must_equal "     No business yet scheduled\n"
+        @pdf_page.formatted_lines[12].must_equal "No business yet scheduled\n"
       end
     end
     
@@ -230,23 +142,15 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page = PdfPage.new(@pdf.pages[5])
       end
       
-      it "should correctly identify 3 different font variations" do
-        fonts = @pdf_page.fonts
-        fonts.length.must_equal 3
-      end
-      
       it "should return both the original plain text and the html markup for each line" do
-        line = @pdf_page.lines[1]
-        line[:plain].must_equal "                     House dinner in the Peers’ Dining Room at 7.30pm\n"
-        line[:html].must_equal "<i>House dinner in the Peers’ Dining Room at 7.30pm</i>"
+        @pdf_page.lines[1].must_equal "                       House dinner in the Peers’ Dining Room at 7.30pm\n"
+        @pdf_page.formatted_lines[1].must_equal "<i>House dinner in the Peers’ Dining Room at 7.30pm</i>\n"
         
-        line = @pdf_page.lines[7]
-        line[:plain].must_equal "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness\n"
-        line[:html].must_equal  "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness"
+        @pdf_page.lines[6].must_equal "3.  Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness\n"
+        @pdf_page.formatted_lines[6].must_equal  "3. Succession to the Crown Bill – Third Reading – Lord Wallace of Tankerness\n"
         
-        line = @pdf_page.lines[19]
-        line[:plain].must_equal "2.  Further business will be scheduled\n"
-        line[:html].must_equal  "2.  <i>Further business will be scheduled</i>"
+        @pdf_page.lines[15].must_equal "2.  Further business will be scheduled\n"
+        @pdf_page.formatted_lines[15].must_equal  "2. <i>Further business will be scheduled</i>\n"
       end
     end
   end
