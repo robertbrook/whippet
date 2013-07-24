@@ -19,7 +19,12 @@ module PDF
       end
       
       def markup
-        %Q|#{@lines.join("\n")}#{@footer.join("")}|
+        unless @text.empty?
+          line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
+          @lines << line
+          @text = []
+        end
+        %Q|#{@lines.join("\n")}\n#{@footer.join("")}|
       end
       
       def content
@@ -29,7 +34,8 @@ module PDF
         offset = 0
         formatted_lines = markup.lines.to_a
         lines.each_with_index do |line, index|
-          if line.strip == "" and formatted_lines[index + offset].strip != ""
+          formatted_line = formatted_lines[index + offset]
+          if line.strip == "" and (formatted_line and formatted_lines[index + offset].strip != "")
             offset -= 1
           else
             fixed << line

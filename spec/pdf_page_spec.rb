@@ -126,6 +126,17 @@ class PdfPageTest < MiniTest::Spec
       end
     end
     
+    describe "when asked to load page 4" do
+      before do
+        @pdf_page = PdfPage.new(@pdf.pages[3])
+      end
+      
+      it "should return text and html markup" do
+        @pdf_page.lines[2].must_equal "Business in the Chamber at 11.00am\n"
+        @pdf_page.formatted_lines[2].must_equal "<b>Business in the Chamber at 11.00am</b>\n"
+      end
+    end
+    
     describe "when asked to load page 5" do
       before do
         @pdf_page = PdfPage.new(@pdf.pages[4])
