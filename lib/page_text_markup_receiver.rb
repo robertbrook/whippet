@@ -67,6 +67,16 @@ module PDF
             open = "#{open}<i>"
             close = "</i>#{close}"
           end
+        else
+          name = @state.current_font.basefont.to_s
+          if name.include?("Bold")
+            open = "<b>"
+            close = "</b>"
+          end
+          if name.include?("Italic")
+            open = "#{open}<i>"
+            close = "</i>#{close}"
+          end
         end
         {:open => open, :close => close}
       end

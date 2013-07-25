@@ -32,6 +32,9 @@ class PdfPageTest < MiniTest::Spec
         @pdf_page.lines[14].must_equal "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
         @pdf_page.formatted_lines[14].must_equal "2. Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012\n"
         
+        @pdf_page.lines[19].must_equal "    (2 and 3 expected to be debated together)\n"
+        @pdf_page.formatted_lines[19].must_equal "(<i>2 and 3 expected to be debated together</i>)\n"
+        
         @pdf_page.lines[23].must_equal "Business in Grand Committee at 3.45pm\n"
         @pdf_page.formatted_lines[23].must_equal "<b>Business in Grand Committee at 3.45pm</b>\n"
       end
@@ -40,6 +43,10 @@ class PdfPageTest < MiniTest::Spec
     describe "when asked to load page 3" do
       before do
         @pdf_page = PdfPage.new(@pdf.pages[2])
+      end
+      
+      it "should find the italic text correctly" do
+        @pdf_page.formatted_lines[1].must_equal "<i>House dinner in the Peers’ Dining Room at 7.30 p.m.</i>\n"
       end
       
       it "should close the markup tags correctly" do
