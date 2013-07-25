@@ -282,8 +282,13 @@ class ParserTest < MiniTest::Spec
     it "should capture the changes" do
       skip "the code for this doesn't exist yet"
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+    end
+    
+    it "should not have an empty changes record" do
+      skip "the code for this doesn't exist yet"
       sitting_day.changes.wont_be_empty
     end
+    
   end
 
   describe "Parser", "when given consecutive Forthcoming Business documents in reverse order" do
