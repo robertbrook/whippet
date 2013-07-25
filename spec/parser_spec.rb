@@ -241,10 +241,6 @@ class ParserTest < MiniTest::Spec
         sitting_day.count.must_equal 9
       end
       
-      it "should it note the Whitsun adjournment" do
-        skip "undecided"
-      end
-      
       it "should not append the page number to the last business item on the page" do
         # 2013-06-05, "Business in Grand Committee at 3.45pm", Lord Freud 6
         sitting_day = SittingDay.where(:date => Time.parse("2013-06-05 000:000:00Z")).first
