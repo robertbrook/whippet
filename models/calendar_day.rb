@@ -106,7 +106,7 @@ class CalendarDay
         item[:change_type] = "deleted"
         item[:description] = prev_item.description
         item[:position] = prev_item.position
-        item[:note] = prev_item.note if prev_item.note
+        item[:note] = prev_item.note if prev_item.note and prev_item.note.empty? == false
         item[:pdf_info] = prev_item.pdf_info
         items << item
       end
@@ -120,10 +120,10 @@ class CalendarDay
       previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.map { |x| x.description }
       
       current_headings.each do |heading|
-        if heading_in_list?(heading.gsub(/^\d+\.\s*/, ""), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "") })
-          desc = heading.gsub(/^\d+\.\s*/, "")
-          current_item = current_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
-          previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == desc }.first
+        if heading_in_list?(heading.gsub(/^\d+\.\s*/, "").squeeze(" "), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") })
+          desc = heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
+          current_item = current_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
+          previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
           
           #pre-existing thing...
           item = {}
@@ -144,15 +144,15 @@ class CalendarDay
           items << item
         end
       end
-      deleted_headings = previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "") } - current_headings.map { |x| x.gsub(/^\d+\.\s*/, "") }
+      deleted_headings = previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") } - current_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") }
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "") == heading }.first
+        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "".squeeze(" ")) == heading }.first
         
         item = {}
         item[:change_type] = "deleted"
         item[:description] = previous_item.description
-        item[:note] = previous_item.note if previous_item.note
+        item[:note] = previous_item.note if previous_item.note and previous_item.note.empty? == false
         item[:position] = previous_item.position
         item[:pdf_info] = previous_item.pdf_info
         

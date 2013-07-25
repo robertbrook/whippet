@@ -82,7 +82,7 @@ class ParserTest < MiniTest::Spec
         
         it "must have the page and line number info" do
           @sitting_day.pdf_info[:page].must_equal(1)
-          @sitting_day.pdf_info[:line].must_equal(13)
+          @sitting_day.pdf_info[:line].must_equal(10)
         end
         
         it "must have two TimeBlocks" do
@@ -112,7 +112,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_info[:page].must_equal(1)
-            @time.pdf_info[:line].must_equal(15)
+            @time.pdf_info[:line].must_equal(12)
           end
           
           it "must have four items" do
@@ -121,7 +121,7 @@ class ParserTest < MiniTest::Spec
           
           it "must set page and line info for the business items" do
             @time.business_items[2].pdf_info[:page].must_equal(1)
-            @time.business_items[2].pdf_info[:line].must_equal(21)
+            @time.business_items[2].pdf_info[:line].must_equal(17)
           end
           
           it "must record the positions of the business items" do
@@ -143,7 +143,7 @@ class ParserTest < MiniTest::Spec
           
           it "must have the page and line number info" do
             @time.pdf_info[:page].must_equal(1)
-            @time.pdf_info[:line].must_equal(29)
+            @time.pdf_info[:line].must_equal(23)
           end
           
           it "must have no items" do
@@ -218,7 +218,7 @@ class ParserTest < MiniTest::Spec
         sitting_day.count.must_equal 9
       end
       
-      it "should it note the Whitsun adjournment" do
+      it "should it note the Whitsun adjournment?" do
         skip "undecided"
       end
       
@@ -230,7 +230,7 @@ class ParserTest < MiniTest::Spec
       end
     end
   end
-
+  
   describe "Parser", "when given consecutive Forthcoming Business documents where one overrides the other" do
     before do
       @@parser3 ||= Parser.new("./data/FB 2013 03 13.pdf")
@@ -248,6 +248,17 @@ class ParserTest < MiniTest::Spec
       CalendarDay.all.count.must_equal 24
     end
     
+    it "should capture the changes" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      sitting_day.diffs.must_be_instance_of Array
+      sitting_day.diffs.wont_be_empty
+    end
+    
+    it "should return empty diffs where no changes have been made" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-05-09 00:00:00Z")).first
+      sitting_day.diffs.must_be_empty
+    end
+    
     it "should replace the older content with the new version" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
       sitting_day.time_blocks.count.must_equal 2
@@ -260,13 +271,39 @@ class ParserTest < MiniTest::Spec
       sitting_day.is_provisional.wont_equal true
     end
     
-    it "should capture the changes" do
-      skip "the code for this doesn't exist yet"
+    it "should record the previous provisional status in the diffs" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
-      sitting_day.changes.wont_be_empty
+      diff = sitting_day.diffs.first
+      
+      diff["time_blocks"].first["is_provisional"].must_equal true
+      diff["time_blocks"].last["is_provisional"].must_equal true
+    end
+    
+    #hmmm, not sure about this longer term but it'll stand for now
+    it "should register a deletion and a new item where the text has changed" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-04-24 00:00:00Z")).first
+      diff = sitting_day.diffs.first
+      
+      diff["time_blocks"].count.must_equal 1
+      diff["time_blocks"][0]["business_items"].count.must_equal 3
+      
+      bus_items = diff["time_blocks"][0]["business_items"]
+      bus_items[0]["change_type"].must_equal "new"
+      bus_items[0]["description"].must_equal("1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 90 minutes)")
+      bus_items[1]["change_type"].must_equal "deleted"
+      bus_items[1]["description"].must_equal "1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 1 hour)"
+    end
+    
+    it "should report business_items displaced by an insertion as modified" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
+      diff = sitting_day.diffs.first
+      time_block = diff["time_blocks"][1]
+      time_block["business_items"][0]["change_type"].must_equal "new"
+      time_block["business_items"][1]["change_type"].must_equal "modified"
+      time_block["business_items"][1]["position"].must_equal 1
     end
   end
-
+  
   describe "Parser", "when given consecutive Forthcoming Business documents in reverse order" do
     before do
       @@parser4 ||= Parser.new("./data/FB 2013 03 20 r.pdf")
@@ -280,12 +317,16 @@ class ParserTest < MiniTest::Spec
       end
     end
     
-    it "should create the expected number of sitting days" do
+    it "should create the expected number of calendar days" do
       CalendarDay.all.count.must_equal 24
     end
     
     it "should create the expected number of sitting days" do
-      CalendarDay.all.count.must_equal 24
+      SittingDay.all.count.must_equal 19
+    end
+    
+    it "should create the expected number of non-sitting days" do
+      NonSittingDay.all.count.must_equal 5
     end
     
     it "should not replace new content with the older version" do
