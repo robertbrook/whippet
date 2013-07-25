@@ -155,11 +155,14 @@ class ParserTest < MiniTest::Spec
             @time = @sitting_day.time_blocks.last
           end
           
-          it "must have the page and line number info" do
+          it "must have the page number '1'" do
             @time.pdf_info[:page].must_equal(1)
-            @time.pdf_info[:line].must_equal(29)
           end
           
+          it "must have the line number '29'" do
+            @time.pdf_info[:line].must_equal(29)
+          end
+                    
           it "must have no items" do
             @time.business_items.length.must_equal 0
           end
@@ -183,9 +186,15 @@ class ParserTest < MiniTest::Spec
           @sitting_day.time_blocks.length.must_equal 3
         end
         
-        it "the TimeBlocks should be flagged as provisional" do
+        it "the first TimeBlock should be flagged as provisional" do
           @sitting_day.time_blocks[0].is_provisional.must_equal true
+        end
+        
+        it "the second TimeBlock should be flagged as provisional" do
           @sitting_day.time_blocks[1].is_provisional.must_equal true
+        end
+        
+        it "the third TimeBlock should be flagged as provisional" do
           @sitting_day.time_blocks[2].is_provisional.must_equal true
         end
       end
