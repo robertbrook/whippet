@@ -10,6 +10,11 @@ class CalendarDayTest < MiniTest::Spec
         day = CalendarDay.new(:note => "test")
         sitting_day = day.becomes(SittingDay)
         sitting_day.must_be_kind_of SittingDay
+      end
+      
+      it "must cast CalendarDay to SittingDay retaining note text" do
+        day = CalendarDay.new(:note => "test")
+        sitting_day = day.becomes(SittingDay)
         sitting_day.note.must_equal "test"
       end
       

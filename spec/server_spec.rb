@@ -38,11 +38,15 @@ include Rack::Test::Methods
       end
       
       describe "when running a search for 'Regulations'" do
-		it "should return these results"      
+      
+		it "should return these results"		   
+      
       end
       
       describe "when running a search for 'Lord McNally'" do
+      
 		it "should return these results"      
+      
       end
     
   end
