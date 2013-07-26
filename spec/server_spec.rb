@@ -4,6 +4,12 @@ require './spec/minitest_helper.rb'
 require './server'
 
 class ServerTest < MiniTest::Spec 
+
+include Rack::Test::Methods
+
+  def app
+    Sinatra::Application
+  end
  
   describe "TheServer" do   
    

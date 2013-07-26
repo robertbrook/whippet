@@ -23,4 +23,5 @@ group :test do
   gem 'minitest', '5.0.1', :require => 'minitest'
   gem 'simplecov', '0.7.1'
   gem "mocha", :require => false
+  gem 'rack-test'
 end
