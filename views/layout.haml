@@ -3,10 +3,10 @@
   %head
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
-    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet", :media => "screen"}
-    %link{:href => "css/bootstrap-responsive.min.css", :rel => "stylesheet"}
+    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+    %meta{'http-equiv' => "X-UA-Compatible", :content => "IE=edge"}
   %body
-    %div.container{:style => "padding:3%;"}
+    %div#wrap
       %form.form-search.pull-right
         %input.input-medium.search-query{:type => "text", :name => "q"}
         %button.btn{:type => "submit"} Search
@@ -23,3 +23,5 @@
         %time{:datetime => @time}
           Page generated &mdash; 
           =@time
+    %script{:src => "http://code.jquery.com/jquery.js"}
+    %script{:src => "js/bootstrap.min.js"}
