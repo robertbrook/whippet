@@ -1,27 +1,25 @@
-!!! 5
+!!!
 %html{:lang => "en-GB"}
   %head
+    %meta{:charset => "utf-8"}
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
     %meta{'http-equiv' => "X-UA-Compatible", :content => "IE=edge"}
   %body
-    %div#wrap
-      %div.container
-        %form.form-search.pull-right
-          %input.input-medium.search-query{:type => "text", :name => "q"}
-          %button.btn{:type => "submit"} Search
-        %ul.nav.nav-pills.lead
-          %li.disabled
-            %a LordsWhip
+    .container
+      .header
+        %ul.nav.nav-pills.pull-right
+          %li.active
+            %a{:href => "#"} Latest
           %li
             %a{:href => "/cal"} cal
           %li
             %a{:href => "/cal?ics"} ics
-
+        %h1.text-muted LordsWhip
+      .row
         =yield
-    %div#footer
-      %div.container
+      .footer
         %p
           Page generated &mdash;
           %time{:datetime => @time} 
