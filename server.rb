@@ -3,6 +3,12 @@ require 'mongo_mapper'
 require './lib/parser'
 require 'haml'
 require 'ri_cal'
+require "better_errors"
+
+configure :development do
+  use BetterErrors::Middleware
+  BetterErrors.application_root = File.expand_path('..', __FILE__)
+end
 
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
@@ -11,6 +17,10 @@ before do
     env = ENV['RACK_ENV']
     MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
   end
+end
+
+get "/x" do
+  raise "oops"
 end
 
 get '/' do  
