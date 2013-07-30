@@ -19,10 +19,6 @@ before do
   end
 end
 
-get "/x" do
-  raise "oops"
-end
-
 get '/' do  
   @time = Time.now
   @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
