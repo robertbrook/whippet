@@ -62,8 +62,9 @@ class Parser
         #a new time
         when /^\s*Business/
           p "new time detected, starting a new sub-section: #{line}" if debug
-          p "aka #{html}" if debug
-          process_new_time_block(line, html, page, line_no)
+          if @current_sitting_day
+            process_new_time_block(line, html, page, line_no)
+          end
         
         #a page number
         when /^\s*(\d+)\n?$/
@@ -73,7 +74,9 @@ class Parser
         when /^(\d)/
           p "new business item, hello: #{line}" if debug
           p "aka #{html}" if debug
-          process_new_business_item(line, html, page, line_no)
+          if @current_sitting_day
+            process_new_business_item(line, html, page, line_no)
+          end
         
         #a blank line
         when /^\s*\n?$/
@@ -98,7 +101,9 @@ class Parser
       end
     end
     
-    tidy_up()
+    if @current_sitting_day
+      tidy_up()
+    end
     nil
   end
   
@@ -181,50 +186,46 @@ class Parser
     end
   end
   
-  def process_new_time_block(line, html, page, line_no)
-    if @current_sitting_day
-      @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
-      fix_description()
-      @last_line_was_blank = false
-      @in_item = false
-      @block_position +=1
-      @item_position = 0
-      block = TimeBlock.new
-      block.position = @block_position
-      time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
-      if time_matches[4] == "p"
-        block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
-      elsif time_matches[5] == "noon"
-        block.time_as_number = (time_matches[2].to_i) * 100
-      else
-        block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
-      end
-      block.title = line.strip
-      
-      Time.parse(@pdf.info[:ModDate])
-      
-      pdf_info = set_pdf_info(page, line_no)
-      block.pdf_info = pdf_info
-      block.is_provisional = true if @provisional
-      @current_time_block = block
-      @current_sitting_day.time_blocks << @current_time_block
+  def process_new_time_block(line, html, page, line_no)    
+    @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
+    fix_description()
+    @last_line_was_blank = false
+    @in_item = false
+    @block_position +=1
+    @item_position = 0
+    block = TimeBlock.new
+    block.position = @block_position
+    time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
+    if time_matches[4] == "p"
+      block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
+    elsif time_matches[5] == "noon"
+      block.time_as_number = (time_matches[2].to_i) * 100
+    else
+      block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
     end
+    block.title = line.strip
+    
+    Time.parse(@pdf.info[:ModDate])
+    
+    pdf_info = set_pdf_info(page, line_no)
+    block.pdf_info = pdf_info
+    block.is_provisional = true if @provisional
+    @current_time_block = block
+    @current_sitting_day.time_blocks << @current_time_block
   end
   
-  def process_new_business_item(line, html, page, line_no)
-    if @current_sitting_day
-      @last_line_was_blank = false
-      @in_item = true
-      # first line of item
-      @item_position +=1
-      item = BusinessItem.new
-      item.position = @item_position
-      item.description = line.strip
-      
-      pdf_info = set_pdf_info(page, line_no)
-      item.pdf_info = pdf_info
-      @current_time_block.business_items << item
-    end
+  def process_new_business_item(line, html, page, line_no)    
+    @last_line_was_blank = false
+    @in_item = true
+    # first line of item
+    @item_position +=1
+    item = BusinessItem.new
+    item.position = @item_position
+    item.description = line.strip
+    
+    pdf_info = set_pdf_info(page, line_no)
+    item.pdf_info = pdf_info
+    @current_time_block.business_items << item
   end
   
   def process_blank_line(debug)
@@ -275,19 +276,17 @@ class Parser
     end
   end
   
-  def tidy_up
-    if @current_sitting_day
-      unless @current_sitting_day.respond_to?(:time_blocks)
-        @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
-      end
-      if @old_day
-        change = @current_sitting_day.diff(@old_day)
-        unless change.empty?
-          @current_sitting_day.diffs << change
-        end
-      end
-      @current_sitting_day.save
-      @business << @current_sitting_day
+  def tidy_up    
+    unless @current_sitting_day.respond_to?(:time_blocks)
+      @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
     end
+    if @old_day
+      change = @current_sitting_day.diff(@old_day)
+      unless change.empty?
+        @current_sitting_day.diffs << change
+      end
+    end
+    @current_sitting_day.save
+    @business << @current_sitting_day
   end
 end
