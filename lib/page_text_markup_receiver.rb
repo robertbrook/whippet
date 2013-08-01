@@ -81,6 +81,13 @@ module PDF
         {:open => open, :close => close}
       end
       
+      def append_line(tags, run)
+        line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
+        @lines << line
+        @last_tag_end = ""
+        @text = ["#{tags[:open]}#{run.to_s}"]
+      end
+      
       def internal_show_text(string)
         if @state.current_font.nil?
           raise PDF::Reader::MalformedPDFError, "current font is invalid"
@@ -107,10 +114,7 @@ module PDF
               @footer << run.to_s
             else
               if newy < @lasty
-                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
-                @lines << line
-                @last_tag_end = ""
-                @text = ["#{tags[:open]}#{run.to_s}"]
+                append_line(tags, run)
               else
                 @text << "#{run.to_s}"
               end
@@ -120,10 +124,7 @@ module PDF
               @footer << "#{@last_tag_end}#{run.to_s}"
             else
               if newy < @lasty
-                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
-                @lines << line
-                @last_tag_end = ""
-                @text = ["#{tags[:open]}#{run.to_s}"]
+                append_line(tags, run)
               else
                 @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
               end
