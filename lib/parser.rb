@@ -62,10 +62,7 @@ class Parser
             unless @current_sitting_day.respond_to?(:time_blocks)
               @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
             else  
-              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-                item = @current_sitting_day.time_blocks.last.business_items.last
-                item.description = item.description.rstrip
-              end
+              fix_description()
             end
             if @old_day
               change = @current_sitting_day.diff(@old_day)
@@ -87,7 +84,7 @@ class Parser
               #the found version is old, delete it and allow the new info to replace it
               @old_day = prev.dup
               prev.delete
-              pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+              pdf_info = set_pdf_info(page, line_no)
               @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
               @block_position = 0
               @item_position = 0
@@ -96,7 +93,7 @@ class Parser
               @current_sitting_day = nil
             end
           else
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            pdf_info = set_pdf_info(page, line_no)
             @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
             @block_position = 0
             @item_position = 0
@@ -112,10 +109,7 @@ class Parser
           p "aka #{html}" if debug
           if @current_sitting_day
             @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
-            if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-              item = @current_sitting_day.time_blocks.last.business_items.last
-              item.description = item.description.rstrip
-            end
+            fix_description()
             @last_line_was_blank = false
             @in_item = false
             @block_position +=1
@@ -134,7 +128,7 @@ class Parser
             
             Time.parse(@pdf.info[:ModDate])
             
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            pdf_info = set_pdf_info(page, line_no)
             block.pdf_info = pdf_info
             block.is_provisional = true if @provisional
             @current_time_block = block
@@ -159,7 +153,7 @@ class Parser
             item.position = @item_position
             item.description = line.strip
             
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+            pdf_info = set_pdf_info(page, line_no)
             item.pdf_info = pdf_info
             @current_time_block.business_items << item
           end
@@ -169,10 +163,7 @@ class Parser
           if @current_sitting_day
             if @last_line_was_blank and @in_item
               p "A blank following a blank line, resetting the itemflag" if debug
-              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-                item = @current_sitting_day.time_blocks.last.business_items.last
-                item.description = item.description.rstrip
-              end
+              fix_description()
               @in_item = false
             end
             @last_line_was_blank = true
@@ -209,29 +200,13 @@ class Parser
                   end
                 else
                   p "notes about the day: #{line}" if debug
-                  if @current_sitting_day.note
-                    if @current_sitting_day.note[-1] == ":"
-                      @current_sitting_day.note += " #{line.strip}"
-                    else
-                      @current_sitting_day.note += "; #{line.strip}"
-                    end
-                  else
-                    @current_sitting_day.note = line.strip
-                  end
+                  store_note(line)
                 end
               else
                 @last_line_was_blank = false
                 if line.strip =~ /(L|l)ast day to table amendments/
                   p "notes about the day (again!): #{line}" if debug
-                  if @current_sitting_day.note
-                    if @current_sitting_day.note[-1] == ":"
-                      @current_sitting_day.note += " #{line.strip}"
-                    else
-                      @current_sitting_day.note += "; #{line.strip}"
-                    end
-                  else
-                    @current_sitting_day.note = line.strip
-                  end
+                  store_note(line)
                 else                
                   p "Unhandled text: #{line}" if debug
                 end
@@ -257,5 +232,33 @@ class Parser
   
   def output
     @business
+  end
+  
+  private
+  
+  def fix_description()
+    if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
+      item = @current_sitting_day.time_blocks.last.business_items.last
+      item.description = item.description.rstrip
+    end
+  end
+  
+  def store_note(line)
+    if @current_sitting_day.note
+      if @current_sitting_day.note[-1] == ":"
+        @current_sitting_day.note += " #{line.strip}"
+      else
+        @current_sitting_day.note += "; #{line.strip}"
+      end
+    else
+      @current_sitting_day.note = line.strip
+    end
+  end
+  
+  def set_pdf_info(page, line_no)
+    {:filename => @pdf_filename, 
+     :page => page.number, 
+     :line => line_no, 
+     :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
   end
 end
