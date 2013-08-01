@@ -24,15 +24,7 @@ class Parser
   end
   
   def process(debug=false)
-    @fin = false
-    @provisional = false
-    @last_line_was_blank = false
-    @in_item = false
-    @current_sitting_day = nil
-    @current_time_block = nil
-    @old_day = nil
-    @block_position = 0
-    @item_position = 0
+    init_process()
     html = ""
     
     pages.each do |page|
@@ -72,8 +64,10 @@ class Parser
         
         #a numbered item
         when /^(\d)/
-          p "new business item, hello: #{line}" if debug
-          p "aka #{html}" if debug
+          if debug
+            p "new business item, hello: #{line}"
+            p "aka #{html}" if debug
+          end
           if @current_sitting_day
             process_new_business_item(line, html, page, line_no)
           end
@@ -112,6 +106,18 @@ class Parser
   end
   
   private
+  
+  def init_process
+    @fin = false
+    @provisional = false
+    @last_line_was_blank = false
+    @in_item = false
+    @current_sitting_day = nil
+    @current_time_block = nil
+    @old_day = nil
+    @block_position = 0
+    @item_position = 0
+  end
   
   def fix_description()
     if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
