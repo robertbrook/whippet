@@ -16,7 +16,6 @@ class Parser
     end
     @pdf = PDF::Reader.new(target_pdf)
     @pdf_filename = target_pdf.split("/").last
-    @business = []
   end
   
   def pages
@@ -94,9 +93,6 @@ class Parser
     nil
   end
   
-  def output
-    @business
-  end
   
   private
   
@@ -152,7 +148,6 @@ class Parser
         end
       end
       @current_sitting_day.save
-      @business << @current_sitting_day
     end
     @last_line_was_blank = false
     @in_item = false
@@ -297,6 +292,5 @@ class Parser
       end
     end
     @current_sitting_day.save
-    @business << @current_sitting_day
   end
 end
