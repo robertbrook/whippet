@@ -98,17 +98,7 @@ class Parser
       end
     end
     
-    if @current_sitting_day
-      @current_sitting_day = @current_sitting_day.becomes(NonSittingDay) unless @current_sitting_day.respond_to?(:time_blocks)
-      if @old_day
-        change = @current_sitting_day.diff(@old_day)
-        unless change.empty?
-          @current_sitting_day.diffs << change
-        end
-      end
-      @current_sitting_day.save
-      @business << @current_sitting_day
-    end
+    tidy_up()
     nil
   end
   
@@ -282,6 +272,22 @@ class Parser
       else                
         p "Unhandled text: #{line}" if debug
       end
+    end
+  end
+  
+  def tidy_up
+    if @current_sitting_day
+      unless @current_sitting_day.respond_to?(:time_blocks)
+        @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
+      end
+      if @old_day
+        change = @current_sitting_day.diff(@old_day)
+        unless change.empty?
+          @current_sitting_day.diffs << change
+        end
+      end
+      @current_sitting_day.save
+      @business << @current_sitting_day
     end
   end
 end
