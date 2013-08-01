@@ -180,23 +180,35 @@ class Parser
     end
   end
   
-  def process_new_time_block(line, html, page, line_no)    
-    @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
-    fix_description()
+  def reset_time_block_vars
     @last_line_was_blank = false
     @in_item = false
     @block_position +=1
     @item_position = 0
+  end
+  
+  def parse_heading_time(input)
+    matches = input.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
+    if matches[5] == "noon"
+      return (matches[2].to_i) * 100
+    end
+    
+    time = matches[2].to_i * 100 + matches[3].to_i
+    if matches[4] == "p"
+      time += 1200
+    end
+    time
+  end
+  
+  def process_new_time_block(line, html, page, line_no)
+    unless @current_sitting_day.is_a?(SittingDay)
+      @current_sitting_day = @current_sitting_day.becomes(SittingDay)
+    end
+    fix_description()
+    reset_time_block_vars()
     block = TimeBlock.new
     block.position = @block_position
-    time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
-    if time_matches[4] == "p"
-      block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
-    elsif time_matches[5] == "noon"
-      block.time_as_number = (time_matches[2].to_i) * 100
-    else
-      block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
-    end
+    block.time_as_number = parse_heading_time(line)
     block.title = line.strip
     
     Time.parse(@pdf.info[:ModDate])
