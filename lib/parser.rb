@@ -83,14 +83,7 @@ class Parser
         
         #all the other things
         else
-          if @current_sitting_day
-            if @in_item
-              process_continuation_line(line, debug)
-            else
-              #the last line wasn't blank and we're not in item space - a note!
-              process_notes_and_exceptions(line, html, debug)
-            end
-          end
+          process_catchall(line, html, debug)
         end
       end
     end
@@ -242,6 +235,17 @@ class Parser
         @in_item = false
       end
       @last_line_was_blank = true
+    end
+  end
+  
+  def process_catchall(line, html, debug)
+    if @current_sitting_day
+      if @in_item
+        process_continuation_line(line, debug)
+      else
+        #the last line wasn't blank and we're not in item space - a note!
+        process_notes_and_exceptions(line, html, debug)
+      end
     end
   end
   
