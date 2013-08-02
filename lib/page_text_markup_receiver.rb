@@ -108,32 +108,36 @@ module PDF
           @characters << run
           @state.process_glyph_displacement(glyph_width, 0, utf8_chars == SPACE)
           
-          tags = markup_tags(@state.current_font)
-          if tags[:open] == @open_tag
-            if newy < 50
-              @footer << run.to_s
-            else
-              if newy < @lasty
-                append_line(tags, run)
-              else
-                @text << "#{run.to_s}"
-              end
-            end
-          else
-            if newy < 50
-              @footer << "#{@last_tag_end}#{run.to_s}"
-            else
-              if newy < @lasty
-                append_line(tags, run)
-              else
-                @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
-              end
-            end
-            @last_tag_end = tags[:close]
-          end
-          @open_tag = tags[:open]
-          @lasty = newy
+          build_markup(newy, run)
         end
+      end
+      
+      def build_markup(newy, run)
+        tags = markup_tags(@state.current_font)
+        if tags[:open] == @open_tag
+          if newy < 50
+            @footer << run.to_s
+          else
+            if newy < @lasty
+              append_line(tags, run)
+            else
+              @text << "#{run.to_s}"
+            end
+          end
+        else
+          if newy < 50
+            @footer << "#{@last_tag_end}#{run.to_s}"
+          else
+            if newy < @lasty
+              append_line(tags, run)
+            else
+              @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
+            end
+          end
+          @last_tag_end = tags[:close]
+        end
+        @open_tag = tags[:open]
+        @lasty = newy
       end
     end
   end
