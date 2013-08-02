@@ -55,28 +55,23 @@ module PDF
         string.gsub(/<(?:b|i)>\s*<\/(?:b|i)>/, "").strip
       end
       
+      def font_type(font, type)
+        if font.basefont.to_s.include?(type)
+          return true
+        end
+        false
+      end
+      
       def markup_tags(font)
         open = ""
         close = ""
-        unless @state.current_font.font_descriptor.nil?
-          if @state.current_font.font_descriptor.font_weight > 400
-            open = "<b>"
-            close = "</b>"
-          end
-          if @state.current_font.font_descriptor.italic_angle != 0
-            open = "#{open}<i>"
-            close = "</i>#{close}"
-          end
-        else
-          name = @state.current_font.basefont.to_s
-          if name.include?("Bold")
-            open = "<b>"
-            close = "</b>"
-          end
-          if name.include?("Italic")
-            open = "#{open}<i>"
-            close = "</i>#{close}"
-          end
+        if font_type(@state.current_font, "Bold")
+          open = "<b>"
+          close = "</b>"
+        end
+        if font_type(@state.current_font, "Italic")
+          open = "#{open}<i>"
+          close = "</i>#{close}"
         end
         {:open => open, :close => close}
       end
