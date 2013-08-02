@@ -134,7 +134,7 @@ class Parser
      :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
   end
   
-  def process_new_day(current_date, page, line_no)
+  def init_new_day
     if @current_sitting_day
       unless @current_sitting_day.respond_to?(:time_blocks)
         @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
@@ -151,32 +151,37 @@ class Parser
     end
     @last_line_was_blank = false
     @in_item = false
-    
+  end
+  
+  def create_new_sitting_day(current_date, pdf_info)
+    @block_position = 0
+    @item_position = 0
+    CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+  end
+  
+  def get_previous_day(current_date)
     parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
-    prev = CalendarDay.where(:date => Time.parse(parsed_time)).first
+    CalendarDay.where(:date => Time.parse(parsed_time)).first
+  end
+  
+  def process_new_day(current_date, page, line_no)
+    init_new_day()
+    prev = get_previous_day(current_date)
+    pdf_info = set_pdf_info(page, line_no)
     @old_day = nil
+    @current_sitting_day = create_new_sitting_day(current_date, pdf_info)
+    if @provisional
+      @current_sitting_day.is_provisional = true
+    end
     if prev
       if prev.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
         #the found version is old, delete it and allow the new info to replace it
         @old_day = prev.dup
         prev.delete
-        pdf_info = set_pdf_info(page, line_no)
-        @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
-        @block_position = 0
-        @item_position = 0
       else
         #the new data is old or a duplicate, ignore it
         @current_sitting_day = nil
       end
-    else
-      pdf_info = set_pdf_info(page, line_no)
-      @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
-      @block_position = 0
-      @item_position = 0
-    end
-    
-    if @provisional and @current_sitting_day
-      @current_sitting_day.is_provisional = true
     end
   end
   
