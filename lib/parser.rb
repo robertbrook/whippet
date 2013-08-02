@@ -273,16 +273,16 @@ class Parser
   end
   
   def process_notes_and_exceptions(line, html, debug)
-    if line =~ /^\s+\b[A-Z][a-z]/ and (@last_line_was_blank == false or line =~ /^\s+No business yet scheduled/)
-      if @current_sitting_day.respond_to?(:time_blocks) and @current_sitting_day.time_blocks.count > 0
-        if html.include?("<b><i>")
-          p html if debug
-          #not what we first took it for, not sure what do do with it... yet
-        else
-          p "notes about the time: #{line}" if debug
-          @current_time_block.note = line.strip
-          @current_time_block.save
-        end
+    if html.include?("<b><i>")
+      p "Unhandled markup: #{html}" if debug
+      #not what we first took it for, not sure what do do with it... yet
+      return
+    end
+    if @last_line_was_blank == false
+      if @current_sitting_day.has_time_blocks?
+        p "notes about the time: #{line}" if debug
+        @current_time_block.note = line.strip
+        @current_time_block.save
       else
         p "notes about the day: #{line}" if debug
         store_note(line)
@@ -292,7 +292,7 @@ class Parser
       if line.strip =~ /(L|l)ast day to table amendments/
         p "notes about the day (again!): #{line}" if debug
         store_note(line)
-      else                
+      else
         p "Unhandled text: #{line}" if debug
       end
     end
