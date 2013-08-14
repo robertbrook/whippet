@@ -53,14 +53,8 @@ class CalendarDay
         if heading_in_list?(heading, previous_block_headings)
           #pre-existing thing, compare the differences...
           block = compare_timeblock_with_previous_version(current_block, previous_block)
-          
-          #...and only store data that's changed
-          unless block.empty?
-            block[:title] = current_block.title
-            block[:change_type] = "modified"
-            block[:pdf_info] = previous_block.pdf_info
-            blocks << block
-          end
+          #...and only store if something's changed
+          blocks << block unless block.empty?
         else
           #a new thing, just need to note its arrival
           blocks << {:title => current_block.title, :change_type => "new"}
@@ -100,6 +94,11 @@ class CalendarDay
       block[:is_provisional] = previous.is_provisional unless previous.is_provisional == current.is_provisional
       bus_items = compare_business_items(current, previous)
       block[:business_items] = bus_items unless bus_items.empty?
+      unless block.empty?
+        block[:title] = current.title
+        block[:change_type] = "modified"
+        block[:pdf_info] = previous.pdf_info
+      end
       block
     end
     
