@@ -84,6 +84,10 @@ class CalendarDay
   end
   
   private
+    def strip_heading_numbers(heading)
+      heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
+    end
+    
     def heading_in_list?(heading, heading_list)
       return true if heading_list.include?(heading)
       false
@@ -132,14 +136,17 @@ class CalendarDay
       current_headings = current_block.business_items.empty? ? [] : current_block.business_items.map { |x| x.description }
       previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.map { |x| x.description }
       
+      # loop over each heading (assumes uniqueness)
       current_headings.each do |heading|
-        if heading_in_list?(heading.gsub(/^\d+\.\s*/, "").squeeze(" "), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") })
-          desc = heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
+        if heading_in_list?(\
+            strip_heading_numbers(heading), \
+            previous_headings.map { |x| strip_heading_numbers(x) })
+          desc = strip_heading_numbers(heading)
           current_item = current_block.business_items.select \
-            { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
+            { |x| strip_heading_numbers(x.description) == desc }.first
             
           previous_item = last_block.business_items.select \
-            { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
+            { |x| strip_heading_numbers(x.description) == desc }.first
           
           #pre-existing thing...
           item = {}
@@ -160,10 +167,13 @@ class CalendarDay
           items << item
         end
       end
-      deleted_headings = previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") } - current_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") }
+      deleted_headings = previous_headings.map \
+        { |x| strip_heading_numbers(x) } - current_headings.map { |x| strip_heading_numbers(x) }
+      
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "".squeeze(" ")) == heading }.first
+        previous_item = last_block.business_items.select \
+          { |x| strip_heading_numbers(x.description) == heading }.first
         
         item = {}
         item[:change_type] = "deleted"
