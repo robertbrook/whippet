@@ -93,6 +93,10 @@ class CalendarDay
       block.business_items.empty? ? [] : block.business_items.map { |x| x.description }
     end
     
+    def map_unnumbered_descriptions(block)
+      block.map { |x| strip_heading_numbers(x) }
+    end
+    
     def heading_in_list?(heading, heading_list)
       return true if heading_list.include?(heading)
       false
@@ -176,7 +180,7 @@ class CalendarDay
       current_headings.each do |heading|
         if heading_in_list?(\
             strip_heading_numbers(heading), \
-            previous_headings.map { |x| strip_heading_numbers(x) })
+            map_unnumbered_descriptions(previous_headings))
           #pre-existing thing...
           desc = strip_heading_numbers(heading)
           current_item = find_item_by_unnumbered_description(current_block, desc)  
@@ -192,8 +196,7 @@ class CalendarDay
           items << item
         end
       end
-      deleted_headings = previous_headings.map \
-        { |x| strip_heading_numbers(x) } - current_headings.map { |x| strip_heading_numbers(x) }
+      deleted_headings = map_unnumbered_descriptions(previous_headings) - map_unnumbered_descriptions(current_headings)
       
       deleted_headings.each do |heading|
         #assumes that the heading is unique
