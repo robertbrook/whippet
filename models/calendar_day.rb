@@ -100,9 +100,7 @@ class CalendarDay
     
     def compare_simple_values(current, other)
       change = {}
-      comp_note = current.note.nil? ? "" : note
-      other_note = other.note.nil? ? "" : other.note
-      change[:note] = other_note if comp_note != other.note
+      change[:note] = other_note if current.note.to_s != other.note.to_s
       change[:_type] = other._type if current._type != other._type
       change[:accepted] = other.accepted if current.accepted != other.accepted
       change[:is_provisional] = other.is_provisional if current.is_provisional != other.is_provisional
@@ -124,6 +122,19 @@ class CalendarDay
       block
     end
     
+    def compare_item_with_previous_version(current, previous)
+      item = {}
+      item[:note] = previous.note unless previous.note == current.note
+      item[:position] = previous.position unless previous.position == current.position
+      
+      unless item.empty?
+        item[:change_type] = "modified"
+        item[:description] = previous.description
+        item[:pdf_info] = previous.pdf_info
+      end
+      item
+    end
+    
     def preserve_deleted_timeblock(deleted_block)
       block = {}
       block[:change_type] = "deleted"
@@ -137,7 +148,7 @@ class CalendarDay
       block
     end
     
-    def preserve_deleted_business_item(deleted_item)
+    def preserve_deleted_item(deleted_item)
       item = {}
       item[:change_type] = "deleted"
       item[:description] = deleted_item.description
@@ -150,7 +161,7 @@ class CalendarDay
     def copy_business_items(previous_block, changes)
       items = []
       previous_block.business_items.each do |prev_item|
-        item = preserve_deleted_business_item(prev_item)
+        item = preserve_deleted_item(prev_item)
         items << item
       end
       items
@@ -158,7 +169,6 @@ class CalendarDay
     
     def compare_business_items(current_block, last_block)
       items = []
-      
       current_headings = map_item_descriptions(current_block)
       previous_headings = map_item_descriptions(last_block)
       
@@ -172,16 +182,8 @@ class CalendarDay
           current_item = find_item_by_unnumbered_description(current_block, desc)  
           previous_item = find_item_by_unnumbered_description(last_block, desc)
           
-          item = {}
-          item[:note] = previous_item.note unless previous_item.note == current_item.note
-          item[:position] = previous_item.position unless previous_item.position == current_item.position
-          
-          unless item.empty?
-            item[:change_type] = "modified"
-            item[:description] = previous_item.description
-            item[:pdf_info] = previous_item.pdf_info
-            items << item
-          end
+          item = compare_item_with_previous_version(current_item, previous_item)
+          items << item unless item.empty?
         else
           #a new thing, just need to note its arrival
           item = {}
@@ -196,7 +198,7 @@ class CalendarDay
       deleted_headings.each do |heading|
         #assumes that the heading is unique
         previous_item = find_item_by_unnumbered_description(last_block, heading)        
-        item = preserve_deleted_business_item(previous_item)
+        item = preserve_deleted_item(previous_item)
         items << item
       end
       items
