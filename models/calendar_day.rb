@@ -26,30 +26,24 @@ class CalendarDay
   end
   
   def diff(other)
-    change = {}
     unless other.is_a?(CalendarDay)
       raise "Unable to compare #{self.class} to #{other.class}"
     end
     
-    #the easy bit - fixed simple values
-    comp_note = note.nil? ? "" : note
-    other_note = other.note.nil? ? "" : other.note
-    change[:note] = other_note if note != other.note
-    change[:_type] = other._type if _type != other._type
-    change[:accepted] = other.accepted if accepted != other.accepted
-    change[:is_provisional] = other.is_provisional if is_provisional != other.is_provisional
+    #compare the simple values
+    change = compare_simple_values(self, other)
     
     #analyse the time_blocks
     if self.has_time_blocks? or other.has_time_blocks?
       blocks = []
-      current_block_headings = self.has_time_blocks? ? time_blocks.map { |x| x.title } : []
-      previous_block_headings = other.has_time_blocks? ? other.time_blocks.map { |x| x.title } : []
+      current_block_headings = map_timeblock_titles(self)
+      previous_block_headings = map_timeblock_titles(other)
       
       #loop through headings in the current block
       current_block_headings.each do |heading|
         #warning: assumes that the heading is unique
-        current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title == heading }.first : {}
-        previous_block = other.has_time_blocks? ? other.time_blocks.select { |x| x.title == heading }.first : {}
+        current_block = self.has_time_blocks? ? find_in_array_by_title(time_blocks, heading) : {}
+        previous_block = other.has_time_blocks? ? find_in_array_by_title(other.time_blocks, heading) : {}
         if heading_in_list?(heading, previous_block_headings)
           #pre-existing thing, compare the differences...
           block = compare_timeblock_with_previous_version(current_block, previous_block)
@@ -65,7 +59,7 @@ class CalendarDay
       deleted_headings = previous_block_headings - current_block_headings
       deleted_headings.each do |heading|
         #warning: assumes that the heading is unique
-        previous_block = other.time_blocks.select { |x| x.title == heading }.first
+        previous_block = find_in_array_by_title(other.time_blocks, heading)
         block = preserve_deleted_timeblock(previous_block)
         blocks << block
       end
@@ -82,9 +76,37 @@ class CalendarDay
       heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
     end
     
+    def find_in_array_by_title(arr, value)
+      arr.select { |x| x.title == value }.first
+    end
+    
+    def find_item_by_unnumbered_description(block, value)
+      block.business_items.select \
+        { |x| strip_heading_numbers(x.description) == value }.first
+    end
+    
+    def map_timeblock_titles(obj)
+      obj.has_time_blocks? ? obj.time_blocks.map { |x| x.title } : []
+    end
+    
+    def map_item_descriptions(block)
+      block.business_items.empty? ? [] : block.business_items.map { |x| x.description }
+    end
+    
     def heading_in_list?(heading, heading_list)
       return true if heading_list.include?(heading)
       false
+    end
+    
+    def compare_simple_values(current, other)
+      change = {}
+      comp_note = current.note.nil? ? "" : note
+      other_note = other.note.nil? ? "" : other.note
+      change[:note] = other_note if comp_note != other.note
+      change[:_type] = other._type if current._type != other._type
+      change[:accepted] = other.accepted if current.accepted != other.accepted
+      change[:is_provisional] = other.is_provisional if current.is_provisional != other.is_provisional
+      change
     end
     
     def compare_timeblock_with_previous_version(current, previous)
@@ -137,8 +159,8 @@ class CalendarDay
     def compare_business_items(current_block, last_block)
       items = []
       
-      current_headings = current_block.business_items.empty? ? [] : current_block.business_items.map { |x| x.description }
-      previous_headings = last_block.business_items.empty? ? [] : last_block.business_items.map { |x| x.description }
+      current_headings = map_item_descriptions(current_block)
+      previous_headings = map_item_descriptions(last_block)
       
       # loop over each heading (assumes uniqueness)
       current_headings.each do |heading|
@@ -147,11 +169,8 @@ class CalendarDay
             previous_headings.map { |x| strip_heading_numbers(x) })
           #pre-existing thing...
           desc = strip_heading_numbers(heading)
-          current_item = current_block.business_items.select \
-            { |x| strip_heading_numbers(x.description) == desc }.first
-            
-          previous_item = last_block.business_items.select \
-            { |x| strip_heading_numbers(x.description) == desc }.first
+          current_item = find_item_by_unnumbered_description(current_block, desc)  
+          previous_item = find_item_by_unnumbered_description(last_block, desc)
           
           item = {}
           item[:note] = previous_item.note unless previous_item.note == current_item.note
@@ -176,9 +195,7 @@ class CalendarDay
       
       deleted_headings.each do |heading|
         #assumes that the heading is unique
-        previous_item = last_block.business_items.select \
-          { |x| strip_heading_numbers(x.description) == heading }.first
-        
+        previous_item = find_item_by_unnumbered_description(last_block, heading)        
         item = preserve_deleted_business_item(previous_item)
         items << item
       end
