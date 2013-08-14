@@ -44,24 +44,21 @@ class CalendarDay
       blocks = []
       current_block_headings = self.has_time_blocks? ? time_blocks.map { |x| x.title } : []
       previous_block_headings = other.has_time_blocks? ? other.time_blocks.map { |x| x.title } : []
+      
+      #loop through headings in the current block
       current_block_headings.each do |heading|
-        #assumes that the heading is unique
+        #warning: assumes that the heading is unique
         current_block = self.has_time_blocks? ? time_blocks.select { |x| x.title == heading }.first : {}
         previous_block = other.has_time_blocks? ? other.time_blocks.select { |x| x.title == heading }.first : {}
         if heading_in_list?(heading, previous_block_headings)
-          #pre-existing thing...
-          block = {}
-          block[:note] = previous_block.note unless previous_block.note == current_block.note
-          block[:position] = previous_block.position unless previous_block.position == current_block.position
-          block[:is_provisional] = previous_block.is_provisional unless previous_block.is_provisional == current_block.is_provisional
-          bus_items = compare_business_items(current_block, previous_block)
-          block[:business_items] = bus_items unless bus_items.empty?
+          #pre-existing thing, compare the differences...
+          block = compare_timeblock_with_previous_version(current_block, previous_block)
           
+          #...and only store data that's changed
           unless block.empty?
             block[:title] = current_block.title
             block[:change_type] = "modified"
             block[:pdf_info] = previous_block.pdf_info
-            
             blocks << block
           end
         else
@@ -69,20 +66,13 @@ class CalendarDay
           blocks << {:title => current_block.title, :change_type => "new"}
         end
       end
+      
+      #look for headings only exist in the previous block
       deleted_headings = previous_block_headings - current_block_headings
       deleted_headings.each do |heading|
-        #assumes that the heading is unique
+        #warning: assumes that the heading is unique
         previous_block = other.time_blocks.select { |x| x.title == heading }.first
-        
-        block = {}
-        block[:change_type] = "deleted"
-        block[:title] = previous_block.title
-        block[:note] = previous_block.note if previous_block.note
-        block[:position] = previous_block.position
-        block[:is_provisional] = previous_block.is_provisional if previous_block.is_provisional
-        block[:pdf_info] = previous_block.pdf_info
-        bus_items = copy_business_items(previous_block, block)
-        block[:business_items] = bus_items unless bus_items.empty?
+        block = preserve_deleted_timeblock(previous_block)
         blocks << block
       end
       change[:time_blocks] = blocks unless blocks.empty?
@@ -97,6 +87,29 @@ class CalendarDay
     def heading_in_list?(heading, heading_list)
       return true if heading_list.include?(heading)
       false
+    end
+    
+    def compare_timeblock_with_previous_version(current, previous)
+      block = {}
+      block[:note] = previous.note unless previous.note == current.note
+      block[:position] = previous.position unless previous.position == current.position
+      block[:is_provisional] = previous.is_provisional unless previous.is_provisional == current.is_provisional
+      bus_items = compare_business_items(current, previous)
+      block[:business_items] = bus_items unless bus_items.empty?
+      block
+    end
+    
+    def preserve_deleted_timeblock(deleted_block)
+      block = {}
+      block[:change_type] = "deleted"
+      block[:title] = deleted_block.title
+      block[:note] = deleted_block.note if previous_block.note
+      block[:position] = deleted_block.position
+      block[:is_provisional] = deleted_block.is_provisional if deleted_block.is_provisional
+      block[:pdf_info] = deleted_block.pdf_info
+      bus_items = copy_business_items(deleted_block, block)
+      block[:business_items] = bus_items unless bus_items.empty?
+      block
     end
     
     def copy_business_items(previous_block, changes)
@@ -122,8 +135,11 @@ class CalendarDay
       current_headings.each do |heading|
         if heading_in_list?(heading.gsub(/^\d+\.\s*/, "").squeeze(" "), previous_headings.map { |x| x.gsub(/^\d+\.\s*/, "").squeeze(" ") })
           desc = heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
-          current_item = current_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
-          previous_item = last_block.business_items.select { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
+          current_item = current_block.business_items.select \
+            { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
+            
+          previous_item = last_block.business_items.select \
+            { |x| x.description.gsub(/^\d+\.\s*/, "").squeeze(" ") == desc }.first
           
           #pre-existing thing...
           item = {}
