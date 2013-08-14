@@ -116,15 +116,20 @@ class CalendarDay
       block
     end
     
+    def preserve_deleted_business_item(deleted_item)
+      item = {}
+      item[:change_type] = "deleted"
+      item[:description] = deleted_item.description
+      item[:position] = deleted_item.position
+      item[:note] = deleted_item.note if deleted_item.note and deleted_item.note.empty? == false
+      item[:pdf_info] = deleted_item.pdf_info
+      item
+    end
+    
     def copy_business_items(previous_block, changes)
       items = []
       previous_block.business_items.each do |prev_item|
-        item = {}
-        item[:change_type] = "deleted"
-        item[:description] = prev_item.description
-        item[:position] = prev_item.position
-        item[:note] = prev_item.note if prev_item.note and prev_item.note.empty? == false
-        item[:pdf_info] = prev_item.pdf_info
+        item = preserve_deleted_business_item(prev_item)
         items << item
       end
       items
@@ -141,6 +146,7 @@ class CalendarDay
         if heading_in_list?(\
             strip_heading_numbers(heading), \
             previous_headings.map { |x| strip_heading_numbers(x) })
+          #pre-existing thing...
           desc = strip_heading_numbers(heading)
           current_item = current_block.business_items.select \
             { |x| strip_heading_numbers(x.description) == desc }.first
@@ -148,7 +154,6 @@ class CalendarDay
           previous_item = last_block.business_items.select \
             { |x| strip_heading_numbers(x.description) == desc }.first
           
-          #pre-existing thing...
           item = {}
           item[:note] = previous_item.note unless previous_item.note == current_item.note
           item[:position] = previous_item.position unless previous_item.position == current_item.position
@@ -175,13 +180,7 @@ class CalendarDay
         previous_item = last_block.business_items.select \
           { |x| strip_heading_numbers(x.description) == heading }.first
         
-        item = {}
-        item[:change_type] = "deleted"
-        item[:description] = previous_item.description
-        item[:note] = previous_item.note if previous_item.note and previous_item.note.empty? == false
-        item[:position] = previous_item.position
-        item[:pdf_info] = previous_item.pdf_info
-        
+        item = preserve_deleted_business_item(previous_item)
         items << item
       end
       items
