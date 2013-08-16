@@ -68,3 +68,16 @@ sitting_days.each { |sitting_day|
   ical_content.export
 
 end
+
+get "/date/:date/?" do
+  content_type :json
+  unless params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
+    return {:error => "need to supply a date in the format yyyy-mm-dd"}.to_json
+  end
+  parsed_time = Time.parse(params[:date]).strftime("%Y-%m-%d 00:00:00Z")
+  day = CalendarDay.where(:date => Time.parse(parsed_time)).first
+  unless day
+    return {:error => "no data for supplied date #{params[:date]}"}.to_json
+  end
+  day.to_json
+end
