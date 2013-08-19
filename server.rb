@@ -3,9 +3,9 @@ require 'mongo_mapper'
 require './lib/parser'
 require 'haml'
 require 'ri_cal'
-require "better_errors"
 
 configure :development do
+  require 'better_errors'
   use BetterErrors::Middleware
   BetterErrors.application_root = File.expand_path('..', __FILE__)
 end
