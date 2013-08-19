@@ -55,30 +55,32 @@ module PDF
         string.gsub(/<(?:b|i)>\s*<\/(?:b|i)>/, "").strip
       end
       
+      def font_type(font, type)
+        if font.basefont.to_s.include?(type)
+          return true
+        end
+        false
+      end
+      
       def markup_tags(font)
         open = ""
         close = ""
-        unless @state.current_font.font_descriptor.nil?
-          if @state.current_font.font_descriptor.font_weight > 400
-            open = "<b>"
-            close = "</b>"
-          end
-          if @state.current_font.font_descriptor.italic_angle != 0
-            open = "#{open}<i>"
-            close = "</i>#{close}"
-          end
-        else
-          name = @state.current_font.basefont.to_s
-          if name.include?("Bold")
-            open = "<b>"
-            close = "</b>"
-          end
-          if name.include?("Italic")
-            open = "#{open}<i>"
-            close = "</i>#{close}"
-          end
+        if font_type(@state.current_font, "Bold")
+          open = "<b>"
+          close = "</b>"
+        end
+        if font_type(@state.current_font, "Italic")
+          open = "#{open}<i>"
+          close = "</i>#{close}"
         end
         {:open => open, :close => close}
+      end
+      
+      def append_line(tags, run)
+        line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
+        @lines << line
+        @last_tag_end = ""
+        @text = ["#{tags[:open]}#{run.to_s}"]
       end
       
       def internal_show_text(string)
@@ -101,38 +103,36 @@ module PDF
           @characters << run
           @state.process_glyph_displacement(glyph_width, 0, utf8_chars == SPACE)
           
-          tags = markup_tags(@state.current_font)
-          if tags[:open] == @open_tag
-            if newy < 50
-              @footer << run.to_s
-            else
-              if newy < @lasty
-                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
-                @lines << line
-                @last_tag_end = ""
-                @text = ["#{tags[:open]}#{run.to_s}"]
-              else
-                @text << "#{run.to_s}"
-              end
-            end
-          else
-            if newy < 50
-              @footer << "#{@last_tag_end}#{run.to_s}"
-            else
-              if newy < @lasty
-                line = fix_markup("#{@text.join("").strip}#{@last_tag_end}")
-                @lines << line
-                @last_tag_end = ""
-                @text = ["#{tags[:open]}#{run.to_s}"]
-              else
-                @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
-              end
-            end
-            @last_tag_end = tags[:close]
-          end
-          @open_tag = tags[:open]
-          @lasty = newy
+          build_markup(newy, run)
         end
+      end
+      
+      def build_markup(newy, run)
+        tags = markup_tags(@state.current_font)
+        if tags[:open] == @open_tag
+          if newy < 50
+            @footer << run.to_s
+          else
+            if newy < @lasty
+              append_line(tags, run)
+            else
+              @text << "#{run.to_s}"
+            end
+          end
+        else
+          if newy < 50
+            @footer << "#{@last_tag_end}#{run.to_s}"
+          else
+            if newy < @lasty
+              append_line(tags, run)
+            else
+              @text << "#{@last_tag_end}#{tags[:open]}#{run.to_s}"
+            end
+          end
+          @last_tag_end = tags[:close]
+        end
+        @open_tag = tags[:open]
+        @lasty = newy
       end
     end
   end

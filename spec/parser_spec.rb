@@ -14,11 +14,6 @@ class ParserTest < MiniTest::Spec
       it "must return a Parser" do
         @parser.must_be_instance_of Parser
       end
-      
-      it "must return output" do
-        @parser.output.wont_be_nil
-      end
-      
     end
     
     describe "when asked to process the document" do

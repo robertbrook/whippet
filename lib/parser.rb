@@ -16,7 +16,6 @@ class Parser
     end
     @pdf = PDF::Reader.new(target_pdf)
     @pdf_filename = target_pdf.split("/").last
-    @business = []
   end
   
   def pages
@@ -24,15 +23,7 @@ class Parser
   end
   
   def process(debug=false)
-    @fin = false
-    @provisional = false
-    @last_line_was_blank = false
-    @in_item = false
-    @current_sitting_day = nil
-    @current_time_block = nil
-    @old_day = nil
-    @block_position = 0
-    @item_position = 0
+    init_process()
     html = ""
     
     pages.each do |page|
@@ -57,126 +48,32 @@ class Parser
         #a new day
         when /(\b[A-Z]{2,}[DAY]\s+\d+ [A-Z]+ \d{4})/
           p "new day detected, starting a new section: #{line}" if debug
-          current_date = $1
-          if @current_sitting_day
-            unless @current_sitting_day.respond_to?(:time_blocks)
-              @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
-            else  
-              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-                item = @current_sitting_day.time_blocks.last.business_items.last
-                item.description = item.description.rstrip
-              end
-            end
-            if @old_day
-              change = @current_sitting_day.diff(@old_day)
-              unless change.empty?
-                @current_sitting_day.diffs << change
-              end
-            end
-            @current_sitting_day.save
-            @business << @current_sitting_day
-          end
-          @last_line_was_blank = false
-          @in_item = false
-          
-          parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
-          prev = CalendarDay.where(:date => Time.parse(parsed_time)).first
-          @old_day = nil
-          if prev
-            if prev.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
-              #the found version is old, delete it and allow the new info to replace it
-              @old_day = prev.dup
-              prev.delete
-              pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-              @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
-              @block_position = 0
-              @item_position = 0
-            else
-              #the new data is old or a duplicate, ignore it
-              @current_sitting_day = nil
-            end
-          else
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-            @current_sitting_day = CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
-            @block_position = 0
-            @item_position = 0
-          end
-          
-          if @provisional and @current_sitting_day
-            @current_sitting_day.is_provisional = true
-          end
+          process_new_day($1, page, line_no)
         
         #a new time
         when /^\s*Business/
           p "new time detected, starting a new sub-section: #{line}" if debug
-          p "aka #{html}" if debug
           if @current_sitting_day
-            @current_sitting_day = @current_sitting_day.becomes(SittingDay) unless @current_sitting_day.is_a?(SittingDay)
-            if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-              item = @current_sitting_day.time_blocks.last.business_items.last
-              item.description = item.description.rstrip
-            end
-            @last_line_was_blank = false
-            @in_item = false
-            @block_position +=1
-            @item_position = 0
-            block = TimeBlock.new
-            block.position = @block_position
-            time_matches = line.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
-            if time_matches[4] == "p"
-              block.time_as_number = (time_matches[2].to_i + 12) * 100 + time_matches[3].to_i
-            elsif time_matches[5] == "noon"
-              block.time_as_number = (time_matches[2].to_i) * 100
-            else
-              block.time_as_number = time_matches[2].to_i * 100 + time_matches[3].to_i
-            end
-            block.title = line.strip
-            
-            Time.parse(@pdf.info[:ModDate])
-            
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-            block.pdf_info = pdf_info
-            block.is_provisional = true if @provisional
-            @current_time_block = block
-            @current_sitting_day.time_blocks << @current_time_block
+            process_new_time_block(line, html, page, line_no)
           end
         
         #a page number
         when /^\s*(\d+)\n?$/
-          page_number = $1
-          p "** end of page #{page_number} **" if debug
+          p "** end of page #{$1} **" if debug
         
         #a numbered item
         when /^(\d)/
-          p "new business item, hello: #{line}" if debug
-          p "aka #{html}" if debug
+          if debug
+            p "new business item, hello: #{line}"
+            p "aka #{html}" if debug
+          end
           if @current_sitting_day
-            @last_line_was_blank = false
-            @in_item = true
-            # first line of item
-            @item_position +=1
-            item = BusinessItem.new
-            item.position = @item_position
-            item.description = line.strip
-            
-            pdf_info = {:filename => @pdf_filename, :page => page.number, :line => line_no, :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
-            item.pdf_info = pdf_info
-            @current_time_block.business_items << item
+            process_new_business_item(line, html, page, line_no)
           end
         
         #a blank line
         when /^\s*\n?$/
-          if @current_sitting_day
-            if @last_line_was_blank and @in_item
-              p "A blank following a blank line, resetting the itemflag" if debug
-              if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
-                item = @current_sitting_day.time_blocks.last.business_items.last
-                item.description = item.description.rstrip
-              end
-              @in_item = false
-            end
-            @last_line_was_blank = true
-          end
+          process_blank_line(debug)
         
         #whole line in square brackets
         when /^\s*\[.*\]\s*$/
@@ -185,64 +82,65 @@ class Parser
         
         #all the other things
         else
-          if @current_sitting_day
-            if @in_item
-              @last_line_was_blank = false
-              p "...item continuation line..." if debug
-              #last line was a business item, treat this as a continuation
-              last_item = @current_time_block.business_items.last
-              new_desc = "#{last_item.description.rstrip} #{line.strip}"
-              last_item.description = new_desc
-              
-              p "item text replaced with: #{new_desc}" if debug
-            else
-              #the last line wasn't blank and we're not in item space - a note!
-              if line =~ /^\s+\b[A-Z][a-z]/ and (@last_line_was_blank == false or line =~ /^\s+No business yet scheduled/)
-                if @current_sitting_day.respond_to?(:time_blocks) and @current_sitting_day.time_blocks.count > 0
-                  if html.include?("<b><i>")
-                    p html if debug
-                    #not what we first took it for, not sure what do do with it... yet
-                  else
-                    p "notes about the time: #{line}" if debug
-                    @current_time_block.note = line.strip
-                    @current_time_block.save
-                  end
-                else
-                  p "notes about the day: #{line}" if debug
-                  if @current_sitting_day.note
-                    if @current_sitting_day.note[-1] == ":"
-                      @current_sitting_day.note += " #{line.strip}"
-                    else
-                      @current_sitting_day.note += "; #{line.strip}"
-                    end
-                  else
-                    @current_sitting_day.note = line.strip
-                  end
-                end
-              else
-                @last_line_was_blank = false
-                if line.strip =~ /(L|l)ast day to table amendments/
-                  p "notes about the day (again!): #{line}" if debug
-                  if @current_sitting_day.note
-                    if @current_sitting_day.note[-1] == ":"
-                      @current_sitting_day.note += " #{line.strip}"
-                    else
-                      @current_sitting_day.note += "; #{line.strip}"
-                    end
-                  else
-                    @current_sitting_day.note = line.strip
-                  end
-                else                
-                  p "Unhandled text: #{line}" if debug
-                end
-              end
-            end
-          end
+          process_catchall(line, html, debug)
         end
       end
     end
+    
     if @current_sitting_day
-      @current_sitting_day = @current_sitting_day.becomes(NonSittingDay) unless @current_sitting_day.respond_to?(:time_blocks)
+      tidy_up()
+    end
+    nil
+  end
+  
+  
+  private
+  
+  def init_process
+    @fin = false
+    @provisional = false
+    @last_line_was_blank = false
+    @in_item = false
+    @current_sitting_day = nil
+    @current_time_block = nil
+    @old_day = nil
+    @block_position = 0
+    @item_position = 0
+  end
+  
+  def fix_description()
+    if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
+      item = @current_sitting_day.time_blocks.last.business_items.last
+      item.description = item.description.rstrip
+    end
+  end
+  
+  def store_note(line)
+    if @current_sitting_day.note
+      if @current_sitting_day.note[-1] == ":"
+        @current_sitting_day.note += " #{line.strip}"
+      else
+        @current_sitting_day.note += "; #{line.strip}"
+      end
+    else
+      @current_sitting_day.note = line.strip
+    end
+  end
+  
+  def set_pdf_info(page, line_no)
+    {:filename => @pdf_filename, 
+     :page => page.number, 
+     :line => line_no, 
+     :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+  end
+  
+  def init_new_day
+    if @current_sitting_day
+      unless @current_sitting_day.respond_to?(:time_blocks)
+        @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
+      else  
+        fix_description()
+      end
       if @old_day
         change = @current_sitting_day.diff(@old_day)
         unless change.empty?
@@ -250,12 +148,166 @@ class Parser
         end
       end
       @current_sitting_day.save
-      @business << @current_sitting_day
     end
-    nil
+    @last_line_was_blank = false
+    @in_item = false
   end
   
-  def output
-    @business
+  def create_new_sitting_day(current_date, pdf_info)
+    @block_position = 0
+    @item_position = 0
+    CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+  end
+  
+  def get_previous_day(current_date)
+    parsed_time = Time.parse(current_date).strftime("%Y-%m-%d 00:00:00Z")
+    CalendarDay.where(:date => Time.parse(parsed_time)).first
+  end
+  
+  def process_new_day(current_date, page, line_no)
+    init_new_day()
+    prev = get_previous_day(current_date)
+    pdf_info = set_pdf_info(page, line_no)
+    @old_day = nil
+    @current_sitting_day = create_new_sitting_day(current_date, pdf_info)
+    if @provisional
+      @current_sitting_day.is_provisional = true
+    end
+    if prev
+      if prev.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
+        #the found version is old, delete it and allow the new info to replace it
+        @old_day = prev.dup
+        prev.delete
+      else
+        #the new data is old or a duplicate, ignore it
+        @current_sitting_day = nil
+      end
+    end
+  end
+  
+  def reset_time_block_vars
+    @last_line_was_blank = false
+    @in_item = false
+    @block_position +=1
+    @item_position = 0
+  end
+  
+  def parse_heading_time(input)
+    matches = input.match(/at ((\d+)(?:\.(\d\d))?(?:(a|p)m| (noon)))/)
+    if matches[5] == "noon"
+      return (matches[2].to_i) * 100
+    end
+    
+    time = matches[2].to_i * 100 + matches[3].to_i
+    if matches[4] == "p"
+      time += 1200
+    end
+    time
+  end
+  
+  def process_new_time_block(line, html, page, line_no)
+    unless @current_sitting_day.is_a?(SittingDay)
+      @current_sitting_day = @current_sitting_day.becomes(SittingDay)
+    end
+    fix_description()
+    reset_time_block_vars()
+    block = TimeBlock.new
+    block.position = @block_position
+    block.time_as_number = parse_heading_time(line)
+    block.title = line.strip
+    
+    Time.parse(@pdf.info[:ModDate])
+    
+    pdf_info = set_pdf_info(page, line_no)
+    block.pdf_info = pdf_info
+    block.is_provisional = true if @provisional
+    @current_time_block = block
+    @current_sitting_day.time_blocks << @current_time_block
+  end
+  
+  def process_new_business_item(line, html, page, line_no)    
+    @last_line_was_blank = false
+    @in_item = true
+    # first line of item
+    @item_position +=1
+    item = BusinessItem.new
+    item.position = @item_position
+    item.description = line.strip
+    
+    pdf_info = set_pdf_info(page, line_no)
+    item.pdf_info = pdf_info
+    @current_time_block.business_items << item
+  end
+  
+  def process_blank_line(debug)
+    if @current_sitting_day
+      if @last_line_was_blank and @in_item
+        p "A blank following a blank line, resetting the itemflag" if debug
+        fix_description()
+        @in_item = false
+      end
+      @last_line_was_blank = true
+    end
+  end
+  
+  def process_catchall(line, html, debug)
+    if @current_sitting_day
+      if @in_item
+        process_continuation_line(line, debug)
+      else
+        #the last line wasn't blank and we're not in item space - a note!
+        process_notes_and_exceptions(line, html, debug)
+      end
+    end
+  end
+  
+  def process_continuation_line(line, debug)
+    @last_line_was_blank = false
+    p "...item continuation line..." if debug
+    #last line was a business item, treat this as a continuation
+    last_item = @current_time_block.business_items.last
+    new_desc = "#{last_item.description.rstrip} #{line.strip}"
+    last_item.description = new_desc
+    
+    p "item text replaced with: #{new_desc}" if debug
+  end
+  
+  def process_notes_and_exceptions(line, html, debug)
+    if html.include?("<b><i>")
+      p "Unhandled markup: #{html}" if debug
+      #not what we first took it for, not sure what do do with it... yet
+      return
+    end
+    if @last_line_was_blank == false
+      if @current_sitting_day.has_time_blocks?
+        p "notes about the time: #{line}" if debug
+        @current_time_block.note = line.strip
+        @current_time_block.save
+      else
+        p "notes about the day: #{line}" if debug
+        store_note(line)
+      end
+    else
+      @last_line_was_blank = false
+      if line.strip =~ /(L|l)ast day to table amendments/
+        p "notes about the day (again!): #{line}" if debug
+        store_note(line)
+      else
+        p "Unhandled text: #{line}" if debug
+      end
+    end
+  end
+  
+  def tidy_up    
+    unless @current_sitting_day.respond_to?(:time_blocks)
+      @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
+    end
+    if @old_day
+      change = @current_sitting_day.diff(@old_day)
+      unless change.empty?
+        @current_sitting_day.diffs << change
+      end
+    end
+    @current_sitting_day.save
   end
 end
