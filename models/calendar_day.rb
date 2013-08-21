@@ -104,7 +104,7 @@ class CalendarDay
     
     def compare_simple_values(current, other)
       change = {}
-      change[:note] = other_note if current.note.to_s != other.note.to_s
+      change[:note] = other.note if current.note.to_s != other.note.to_s
       change[:_type] = other._type if current._type != other._type
       change[:accepted] = other.accepted if current.accepted != other.accepted
       change[:is_provisional] = other.is_provisional if current.is_provisional != other.is_provisional
@@ -143,7 +143,7 @@ class CalendarDay
       block = {}
       block[:change_type] = "deleted"
       block[:title] = deleted_block.title
-      block[:note] = deleted_block.note if previous_block.note
+      block[:note] = deleted_block.note if deleted_block.note
       block[:position] = deleted_block.position
       block[:is_provisional] = deleted_block.is_provisional if deleted_block.is_provisional
       block[:pdf_info] = deleted_block.pdf_info
