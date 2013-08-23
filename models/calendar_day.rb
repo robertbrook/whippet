@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 require "mongo_mapper"
 require "./lib/mm_monkeypatch"
 
@@ -44,60 +46,49 @@ class CalendarDay
   
   private
   
-  def strip_heading_numbers(heading)
-    heading.gsub(/^\d+\.\s*/, "").squeeze(" ")
+  def find_in_array_by_id(arr, value)
+    arr.select { |x| x.id == value }.first
   end
   
-  def find_in_array_by_title(arr, value)
-    arr.select { |x| x.title == value }.first
+  def find_item_by_id(block, value)
+    block.business_items.select { |x| x.id == value }.first
   end
   
-  def find_item_by_unnumbered_description(block, value)
-    block.business_items.select \
-      { |x| strip_heading_numbers(x.description) == value }.first
+  def map_timeblock_ids(day)
+    day.has_time_blocks? ? day.time_blocks.map { |x| x.id } : []
   end
   
-  def map_timeblock_titles(obj)
-    obj.has_time_blocks? ? obj.time_blocks.map { |x| x.title } : []
+  def map_item_ids(block)
+    block.business_items.empty? ? [] : block.business_items.map { |x| x.id }
   end
   
-  def map_item_descriptions(block)
-    block.business_items.empty? ? [] : block.business_items.map { |x| x.description }
-  end
-  
-  def map_unnumbered_descriptions(block)
-    block.map { |x| strip_heading_numbers(x) }
-  end
-  
-  def heading_in_list?(heading, heading_list)
-    return true if heading_list.include?(heading)
+  def id_in_list?(id, id_list)
+    return true if id_list.include?(id)
     false
   end
   
-  def compare_current_blocks(current_block_headings, previous_block_headings, current_day, previous_day)
+  def compare_current_blocks(current_block_ids, previous_block_ids, current_day, previous_day)
     blocks = []
-    current_block_headings.each do |heading|
-      #warning: assumes that the heading is unique
-      current_block = current_day.has_time_blocks? ? find_in_array_by_title(time_blocks, heading) : {}
-      previous_block = previous_day.has_time_blocks? ? find_in_array_by_title(previous_day.time_blocks, heading) : {}
-      if heading_in_list?(heading, previous_block_headings)
+    current_block_ids.each do |id|
+      current_block = current_day.has_time_blocks? ? find_in_array_by_id(time_blocks, id) : {}
+      previous_block = previous_day.has_time_blocks? ? find_in_array_by_id(previous_day.time_blocks, id) : {}
+      if id_in_list?(id, previous_block_ids)
         #pre-existing thing, compare the differences...
         block = compare_timeblock_with_previous_version(current_block, previous_block)
         #...and only store if something's changed
         blocks << block unless block.empty?
       else
         #a new thing, just need to note its arrival
-        blocks << {:title => current_block.title, :change_type => "new"}
+        blocks << {:title => current_block.title, :id => current_block.id, :change_type => "new"}
       end
     end
     blocks
   end
   
-  def preserve_deleted_blocks(deleted_headings, previous_day)
+  def preserve_deleted_blocks(deleted_ids, previous_day)
     blocks = []
-    deleted_headings.each do |heading|
-      #warning: assumes that the heading is unique
-      previous_block = find_in_array_by_title(previous_day.time_blocks, heading)
+    deleted_ids.each do |id|
+      previous_block = find_in_array_by_id(previous_day.time_blocks, id)
       block = preserve_deleted_timeblock(previous_block)
       blocks << block
     end
@@ -115,14 +106,14 @@ class CalendarDay
   def analyze_time_blocks(current_day, previous_day, change={})
     if current_day.has_time_blocks? or previous_day.has_time_blocks?
       blocks = []
-      current_block_headings = map_timeblock_titles(current_day)
-      previous_block_headings = map_timeblock_titles(previous_day)
+      current_block_ids = map_timeblock_ids(current_day)
+      previous_block_ids = map_timeblock_ids(previous_day)
       
-      #loop through headings in the current block
-      blocks += compare_current_blocks(current_block_headings, previous_block_headings, current_day, previous_day)
+      #loop through the ids in the current block
+      blocks += compare_current_blocks(current_block_ids, previous_block_ids, current_day, previous_day)
       
-      #look for headings only exist in the previous block
-      blocks += preserve_deleted_blocks(previous_block_headings - current_block_headings, previous_day)
+      #look for ids that only exist in the previous block
+      blocks += preserve_deleted_blocks(previous_block_ids - current_block_ids, previous_day)
       
       #update time_blocks if any changes were found
       change[:time_blocks] = blocks unless blocks.empty?
@@ -141,12 +132,16 @@ class CalendarDay
     unless previous_block.is_provisional == current_block.is_provisional
       block[:is_provisional] = previous_block.is_provisional
     end
+    unless previous_block.title == current_block.title
+      block[:title] - previous_block.title
+    end
     
     bus_items = compare_business_items(current_block, previous_block)
     unless bus_items.empty?
       block[:business_items] = bus_items
     end
     unless block.empty?
+      block[:id] = current_block.id
       block[:title] = current_block.title
       block[:change_type] = "modified"
       block[:pdf_info] = previous_block.pdf_info
@@ -162,10 +157,14 @@ class CalendarDay
     unless previous_item.position == current_item.position
       item[:position] = previous_item.position
     end
+    unless previous_item.description == current_item.description
+      item[:description] = previous_item.description
+    end
     
     unless item.empty?
       item[:change_type] = "modified"
       item[:description] = previous_item.description
+      item[:id] = previous_item.id
       item[:pdf_info] = previous_item.pdf_info
     end
     item
@@ -174,6 +173,7 @@ class CalendarDay
   def preserve_deleted_timeblock(deleted_block)
     block = {}
     block[:change_type] = "deleted"
+    block[:id] = deleted_block.id
     block[:title] = deleted_block.title
     block[:note] = deleted_block.note if deleted_block.note
     block[:position] = deleted_block.position
@@ -188,6 +188,7 @@ class CalendarDay
     item = {}
     item[:change_type] = "deleted"
     item[:description] = deleted_item.description
+    item[:id] = deleted_item.id
     item[:position] = deleted_item.position
     item[:note] = deleted_item.note if deleted_item.note and deleted_item.note.empty? == false
     item[:pdf_info] = deleted_item.pdf_info
@@ -204,30 +205,25 @@ class CalendarDay
   end
   
   def compare_business_items(current_block, previous_block)
-    current_headings = map_item_descriptions(current_block)
-    previous_headings = map_item_descriptions(previous_block)
+    current_ids = map_item_ids(current_block)
+    previous_ids = map_item_ids(previous_block)
     
-    # loop over each heading (assumes uniqueness)
-    items = compare_current_items(current_headings, current_block, previous_headings, previous_block)
+    # loop over each id
+    items = compare_current_items(current_ids, current_block, previous_ids, previous_block)
     
     #loop over the deleted items
-    items += preserve_deleted_items(\
-      map_unnumbered_descriptions(previous_headings) - map_unnumbered_descriptions(current_headings), 
-      previous_block)
+    items += preserve_deleted_items(previous_ids - current_ids, previous_block)
     
     items
   end
   
-  def compare_current_items(current_headings, current_block, previous_headings, previous_block)
+  def compare_current_items(current_ids, current_block, previous_ids, previous_block)
     items = []
-    current_headings.each do |heading|
-      if heading_in_list?(\
-          strip_heading_numbers(heading), \
-          map_unnumbered_descriptions(previous_headings))
+    current_ids.each do |id|
+      if id_in_list?(id, previous_ids)
         #pre-existing thing...
-        desc = strip_heading_numbers(heading)
-        current_item = find_item_by_unnumbered_description(current_block, desc)  
-        previous_item = find_item_by_unnumbered_description(previous_block, desc)
+        current_item = find_item_by_id(current_block, id)  
+        previous_item = find_item_by_id(previous_block, id)
         
         item = compare_item_with_previous_version(current_item, previous_item)
         items << item unless item.empty?
@@ -235,18 +231,18 @@ class CalendarDay
         #a new thing, just need to note its arrival
         item = {}
         item[:change_type] = "new"
-        item[:description] = heading
+        item[:id] = id
+        item[:description] = find_item_by_id(current_block, id).description
         items << item
       end
     end
     items
   end
   
-  def preserve_deleted_items(deleted_headings, previous_block)
+  def preserve_deleted_items(deleted_ids, previous_block)
     items = []
-    deleted_headings.each do |heading|
-      #assumes that the heading is unique
-      previous_item = find_item_by_unnumbered_description(previous_block, heading)        
+    deleted_ids.each do |id|
+      previous_item = find_item_by_id(previous_block, id)
       item = preserve_deleted_item(previous_item)
       items << item
     end
@@ -271,6 +267,14 @@ class TimeBlock
   key :position, Integer
   key :is_provisional, Boolean
   key :pdf_info, Hash
+  
+  def place
+    title.match(/Business (?:[a-z]+ )+((?:[A-Z][a-z]+ )+)/)[1].strip
+  end
+  
+  def generate_id
+    "TimeBlock_#{place.downcase.gsub(" ", "_")}_#{time_as_number}"
+  end
 end
 
 class BusinessItem
@@ -280,4 +284,12 @@ class BusinessItem
   key :position, Integer
   key :note, String
   key :pdf_info, Hash
+  
+  def brief_summary
+    description.match(/\d+\.?\s+([^–\[\(\\\/]*)/)[1].strip
+  end
+  
+  def generate_id
+    "BusinessItem_#{brief_summary.downcase.gsub(" ", "_").gsub(/\W/, "")}"
+  end
 end

@@ -3,7 +3,7 @@
 require './spec/minitest_helper.rb'
 require './lib/parser'
 
-class ParserTest < MiniTest::Spec  
+class ParserTest < MiniTest::Spec
   describe "Parser", "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before do
       @@parser ||= Parser.new("./data/FB-TEST.pdf")
@@ -66,6 +66,10 @@ class ParserTest < MiniTest::Spec
           @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00Z")).first
         end
         
+        it "must have a sensible ID" do
+          @sitting_day.id.must_equal("CalendarDay_2013-03-27")
+        end
+        
         it "must not be flagged as provisional" do
           @sitting_day.is_provisional.wont_equal true
         end
@@ -85,6 +89,11 @@ class ParserTest < MiniTest::Spec
                
         it "must have two (2) TimeBlocks" do
           @sitting_day.time_blocks.length.must_equal 2
+        end
+        
+        it "must generate sensible ids for the TimeBlocks" do
+          @sitting_day.time_blocks.first.id.must_equal "TimeBlock_chamber_1100"
+          @sitting_day.time_blocks.last.id.must_equal "TimeBlock_grand_committee_1545"
         end
         
         it "must have a first TimeBlock entitled 'Business in the Chamber at 11.00am'" do
@@ -140,6 +149,10 @@ class ParserTest < MiniTest::Spec
           
           it "must not have any notes" do
             @time.note.must_be_nil
+          end
+          
+          it "must have a first item with an id of BusinessItem_oral_questions" do
+            @time.business_items[0]["_id"].must_equal "BusinessItem_oral_questions"
           end
           
           it "must have a first item with the description '1.  Oral questions (30 minutes)'" do
@@ -292,19 +305,17 @@ class ParserTest < MiniTest::Spec
       diff["time_blocks"].last["is_provisional"].must_equal true
     end
     
-    #hmmm, not sure about this longer term but it'll stand for now
-    it "should register a deletion and a new item where the text has changed" do
+    it "should register a modification where the text has changed" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-04-24 00:00:00Z")).first
       diff = sitting_day.diffs.first
       
       diff["time_blocks"].count.must_equal 1
-      diff["time_blocks"][0]["business_items"].count.must_equal 3
+      diff["time_blocks"][0]["business_items"].count.must_equal 2
       
       bus_items = diff["time_blocks"][0]["business_items"]
-      bus_items[0]["change_type"].must_equal "new"
-      bus_items[0]["description"].must_equal("1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 90 minutes)")
-      bus_items[1]["change_type"].must_equal "deleted"
-      bus_items[1]["description"].must_equal "1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 1 hour)"
+      bus_items[0]["change_type"].must_equal "modified"
+      bus_items[0]["description"].must_equal("1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 1 hour)")
+      bus_items[1]["description"].must_equal("3.  Further business will be scheduled")
     end
     
     it "should report business_items displaced by an insertion as modified" do
@@ -314,6 +325,7 @@ class ParserTest < MiniTest::Spec
       time_block["business_items"][0]["change_type"].must_equal "new"
       time_block["business_items"][1]["change_type"].must_equal "modified"
       time_block["business_items"][1]["position"].must_equal 1
+      time_block["business_items"][1]["description"].must_equal "1.  Draft CRC Energy Efficiency Scheme Order 2013 – Baroness Verma"
     end
     
   end
