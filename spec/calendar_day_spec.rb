@@ -70,8 +70,8 @@ class CalendarDayTest < MiniTest::Spec
       end
       
       it "must not return a list of changes if the time blocks are the same" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
         day1 = SittingDay.new()
         day2 = SittingDay.new()
         day1.time_blocks = [tb1]
@@ -81,8 +81,8 @@ class CalendarDayTest < MiniTest::Spec
       
       describe "when a time block is added" do
         it "must return change_type of 'new' for the block" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
           current_day = SittingDay.new()
           shorter_day = SittingDay.new()
           shorter_day.time_blocks = [tb1]
@@ -95,8 +95,8 @@ class CalendarDayTest < MiniTest::Spec
         end
         
         it "must return the title for the block" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
           current_day = SittingDay.new()
           shorter_day = SittingDay.new()
           shorter_day.time_blocks = [tb1]
@@ -106,14 +106,17 @@ class CalendarDayTest < MiniTest::Spec
           
           block_changes = diff[:time_blocks]
           block_changes.must_be_instance_of Array
-          block_changes.must_equal [{:change_type => "new", :title => "Business in Grand Committee at 3.45pm"}]
+          block_changes.must_equal [
+            {:change_type => "new",
+             :id => "grand_committee_1545",
+             :title => "Business in Grand Committee at 3.45pm"}]
         end
       end
       
       describe "when a time block is deleted" do
         it "must return a change_type of 'deleted' for the block" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm",)
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
           tb2.position = 2
           
           longer_day = SittingDay.new()
@@ -128,8 +131,8 @@ class CalendarDayTest < MiniTest::Spec
         end
         
         it "must return all the details of the deleted block" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
           tb2.position = 2
           tb2.pdf_info = {
               filename: "FB-TEST.pdf",
@@ -147,15 +150,16 @@ class CalendarDayTest < MiniTest::Spec
           
           block_changes = diff[:time_blocks]
           block_changes.must_equal [
-            {:change_type => "deleted", 
+            {:change_type => "deleted",
+             :id => "grand_committee_1545",
              :title => "Business in Grand Committee at 3.45pm",
              :position => 2,
              :pdf_info=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}]
         end
         
         it "must return all the business_item data for removed time_blocks" do
-          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am")
-          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm")
+          tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
+          tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "chamber_1545")
           tb2.position = 2
           item = BusinessItem.new(:description => "Further business will be scheduled", :position => 1)
           tb2.business_items = [item]
@@ -181,8 +185,8 @@ class CalendarDayTest < MiniTest::Spec
       
       describe "when a block is modified" do
         before do
-          @tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-          @tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
+          @tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
+          @tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2, :id => "chamber_1100")
           @longer_day = SittingDay.new()
           @current_day = SittingDay.new()
         end
@@ -199,18 +203,18 @@ class CalendarDayTest < MiniTest::Spec
         
         describe "when a business item has been added" do
           it "must return a change_type of 'new' for the item" do
-            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb1]
             @longer_day.time_blocks = [@tb2]
             
-            diff = @current_day.diff(@longer_day)
-            item_changes = diff[:time_blocks].first[:business_items]
+            diffs = @current_day.diff(@longer_day)
+            item_changes = diffs[:time_blocks].first[:business_items]
             item_changes.first[:change_type].must_equal "new"
           end
           
           it "must return the description for the item" do
-            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb1]
             @longer_day.time_blocks = [@tb2]
@@ -219,13 +223,13 @@ class CalendarDayTest < MiniTest::Spec
             
             item_changes = diff[:time_blocks].first[:business_items]
             item_changes.must_be_instance_of Array
-            item_changes.must_equal [{:change_type => "new", :description => "1.  description goes here"}]
+            item_changes.must_equal [{:change_type => "new", :id => "id", :description => "1.  description goes here"}]
           end
         end
         
         describe "when a business item has been deleted" do
           it "must return a change_type of 'deleted' for the item" do
-            item = BusinessItem.new(:description => "1.  description goes here", :position => 1)
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb2]
             @longer_day.time_blocks = [@tb1]
@@ -237,7 +241,7 @@ class CalendarDayTest < MiniTest::Spec
           end
           
           it "must return all the details of the original item" do
-            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :pdf_info => {})
+            item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :pdf_info => {}, :id => "id")
             @tb1.business_items = [item]
             @current_day.time_blocks = [@tb2]
             @longer_day.time_blocks = [@tb1]
@@ -247,7 +251,8 @@ class CalendarDayTest < MiniTest::Spec
             item_changes = diff[:time_blocks].first[:business_items]
             item_changes.must_be_instance_of Array
             item_changes.must_equal [
-                {:change_type => "deleted", 
+                {:change_type => "deleted",
+                 :id => "id",
                  :description => "1.  description goes here",
                  :position => 1, 
                  :pdf_info => {}}]
@@ -256,8 +261,8 @@ class CalendarDayTest < MiniTest::Spec
         
         describe "when a business item has been modified" do
           it "must return a change_type of 'modified' for the item" do
-            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
-            item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :note => "note added")
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
+            item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :note => "note added", :id => "id")
             @tb1.business_items = [item1]
             @tb2.business_items = [item2]
             @current_day.time_blocks = [@tb1]
@@ -269,8 +274,8 @@ class CalendarDayTest < MiniTest::Spec
           end
           
           it "must see a positional change as a modification, despite the effect on the description text" do
-            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
-            item2 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :note => "note added")
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
+            item2 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :note => "note added", :id => "id")
             @tb1.business_items = [item1]
             @tb2.business_items = [item2]
             @current_day.time_blocks = [@tb1]
@@ -282,8 +287,8 @@ class CalendarDayTest < MiniTest::Spec
           end
           
           it "must return the original values of the changed fields" do
-            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
-            item2 = BusinessItem.new(:description => "2.  description goes here")
+            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
+            item2 = BusinessItem.new(:description => "2.  description goes here", :id => "id")
             item2.position = 2
             item2.note = "note added"
             item2.pdf_info = {}
@@ -297,7 +302,8 @@ class CalendarDayTest < MiniTest::Spec
             item_changes = diff[:time_blocks].first[:business_items]
             item_changes.must_be_instance_of Array
             item_changes.must_equal [
-              {:change_type => "modified", 
+              {:change_type => "modified",
+               :id => "id",
                :description => "2.  description goes here",
                :note => "note added",
                :position => 2,
@@ -308,10 +314,22 @@ class CalendarDayTest < MiniTest::Spec
           it "must report a block as modified when only a business item has been altered" do
             day1 = SittingDay.new
             day2 = SittingDay.new
-            tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-            tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-            item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
-            item2 = BusinessItem.new(:description => "2.  description goes here")
+            tb1 = TimeBlock.new(
+              :title => "Business in the Chamber at 11.00am",
+              :position => 1,
+              :id => "chamber_1100")
+            tb2   = TimeBlock.new(
+                :title => "Business in the Chamber at 11.00am",
+                :position => 1,
+                :id => "chamber_1100")
+            item1 = BusinessItem.new(
+              :description => "1.  description goes here",
+              :position => 1,
+              :id => "BusinessItem_description_goes_here")
+            item2 = BusinessItem.new(
+              :description => "2.  description goes here", 
+              :position => 2,
+              :id => "BusinessItem_description_goes_here")
             tb1.business_items = [item1]
             tb2.business_items = [item2]
             day1.time_blocks = [tb1]
@@ -324,12 +342,12 @@ class CalendarDayTest < MiniTest::Spec
       end
       
       it "must cope with complex time blocks changes" do
-        tb0 = TimeBlock.new(:title => "Business in the Chamber at 10am", :position => 0)
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 1)
-        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2)
-        tb3 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-        tb4 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 2)
-        tb5 = TimeBlock.new(:title => "Business in Grand Committee at 3.30pm", :position => 3)
+        tb0 = TimeBlock.new(:title => "Business in the Chamber at 10am", :position => 0, :id => "chamber_1000")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 1, :id => "chamber_1530")
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2, :id => "chamber_1100")
+        tb3 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
+        tb4 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 2, :id => "chamber_1530")
+        tb5 = TimeBlock.new(:title => "Business in Grand Committee at 3.30pm", :position => 3, :id => "gc_1530")
         
         day1 = SittingDay.new()
         day1.time_blocks = [tb1, tb2, tb5]
@@ -364,13 +382,13 @@ class CalendarDayTest < MiniTest::Spec
       it "must cope with complex business_item changes" do
         day1 = SittingDay.new
         day2 = SittingDay.new
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
-        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1)
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
         
-        item0 = BusinessItem.new(:description => "1.  surplus to requirements", :position => 1)
-        item1 = BusinessItem.new(:description => "2.  description goes here", :position => 2)
-        item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1)
-        item3 = BusinessItem.new(:description => "2.  hello, I'm new", :position => 2)
+        item0 = BusinessItem.new(:description => "1.  surplus to requirements", :position => 1, :id => "surplus")
+        item1 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :id => "desc_here")
+        item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "desc_here")
+        item3 = BusinessItem.new(:description => "2.  hello, I'm new", :position => 2, :id => "hello")
         
         tb1.business_items = [item2, item3]
         tb2.business_items = [item0, item1]

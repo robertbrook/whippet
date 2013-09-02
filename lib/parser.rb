@@ -156,7 +156,12 @@ class Parser
   def create_new_sitting_day(current_date, pdf_info)
     @block_position = 0
     @item_position = 0
-    CalendarDay.new(:date => Date.parse(current_date), :accepted => false, :pdf_info => pdf_info)
+    date = Date.parse(current_date)
+    CalendarDay.new(
+      :date => date,
+      :accepted => false,
+      :pdf_info => pdf_info,
+      :id => "CalendarDay_#{date.strftime("%Y-%m-%d")}")
   end
   
   def get_previous_day(current_date)
@@ -215,6 +220,7 @@ class Parser
     block.position = @block_position
     block.time_as_number = parse_heading_time(line)
     block.title = line.strip
+    block.id = block.generate_id()
     
     Time.parse(@pdf.info[:ModDate])
     
@@ -233,6 +239,7 @@ class Parser
     item = BusinessItem.new
     item.position = @item_position
     item.description = line.strip
+    item.id = item.generate_id()
     
     pdf_info = set_pdf_info(page, line_no)
     item.pdf_info = pdf_info
