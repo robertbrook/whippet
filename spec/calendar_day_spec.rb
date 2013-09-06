@@ -19,10 +19,9 @@ class CalendarDayTest < MiniTest::Spec
       end
       
       it "must allow casting from CalendarDay to NonSittingDay" do
-        day = CalendarDay.new(:note => "test2")
-        sitting_day = day.becomes(NonSittingDay)
-        sitting_day.must_be_kind_of NonSittingDay
-        sitting_day.note.must_equal "test2"
+        old_day = CalendarDay.new()
+        new_day = old_day.becomes(NonSittingDay)
+        new_day.must_be_kind_of NonSittingDay
       end
       
       it "must return false for has_time_blocks? if not a SittingDay" do
