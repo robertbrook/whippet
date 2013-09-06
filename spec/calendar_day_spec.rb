@@ -417,3 +417,23 @@ class CalendarDayTest < MiniTest::Spec
     end
   end
 end
+
+class TimeBlockTest < MiniTest::Spec  
+  describe "TimeBlock" do
+    describe "when generating a place from a title" do
+    
+      it "must return a place of 'Westminster Hall' when given a title of 'Business in Westminster Hall at 3pm'" do
+        my_time_block = TimeBlock.new()
+        my_time_block.title = 'Business in Westminster Hall at 3pm'
+        my_time_block.place.must_equal 'Westminster Hall'
+      end
+      
+      it "must not return a place of 'Westminster Hall' when given a title of 'Business in Westminster hall at 3pm'" do
+        my_time_block = TimeBlock.new()
+        my_time_block.title = 'Business in Westminster hall at 3pm'
+        my_time_block.place.wont_equal 'Westminster Hall'
+      end
+      
+    end
+  end
+end

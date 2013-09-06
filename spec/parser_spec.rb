@@ -26,7 +26,7 @@ class ParserTest < MiniTest::Spec
         end
       end
       
-      it "should not duplicate the items" do
+      it "should not alter the number of items after reparsing" do
         CalendarDay.all.count.must_equal 14
         @parser.process
         CalendarDay.all.count.must_equal 14
@@ -159,7 +159,7 @@ class ParserTest < MiniTest::Spec
             @time.business_items[0]["description"].must_equal "1.  Oral questions (30 minutes)"
           end
         end
-        
+                
         describe "when looking at 'Business in Grand Committee at 3.45pm'" do
           before do
             @time = @sitting_day.time_blocks.last
