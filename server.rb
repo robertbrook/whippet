@@ -81,3 +81,10 @@ get "/date/:date/?" do
   end
   day.to_json
 end
+
+
+get "/edit-mockup" do
+  #should pass in which day is required
+  @day = SittingDay.first
+  haml :"edit-mockup"
+end
