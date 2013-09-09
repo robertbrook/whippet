@@ -8,11 +8,34 @@
 'use strict';
 
 //
+// Separate the querystring from the location string 
+// + return a dictionary of key/value pairs
+//
+function getUrlParams() {
+  var result = {};
+  var paramParts;
+  var params = (window.location.search.split('?')[1] || '').split('&');
+  for(var param in params) {
+    if (params.hasOwnProperty(param)) {
+      paramParts = params[param].split('=');
+      result[paramParts[0]] = decodeURIComponent(paramParts[1] || "");
+    }
+  }
+  return result;
+}
+
+//
 // Fetch the PDF document from the URL using promises
 //
-PDFJS.getDocument('FB 2013 03 20 r.pdf').then(function(pdf) {
+var params = getUrlParams();
+if (params["page"]) {
+  var page_no = params["page"];
+} else {
+  var page_no = 1;
+}
+PDFJS.getDocument(params["pdf"]).then(function(pdf) {
   // Using promise to fetch the page
-  pdf.getPage(3).then(function(page) {
+  pdf.getPage(page_no).then(function(page) {
     var scale = 1.2;
     var viewport = page.getViewport(scale);
 
