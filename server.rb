@@ -91,7 +91,5 @@ end
 
 get "/pdf/:filename" do
   file = params[:filename]
-  p file
-  p File.expand_path("data/#{file}", settings.public_folder)
   send_file File.expand_path("data/#{file}")
 end
