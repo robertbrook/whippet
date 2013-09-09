@@ -33,7 +33,7 @@ if (params["page"]) {
 } else {
   var page_no = 1;
 }
-PDFJS.getDocument(params["pdf"]).then(function(pdf) {
+PDFJS.getDocument("/pdf/" + params["pdf"]).then(function(pdf) {
   // Using promise to fetch the page
   pdf.getPage(page_no).then(function(page) {
     var scale = 1.2;
