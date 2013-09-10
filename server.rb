@@ -82,7 +82,6 @@ get "/date/:date/?" do
   day.to_json
 end
 
-
 get "/edit-mockup" do
   #should pass in which day is required
   @day = SittingDay.first
