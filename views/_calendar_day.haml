@@ -14,10 +14,14 @@
           %strong
             = block.title
         - if block.note
-          %p.lead
+          .lead
             = block.note
         - block.business_items.each do |item|
-          %p.lead
+          .lead
             = item.description
+            %small
+              = item.pdf_info['filename']
+              = item.pdf_info['page']
+              = item.pdf_info['line']
 
 

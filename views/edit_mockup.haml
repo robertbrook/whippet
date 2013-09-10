@@ -6,17 +6,17 @@
     %p.warn
       Content is marked as provisional
     
-  %p
-    Main source data: 
-    %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info["filename"])}&page=#{@day.pdf_info["page"]}", :target => "_new"}= @day.pdf_info["filename"]
+  %p.lead
+    Original PDF &rarr; 
+    %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info['filename'])}&page=#{@day.pdf_info['page']}", :target => "_new"}= @day.pdf_info["filename"]
     
   - @day.time_blocks.each do |block|
     %h3{:class => block.id}= block.title
     -if block.note
-      %p= block.note
+      %p.lead= block.note
   
     -block.business_items.each do |item|
-      %p{:class => item.id}= item.description
+      %p.lead{:class => item.id}= item.description
 
 %div#pdf-viewer
   / %img{:src => "img/spiffygif_30x30.gif"}
