@@ -1,22 +1,23 @@
-%h3.text-center
-  %time{datetime: true}
-    %strong
-      = day.date.strftime("%A, %e %B %Y")
+.panel.panel-default
+  .panel-heading
+    .panel-title.text-center
+      %time{datetime: true}
+        = day.date.strftime("%A, %e %B %Y")
+  .panel-body
+    - unless day.has_time_blocks?
+      %p.lead.text-center
+        %em
+          = day.note
+    - else
+      - day.time_blocks.each do |block|
+        %p.lead
+          %strong
+            = block.title
+        - if block.note
+          %p.lead
+            = block.note
+        - block.business_items.each do |item|
+          %p.lead
+            = item.description
 
-- unless day.has_time_blocks?
-  %p.lead.text-center
-    %em
-      = day.note
-- else
-  - day.time_blocks.each do |block|
-    %p.lead
-      %strong
-        = block.title
-    - if block.note
-      %p.lead
-        = block.note
-    - block.business_items.each do |item|
-      %p.lead
-        = item.description
 
-%hr
