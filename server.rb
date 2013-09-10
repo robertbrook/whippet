@@ -25,6 +25,12 @@ get '/index.json' do
   CalendarDay.all(:order => :date.desc, :limit => 10).to_json
 end
 
+get '/index.xml' do  
+  content_type :xml
+  @time = Time.now
+  CalendarDay.all(:order => :date.desc, :limit => 10).to_xml
+end
+
 get '/cal' do
 
   if params[:limit].to_i.between?(1, 20)
