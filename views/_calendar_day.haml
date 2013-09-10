@@ -1,7 +1,7 @@
-
-%p.lead.text-center
-  %strong
-    = day.date.strftime("%A, %e %B %Y")
+%h3.text-center
+  %time{datetime: true}
+    %strong
+      = day.date.strftime("%A, %e %B %Y")
 
 - unless day.has_time_blocks?
   %p.lead.text-center

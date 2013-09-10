@@ -4,12 +4,6 @@ require './lib/parser'
 require 'haml'
 require 'ri_cal'
 
-configure :development do
-  require 'better_errors'
-  use BetterErrors::Middleware
-  BetterErrors.application_root = File.expand_path('..', __FILE__)
-end
-
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
     MongoMapper.setup({'production' => {'uri' => db}}, 'production')
@@ -29,6 +23,12 @@ get '/index.json' do
   content_type :json
   @time = Time.now
   CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+end
+
+get '/index.xml' do  
+  content_type :xml
+  @time = Time.now
+  CalendarDay.all(:order => :date.desc, :limit => 10).to_xml
 end
 
 get '/cal' do
