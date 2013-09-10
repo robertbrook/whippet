@@ -4,12 +4,6 @@ require './lib/parser'
 require 'haml'
 require 'ri_cal'
 
-configure :development do
-  require 'better_errors'
-  use BetterErrors::Middleware
-  BetterErrors.application_root = File.expand_path('..', __FILE__)
-end
-
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
     MongoMapper.setup({'production' => {'uri' => db}}, 'production')
