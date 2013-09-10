@@ -1,0 +1,42 @@
+!!!
+%html{:lang => "en-GB"}
+  %head
+    %meta{:charset => "utf-8"}
+    %title LordsWhip : Editing
+    %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
+    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+    %meta{'http-equiv' => "X-UA-Compatible", :content => "IE=edge"}
+    %style
+      div#editor {width: 45%; float: left; clear: left; margin-right: 8%}
+      div#pdf-viewer {width: 45%, float: left; clear: right;}
+      canvas#the-canvas {border: 1px solid black}
+    <!-- In production, only one script (pdf.js) is necessary -->
+    <!-- In production, change the content of PDFJS.workerSrc below -->
+    <script type="text/javascript" src="js/pdfjs/shared/util.js"></script>
+    <script type="text/javascript" src="js/pdfjs/shared/colorspace.js"></script>
+    <script type="text/javascript" src="js/pdfjs/shared/pattern.js"></script>
+    <script type="text/javascript" src="js/pdfjs/shared/function.js"></script>
+    <script type="text/javascript" src="js/pdfjs/shared/annotation.js"></script>
+    <script type="text/javascript" src="js/pdfjs/display/api.js"></script>
+    <script type="text/javascript" src="js/pdfjs/display/metadata.js"></script>
+    <script type="text/javascript" src="js/pdfjs/display/canvas.js"></script>
+    <script type="text/javascript" src="js/pdfjs/display/font_loader.js"></script>
+    
+    <script type="text/javascript">
+    // Specify the main script used to create a new PDF.JS web worker.
+    // In production, change this to point to the combined `pdf.js` file.
+    PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
+    </script>
+    <script type="text/javascript" src="js/pdf-demo.js"></script>
+  
+  %body
+    .container
+      .header
+        %h1.text-muted LordsWhip : Editing
+      .row
+        =yield
+      .footer
+        %p
+    %script{:src => "http://code.jquery.com/jquery.js"}
+    %script{:src => "js/bootstrap.min.js"}
+  
