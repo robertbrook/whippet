@@ -5,11 +5,13 @@
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+    %style
+      body {padding: 3%;}
     - if @editing
       %style
-        div#editor {width: 45%; float: left; clear: left; margin-right: 8%}
+        div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
         div#pdf-viewer {width: 45%, float: left; clear: right;}
-        canvas#the-canvas {border: 1px solid black}
+        canvas#the-canvas {border: 1px solid black;}
       %script{:src => "js/pdf-demo.js"}
       %script{:src => "js/pdfjs/shared/util.js"}
       %script{:src => "js/pdfjs/shared/colorspace.js"}
