@@ -85,7 +85,9 @@ end
 get "/edit-mockup" do
   #should pass in which day is required
   @day = SittingDay.first
-  haml :edit_mockup, :layout => :edit_layout
+  @editing = true
+  haml :edit_mockup
+  # haml :edit_mockup, :layout => :edit_layout
 end
 
 get "/pdf/:filename" do

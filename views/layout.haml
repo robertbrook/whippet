@@ -5,6 +5,24 @@
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+    - if @editing
+      %style
+        div#editor {width: 45%; float: left; clear: left; margin-right: 8%}
+        div#pdf-viewer {width: 45%, float: left; clear: right;}
+        canvas#the-canvas {border: 1px solid black}
+      %script{:src => "js/pdf-demo.js"}
+      %script{:src => "js/pdfjs/shared/util.js"}
+      %script{:src => "js/pdfjs/shared/colorspace.js"}
+      %script{:src => "js/pdfjs/shared/pattern.js"}
+      %script{:src => "js/pdfjs/shared/function.js"}
+      %script{:src => "js/pdfjs/shared/annotation.js"}
+      %script{:src => "js/pdfjs/display/api.js"}
+      %script{:src => "js/pdfjs/display/metadata.js"}
+      %script{:src => "js/pdfjs/display/canvas.js"}
+      %script{:src => "js/pdfjs/display/font_loader.js"}
+      %script
+        PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
+      %script{:src => "js/pdf-demo.js"}
   %body
     .container
       .row
@@ -16,6 +34,8 @@
           %li
             %a{:href => "/"} Forthcoming Business
           %li
+            %a{:href => "/edit-mockup"} Edit Mockup
+          %li
             %a{:href => "/cal"} iCal    
           %li
             %a{:href => "/index.xml"} XML
@@ -23,5 +43,9 @@
             %a{:href => "/index.json"} JSON   
         %hr
         =yield
+        %hr
         %p.lead
           Information published on this site is from information published by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
+        - if @editing
+          %script{:src => "http://code.jquery.com/jquery.js"}
+          %script{:src => "js/bootstrap.min.js"}
