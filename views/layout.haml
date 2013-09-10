@@ -5,20 +5,18 @@
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
-    %meta{'http-equiv' => "X-UA-Compatible", :content => "IE=edge"}
   %body
     .container
-      .header
-        %ul.nav.nav-pills.pull-right
-          %li.active
-            %a{:href => "#"} Latest
-          %li
-            %a{:href => "/cal"} cal
-          %li
-            %a{:href => "/cal?ics"} ics
-        %h1.text-muted LordsWhip
-      .row
-        =yield
-      .footer
-    %script{:src => "http://code.jquery.com/jquery.js"}
-    %script{:src => "js/bootstrap.min.js"}
+      %h1.page-header
+        LordsWhip
+        %small
+          Prototype
+      %ul.nav.nav-pills.lead
+        %li
+          %a{:href => "#"} Forthcoming Business
+        %li
+          %a{:href => "/cal"} Calendar Feed       
+      %hr
+      =yield
+      %p.lead
+        Information published on this site is made available by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
