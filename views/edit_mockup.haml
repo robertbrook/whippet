@@ -19,7 +19,7 @@
       %p{:class => item.id}= item.description
 
 %div#pdf-viewer
-  /%img{:src => "img/spiffygif_30x30.gif"}
+  %img{:src => "img/spiffygif_30x30.gif"}
   %canvas#the-canvas
   %script
     drawViewer('#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]})
