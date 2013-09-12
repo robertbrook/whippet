@@ -1,18 +1,17 @@
 .panel.panel-default
   .panel-heading
-    .panel-title.text-center
+    %h2.panel-title.text-center
       %time{datetime: true}
         = day.date.strftime("%A, %e %B %Y")
   .panel-body
     - unless day.has_time_blocks?
-      %p.lead.text-center
+      .lead.text-center
         %em
           = day.note
     - else
       - day.time_blocks.each do |block|
-        %p.lead
-          %strong
-            = block.title
+        %h3
+          = block.title
         - if block.note
           .lead
             = block.note
