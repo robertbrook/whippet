@@ -7,6 +7,8 @@
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
     %style
       body {padding: 3%;}
+    %script{:src => "http://code.jquery.com/jquery.js"}
+    %script{:src => "js/bootstrap.min.js"}
     - if @editing
       %style
         div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
@@ -28,6 +30,31 @@
   %body
     .container
       .row
+        %nav.navbar.navbar-inverse.navbar-static-top
+          .navbar-header
+            %button.navbar-toggle{"data-target" => ".navbar-collapse", "data-toggle" => "collapse", :type => "button"}
+              %span.sr-only Toggle navigation
+              %span.icon-bar
+              %span.icon-bar
+              %span.icon-bar
+            %a.navbar-brand{:href => "#"} Title
+          .collapse.navbar-collapse
+            %ul.nav.navbar-nav
+              %li.active
+                %a{:href => "#"} Home
+              %li
+                %a{:href => "#"} Link
+              %li
+                %a{:href => "#"} Link
+            %form.navbar-form.navbar-left{:role => "search"}
+              .form-group
+                %input.form-control{:placeholder => "Search", :type => "text"}/
+              %button.btn.btn-default{:type => "submit"} Submit
+            %ul.nav.navbar-nav.navbar-right
+              %li
+                %a{:href => "#"} Link
+              
+  
         %h1.page-header
           LordsWhip
           %small
@@ -47,6 +74,4 @@
         %br
         %p.text-center
           Information published on this site is from information published by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
-      - if @editing
-        %script{:src => "http://code.jquery.com/jquery.js"}
-        %script{:src => "js/bootstrap.min.js"}
+
