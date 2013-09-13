@@ -1,4 +1,6 @@
 Whippet
 =======
 
-Whippet
+Whippet.
+
+A prototype.
