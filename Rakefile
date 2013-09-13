@@ -1,12 +1,20 @@
 require 'bundler'
 Bundler.setup
 
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 
-Rake::TestTask.new do |t|
-  t.pattern = "spec/**/*_spec.rb"
+namespace :spec do
+  desc "Run tests with SimpleCov"
+  RSpec::Core::RakeTask.new(:cov) do |t|
+    ENV["COVERAGE"] = "1"
+  end
 end
-  
+
+RSpec::Core::RakeTask.new(:spec)
+
+task :default => :spec
+
+
 desc "Parse PDFs in data directory"
 task :puller do |t|
   report_env()

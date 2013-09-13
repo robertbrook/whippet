@@ -20,8 +20,8 @@ group :development do
 end
 
 group :test do
-  gem 'minitest', '5.0.1', :require => 'minitest'
+  gem 'rspec'
   gem 'simplecov', '0.7.1'
-  gem "mocha", :require => false
   gem 'rack-test'
+  gem 'autotest'
 end
