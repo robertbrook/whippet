@@ -33,5 +33,7 @@ describe "TheServer" do
     
   context "when running a search for 'Lord McNally'" do
     it "should return these results"
+    
+    it "should return one result only"
   end
 end
