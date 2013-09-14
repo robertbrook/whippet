@@ -127,11 +127,19 @@ class Parser
     end
   end
   
+  def deref_pdf_info(pdf, att)
+    info = pdf.info[att]
+    if info.is_a?(PDF::Reader::Reference)
+      info = pdf.objects[info]
+    end
+    info
+  end
+  
   def set_pdf_info(page, line_no)
     {:filename => @pdf_filename, 
      :page => page.number, 
      :line => line_no, 
-     :last_edited => Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))}
+     :last_edited => Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))}
   end
   
   def init_new_day
@@ -179,7 +187,7 @@ class Parser
       @current_sitting_day.is_provisional = true
     end
     if prev
-      if prev.pdf_info[:last_edited] < Time.parse(@pdf.info[:ModDate].gsub(/\+\d+'\d+'/, "Z"))
+      if prev.pdf_info[:last_edited] < Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))
         #the found version is old, delete it and allow the new info to replace it
         @old_day = prev.dup
         prev.delete
@@ -222,7 +230,7 @@ class Parser
     block.title = line.strip
     block.id = block.generate_id()
     
-    Time.parse(@pdf.info[:ModDate])
+    Time.parse(deref_pdf_info(@pdf, :ModDate))
     
     pdf_info = set_pdf_info(page, line_no)
     block.pdf_info = pdf_info
