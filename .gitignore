@@ -24,5 +24,4 @@ doc/
 config/*.yml
 
 # spec output in html
-.rspec
 specs.html
