@@ -22,3 +22,6 @@ doc/
 
 # duh
 config/*.yml
+
+# spec output in html
+specs.html
