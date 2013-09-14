@@ -6,3 +6,4 @@ if ENV['COVERAGE']
 end
 
 require 'rspec/autorun'
+

@@ -9,6 +9,7 @@ def app
 end
  
 describe "TheServer" do
+  
   context "when asked for an iCal feed at /cal" do
     it "should generate output"
     
