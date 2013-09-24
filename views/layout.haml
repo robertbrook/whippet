@@ -6,7 +6,7 @@
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
     %style
-      body {padding: 3%;}
+      body {padding-left: 3%;padding-right:3%;}
     - if @editing
       %style
         div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
@@ -45,7 +45,7 @@
             %a{:href => "/index.json"} JSON   
         =yield
         %br
-        %p.text-center
-          Information published on this site is from information published by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
+        %p
+          Information published on this site is from information published by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>. Source code <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>. &copy; UK Parliament.
     %script{:src => "js/jquery.js"}
     %script{:src => "js/bootstrap.min.js"}
