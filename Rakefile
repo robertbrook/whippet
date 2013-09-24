@@ -14,6 +14,8 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :default => :spec
 
+desc "Run the rake spec task"
+task :test => [:spec]
 
 desc "Parse PDFs in data directory"
 task :puller do |t|
