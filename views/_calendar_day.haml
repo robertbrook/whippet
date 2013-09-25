@@ -19,8 +19,8 @@
   .row
     - day.time_blocks.each do |block|
       .col-md-3.lead
+        =block.time_as_number
         %strong
-          =block.time_as_number
           =block.place
       .col-md-9.lead
         =block.note
