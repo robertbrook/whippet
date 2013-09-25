@@ -1,19 +1,17 @@
 .list-group-item
-  %h3.xtext-center
+  %h3
     %time{datetime: true}
       = day.date.strftime("%A, %e %B %Y")
-  .xpanel-body
-    - unless day.has_time_blocks?
-      .xlead.text-center
-        %em
-          = day.note
-    - else
-      - day.time_blocks.each do |block|
-        %h4
-          = block.title
-        - if block.note
-          .xlead
-            = block.note
-        - block.business_items.each do |item|
-          .xlead
-            = item.description
+  - unless day.has_time_blocks?
+    .text-muted.lead
+      = day.note
+  - else
+    - day.time_blocks.each do |block|
+      %h4
+        = block.title
+      - if block.note
+        .lead
+          = block.note
+      - block.business_items.each do |item|
+        .lead
+          = item.description
