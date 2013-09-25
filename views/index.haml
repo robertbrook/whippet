@@ -1,3 +1,2 @@
-.list-group
-  - @calendar_days.each do |day|
-    =haml(:_calendar_day, :locals => {:day => day})
+- @calendar_days.each do |day|
+  =haml(:_calendar_day, :locals => {:day => day})

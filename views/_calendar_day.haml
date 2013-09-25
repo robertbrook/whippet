@@ -1,20 +1,20 @@
-.list-group-item
-  - unless day.has_time_blocks?
-    %h3.text-muted
-      %time{datetime: true}
-        = day.date.strftime("%A %e %B")
-    .text-muted.lead
-      = day.note
-  - else
-    %h3
-      %time{datetime: true}
-        = day.date.strftime("%A %e %B")
+- unless day.has_time_blocks?
+  %h3.text-muted
+    %time{datetime: true}
+      = day.date.strftime("%A %e %B")
+  .text-muted.lead
+    = day.note
+- else
+  %h3
+    %time{datetime: true}
+      = day.date.strftime("%A %e %B")
+  .row
     - day.time_blocks.each do |block|
-      %h4
-        = block.title
-      - if block.note
-        .lead
-          = block.note
-      - block.business_items.each do |item|
-        .lead
-          = item.description
+      .col-md-4.lead
+        =block.title
+      .col-md-8.lead
+        =block.note
+        - block.business_items.each do |item|
+          %p= item.description
+%hr
+
