@@ -1,11 +1,14 @@
 .list-group-item
-  %h3
-    %time{datetime: true}
-      = day.date.strftime("%A, %e %B %Y")
   - unless day.has_time_blocks?
+    %h3.text-muted
+      %time{datetime: true}
+        = day.date.strftime("%A %e %B")
     .text-muted.lead
       = day.note
   - else
+    %h3
+      %time{datetime: true}
+        = day.date.strftime("%A %e %B")
     - day.time_blocks.each do |block|
       %h4
         = block.title
