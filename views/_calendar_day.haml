@@ -1,11 +1,10 @@
-.panel.panel-default
-  .panel-heading
-    %h2.panel-title.text-center
-      %time{datetime: true}
-        = day.date.strftime("%A, %e %B %Y")
-  .panel-body
+.list-group-item
+  %h2.text-center
+    %time{datetime: true}
+      = day.date.strftime("%A, %e %B %Y")
+  .xpanel-body
     - unless day.has_time_blocks?
-      .lead.text-center
+      .xlead.text-center
         %em
           = day.note
     - else
@@ -13,8 +12,8 @@
         %h3
           = block.title
         - if block.note
-          .lead
+          .xlead
             = block.note
         - block.business_items.each do |item|
-          .lead
+          .xlead
             = item.description
