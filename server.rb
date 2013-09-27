@@ -13,21 +13,20 @@ before do
   end
 end
 
+@time = Time.now
+
 get '/' do  
-  @time = Time.now
   @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
   haml :index
 end
 
 get '/index.json' do  
   content_type :json
-  @time = Time.now
   CalendarDay.all(:order => :date.desc, :limit => 10).to_json
 end
 
 get '/index.xml' do  
   content_type :xml
-  @time = Time.now
   CalendarDay.all(:order => :date.desc, :limit => 10).to_xml
 end
 
