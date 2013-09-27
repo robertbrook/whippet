@@ -4,12 +4,11 @@
     %meta{:charset => "utf-8"}
     %title LordsWhip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
-    %style
-      body {padding:30px;}
-      .navbar {margin-bottom: 30px;}
     %script{:src => "js/jquery.js"}
     %script{:src => "js/bootstrap.min.js"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+    %style
+      body {padding-top:30px;}
     - if @editing
       %style
         div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
@@ -38,10 +37,9 @@
             %span.icon-bar
             %span.icon-bar
           %a.navbar-brand{href: "/"} LordsWhip
+
         .collapse.navbar-collapse.navbar-ex1-collapse
           %ul.nav.navbar-nav.pull-right
-            %li.active
-              %a{href: "/"} Latest
             %li
               %a{href: "/edit-mockup"} Edit
             %li
@@ -50,6 +48,10 @@
               %a{href: "/index.xml"} XML
             %li
               %a{href: "/index.json"} JSON 
+          %form.navbar-form.navbar-right{role: "search"}
+            .form-group
+              %input.form-control{type: "search"}
+            %button.btn.btn-default{type: "submit"} Search
       .clearfix
         =yield
       .lead
