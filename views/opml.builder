@@ -16,8 +16,7 @@ xml.opml :version => "2.0" do
         xml.outline(text: calendar_day.date.strftime("%A %e %B"), created: calendar_day.date.strftime("%A %e %B")) do
           calendar_day.time_blocks.each do |block|
             xml.outline(text: block.time_as_number) do
-              xml.outline(text: block.place)
-              xml.outline(text: block.note || "(No note)") do
+              xml.outline(text: block.place) do
                 block.business_items.each do |item|
                   xml.outline(text: item.description)
                 end
