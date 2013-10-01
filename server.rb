@@ -102,3 +102,8 @@ get "/pdf/:filename" do
   file = params[:filename]
   send_file File.expand_path("data/#{file}")
 end
+
+get '/editor' do  
+  @calendar_days_json = CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+  haml :editor
+end
