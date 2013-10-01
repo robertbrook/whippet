@@ -30,6 +30,11 @@ get '/index.xml' do
   CalendarDay.all(:order => :date.desc, :limit => 10).to_xml
 end
 
+get '/rss' do
+  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
+  builder :rss
+end
+
 get '/cal' do
 
   if params[:limit].to_i.between?(1, 20)
