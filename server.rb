@@ -35,6 +35,11 @@ get '/rss' do
   builder :rss
 end
 
+get '/opml' do
+  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
+  builder :opml
+end
+
 get '/cal' do
 
   if params[:limit].to_i.between?(1, 20)
