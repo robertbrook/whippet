@@ -5,12 +5,12 @@
     - else
       %span.prev.disabled.pull-left &laquo; Prev
   
-    Showing #{@offset + 1} to&nbsp;
+    Showing #{@offset + 1} to
     - if @offset + 10 < @total
       =@offset + 10
     - else
       =@total 
-    &nbsp;of #{@total}
+    of #{@total}
   
     - if @offset + 10 < @total
       %a.next.pull-right{:href => "/?page=#{@page+1}"} Next &raquo;
