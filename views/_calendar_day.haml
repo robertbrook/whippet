@@ -1,8 +1,6 @@
 - unless day.has_time_blocks?
   .row
-    .col-md-4
-      &nbsp;
-    .col-md-8
+    .col-md-8.col-md-offset-4
       %h3.text-muted
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
@@ -10,9 +8,7 @@
         = day.note
 - else
   .row
-    .col-md-4
-      &nbsp;
-    .col-md-8
+    .col-md-8.col-md-offset-4
       %h3
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
@@ -26,5 +22,6 @@
         =block.note
         - block.business_items.each do |item|
           %p= item.description
+          
 %hr.hidden-xs.hidden-sm
 

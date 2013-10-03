@@ -2,7 +2,7 @@
 %html{:lang => "en-GB"}
   %head
     %meta{:charset => "utf-8"}
-    %title LordsWhip
+    %title Lords Whip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %script{:src => "js/jquery.js"}
     %script{:src => "js/bootstrap.min.js"}
@@ -37,27 +37,24 @@
             %span.icon-bar
             %span.icon-bar
             %span.icon-bar
-          %a.navbar-brand{href: "/"} LordsWhip
+          %a.navbar-brand{href: "/"} Lords Whip
 
         .collapse.navbar-collapse.navbar-ex1-collapse
-          %ul.nav.navbar-nav.pull-right
-            %li
-              %a{href: "/edit-mockup"} Edit
-            %li
-              %a{href: "/cal"} iCal
-            %li
-              %a{href: "/index.xml"} XML
-            %li
-              %a{href: "/index.json"} JSON 
           %form.navbar-form.navbar-right{role: "search"}
             .form-group
-              %input.form-control{type: "text"}
+              %input.form-control.disabled{type: "text"}
             %button.btn.btn-default{type: "submit"} Search
+          %ul.nav.navbar-nav.pull-right
+            %li
+              %a{href: "/edit-mockup"} Editor preview
+          
       .clearfix
         =yield
-      .lead
+      .lead.text-muted
         Information on this site is from PDFs previously made public on the web by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
-      .lead
+      .lead.text-muted
         Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
+      
+        
   
     
