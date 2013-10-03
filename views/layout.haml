@@ -6,16 +6,19 @@
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
     %script{:src => "js/jquery.js"}
     %script{:src => "js/bootstrap.min.js"}
-    %script{:src => "js/hulk.min.js"}
+    - if @hulk
+      %script{:src => "js/hulk.min.js"}
     %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
     %style
       body {padding-top:30px;border-left:3px solid crimson;}
+      div.custom-pagination {text-align: center; padding: 0.5em;}
+      div.custom-pagination .disabled {color: #999;}
+      div.custom-pagination .next, div.custom-pagination .prev {margin: 0 2em;}
     - if @editing
       %style
         div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
         div#pdf-viewer {width: 45%, float: left; clear: right;}
         canvas#the-canvas {border: 1px solid black;}
-      %script{:src => "js/pdf-demo.js"}
       %script{:src => "js/pdfjs/shared/util.js"}
       %script{:src => "js/pdfjs/shared/colorspace.js"}
       %script{:src => "js/pdfjs/shared/pattern.js"}
@@ -28,11 +31,6 @@
       %script
         PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
       %script{:src => "js/pdf-demo.js"}
-    - else
-      %style
-        div.custom-pagination {text-align: center; padding: 0.5em}
-        div.custom-pagination .disabled {color: #999}
-        div.custom-pagination .next,div.custom-pagination .prev {margin: 0 2em}
   %body
     .container
       .navbar.navbar-default{role: "navigation"}
@@ -59,7 +57,4 @@
         Information on this site is from PDFs previously made public on the web by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.
       .lead.text-muted
         Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
-      
-        
-  
-    
+

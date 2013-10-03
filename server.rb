@@ -113,5 +113,6 @@ end
 
 get '/editor' do  
   @calendar_days_json = CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+  @hulk = true
   haml :editor
 end
