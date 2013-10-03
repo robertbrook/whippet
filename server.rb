@@ -93,7 +93,12 @@ end
 
 get "/edit-mockup" do
   #should pass in which day is required
-  @day = SittingDay.first
+  if params[:date]
+    parsed_time = Time.parse(params[:date]).strftime("%Y-%m-%d 00:00:00Z")
+    @day = CalendarDay.where(:date => Time.parse(parsed_time)).first
+  else
+    @day = SittingDay.first
+  end
   @editing = true
   haml :edit_mockup
 end
