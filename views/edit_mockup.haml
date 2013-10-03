@@ -1,30 +1,34 @@
 %h2
-  =@day.date.strftime("%A, %e %B %Y")
+  =@date.strftime("%A, %e %B %Y")
   
-%div#editor 
-  - if @day.is_provisional
-    %p.warn
-      Content is marked as provisional
+%div#editor
+  - unless @day
+    %p.lead
+      No data available for this date
+  - else
+    - if @day.is_provisional
+      %p.warn
+        Content is marked as provisional
     
-  %p.lead
-    Original PDF &rarr; 
-    %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info['filename'])}&page=#{@day.pdf_info['page']}", :target => "_new"}= @day.pdf_info["filename"]
+    %p.lead
+      Original PDF &rarr; 
+      %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info['filename'])}&page=#{@day.pdf_info['page']}", :target => "_new"}= @day.pdf_info["filename"]
     
-  - if @day.note
-    %p.lead= @day.note
+    - if @day.note
+      %p.lead= @day.note
     
-  - if @day.has_time_blocks?
-    - @day.time_blocks.each do |block|
-      %h3{:class => block.id}= block.title
-      -if block.note
-        %p.lead= block.note
+    - if @day.has_time_blocks?
+      - @day.time_blocks.each do |block|
+        %h3{:class => block.id}= block.title
+        -if block.note
+          %p.lead= block.note
   
-      -block.business_items.each do |item|
-        %p.lead{:class => item.id}= item.description
+        -block.business_items.each do |item|
+          %p.lead{:class => item.id}= item.description
 
-%div#pdf-viewer
-  / %img{:src => "img/spiffygif_30x30.gif"}
-  %canvas#the-canvas
-  %script
-    drawViewer('#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]})
-    
+- if @day
+  %div#pdf-viewer
+    / %img{:src => "img/spiffygif_30x30.gif"}
+    %canvas#the-canvas
+    %script
+      drawViewer('#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]})
