@@ -10,7 +10,7 @@
         Content is marked as provisional
     
     Original PDF &rarr; 
-    %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info['filename'])}&page=#{@day.pdf_info['page']}", :target => "_new"}= @day.pdf_info["filename"]
+    %a{:href => "/pdf-demo.html?pdf=#{CGI::escape(@day.pdf_info['filename']).gsub("+", "%20")}&page=#{@day.pdf_info['page']}", :target => "_new"}= @day.pdf_info["filename"]
     
     - if @day.note
       = @day.note
