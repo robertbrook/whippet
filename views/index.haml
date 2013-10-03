@@ -1,7 +1,10 @@
- 
+=haml(:_pagination) 
+
 - @calendar_days.each do |day|
   =haml(:_calendar_day, :locals => {:day => day})
-  
+
+=haml(:_pagination)
+
 .row.lead
   .col-md-8.col-md-offset-4
     <strong>Export</strong>

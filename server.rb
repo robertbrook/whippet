@@ -15,8 +15,11 @@ end
 
 @time = Time.now
 
-get '/' do  
-  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
+get '/' do
+  @page = params[:page].to_i > 0 ? params[:page].to_i : 1
+  @total = CalendarDay.count
+  @offset = (@page - 1) * 10
+  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10, :offset => @offset)
   haml :index
 end
 

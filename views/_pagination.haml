@@ -1,0 +1,18 @@
+.row.lead
+  .custom-pagination<
+    - if @page > 1
+      %a.prev.pull-left{:href => "/?page=#{@page-1}"} &laquo; Prev
+    - else
+      %span.prev.disabled.pull-left &laquo; Prev
+  
+    Showing #{@offset + 1} to&nbsp;
+    - if @offset + 10 < @total
+      =@offset + 10
+    - else
+      =@total 
+    &nbsp;of #{@total}
+  
+    - if @offset + 10 < @total
+      %a.next.pull-right{:href => "/?page=#{@page+1}"} Next &raquo;
+    - else
+      %span.next.disabled.pull-right Next &raquo;
