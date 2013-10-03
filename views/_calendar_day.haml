@@ -1,18 +1,16 @@
-- unless day.has_time_blocks?
-  .row
-    .col-md-8.col-md-offset-4
-      %h3.text-muted
+.row
+  - unless day.has_time_blocks?
+    .col-md-8.col-md-offset-4.text-muted
+      %h3
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
-      .text-muted.lead
+      .lead
         = day.note
-- else
-  .row
+  - else
     .col-md-8.col-md-offset-4
       %h3
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
-  .row
     - day.time_blocks.each do |block|
       .col-md-4.lead
         =block.time_as_number
