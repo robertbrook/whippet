@@ -40,6 +40,44 @@ describe CalendarDay do
     end
   end
   
+  context "when asked for the source documents" do
+    before :each do
+      @day = SittingDay.new
+      @day.pdf_info = {:filename => "file.pdf"}
+    end
+    
+    it "should return an array with the primary source as the first element" do
+      time_block = TimeBlock.new()
+      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      item2 = BusinessItem.new(:pdf_info => {:filename => "file3.pdf"})
+      time_block.business_items = [item1, item2]
+      @day.time_blocks = [time_block]
+      @day.source_docs.should eq ["file.pdf", "file2.pdf", "file3.pdf"]
+    end
+    
+    it "should not return duplicate file names" do
+      time_block = TimeBlock.new()
+      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      item2 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      time_block.business_items = [item1, item2]
+      @day.time_blocks = [time_block]
+      @day.source_docs.should eq ["file.pdf", "file2.pdf"]
+    end
+    
+    it "should not return nil where there is no filename" do
+      time_block = TimeBlock.new()
+      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      item2 = BusinessItem.new()
+      time_block.business_items = [item1, item2]
+      @day.time_blocks = [time_block]
+      @day.source_docs.should eq ["file.pdf", "file2.pdf"]
+    end
+    
+    it "should return a single element array when there is only one source pdf" do
+      @day.source_docs.should eq ["file.pdf"]
+    end
+  end
+  
   context "when asked for diffs" do
     it "should throw an error when asked to diff with an object not derived from CalendarDay" do
       day = SittingDay.new

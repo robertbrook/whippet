@@ -27,6 +27,15 @@ class CalendarDay
     became
   end
   
+  def source_docs
+    pdfs = [pdf_info["filename"]]
+    if time_blocks
+      sub_docs = time_blocks.map { |block| block.business_items.map { |item| item.pdf_info["filename"] } }
+      pdfs += sub_docs.flatten
+    end
+    pdfs.uniq.delete_if { |x| x.nil? }
+  end
+  
   def diff(other)
     unless other.is_a?(CalendarDay)
       raise "Unable to compare #{self.class} to #{other.class}"
