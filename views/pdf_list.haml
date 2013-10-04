@@ -1,0 +1,12 @@
+
+
+.row.lead
+  .col-md-8.col-md-offset-2
+    %ul.list-group
+      - @pdfs.each do |pdf|
+        %li.list-group-item
+          =pdf
+          - scope = get_pdf_scope(pdf)
+          - unless scope.empty?
+            %small.text-muted=" covers #{scope[0].strftime("%e %b %Y")} to #{scope[1].strftime("%e %b %Y")}"
+            %span.badge &radic;

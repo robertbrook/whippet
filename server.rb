@@ -4,6 +4,17 @@ require './lib/parser'
 require 'haml'
 require 'ri_cal'
 
+helpers do
+  def get_pdf_scope(filename)
+    days = CalendarDay.where("pdf_info.filename" => filename).sort(:date.asc).all
+    unless days.empty?
+      [days.first.date, days.last.date]
+    else
+      []
+    end
+  end
+end
+
 before do
   if db = ENV["MONGOHQ_DEV_URI"]
     MongoMapper.setup({'production' => {'uri' => db}}, 'production')
@@ -115,4 +126,9 @@ get '/editor' do
   @calendar_days_json = CalendarDay.all(:order => :date.desc, :limit => 10).to_json
   @hulk = true
   haml :editor
+end
+
+get "/pdf-list" do
+  @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
+  haml :pdf_list
 end
