@@ -1,3 +1,5 @@
+
+
 .ul.pager.lead
   
   - if @page > 1
@@ -9,7 +11,7 @@
       %a
         &larr; Previous
         
-  Page #{@page} of #{@total} results
+  
   
   - if @offset + 10 < @total
     %li
@@ -19,3 +21,6 @@
     %li.disabled
       %a
         Next &rarr;
+
+.text-center.lead
+  Page #{@page} of #{@total} results
