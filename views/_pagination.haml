@@ -1,21 +1,21 @@
 .ul.pager.lead
   
   - if @page > 1
-    %li.previous
+    %li
       %a{:href => "/?page=#{@page-1}"}
         &larr; Previous
   - else
-    %li.previous.disabled
+    %li.disabled
       %a
         &larr; Previous
         
   Page #{@page} of #{@total} results
   
   - if @offset + 10 < @total
-    %li.next
+    %li
       %a{:href => "/?page=#{@page+1}"}
         Next &rarr;
   - else
-    %li.next.disabled
+    %li.disabled
       %a
         Next &rarr;
