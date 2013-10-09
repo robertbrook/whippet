@@ -13,11 +13,14 @@
           = day.date.strftime("%A %e %B")
     - day.time_blocks.each do |block|
       .col-md-4.lead
+        
         =block.time_as_number
         %strong
           =block.place
       .col-md-8.lead
-        =block.note
+        - if block.note
+          =block.note
+
         - block.business_items.each do |item|
           %p= item.description
           
