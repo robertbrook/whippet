@@ -1,14 +1,6 @@
-=haml(:_pagination) 
-
-- @calendar_days.each do |day|
-  =haml(:_calendar_day, :locals => {:day => day})
-
-=haml(:_pagination)
-
 .row.lead
   .col-md-8.col-md-offset-4
-    <strong>Export</strong>
-    &mdash; 
+    Export as: 
     %a{href: "/index.txt"} Text
     &mdash; 
     %a{href: "/cal"} iCal
@@ -20,5 +12,12 @@
     %a{href: "/opml"} OPML
     &mdash;
     %a{href: "/rss"} RSS
+
+- @calendar_days.each do |day|
+  =haml(:_calendar_day, :locals => {:day => day})
+
+=haml(:_pagination)
+
+
   
 
