@@ -21,7 +21,7 @@
           =block.note
 
         - block.business_items.each do |item|
-          %p= item.description
+          %p= item.description.gsub(/QSD\b/, "<span class='label label-info'>QSD</span>").gsub(/^(\d).\s/, '<span class="label label-default">\1</span> ')
           
 %hr.hidden-xs.hidden-sm
 
