@@ -93,8 +93,8 @@ function renderPage(page) {
       .css("height", viewport.height + "px")
       .css("width", viewport.width + "px")
       .offset({
-          top: canvasOffset.top,
-          left: canvasOffset.left
+          top: 0,
+          left: 0
       });
   
   //Append the text-layer div to the DOM as a child of the PDF container div.
