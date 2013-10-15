@@ -4,16 +4,16 @@
 <head>
   <!-- In production, only one script (pdf.js) is necessary -->
   <!-- In production, change the content of PDFJS.workerSrc below -->
-  <script type="text/javascript" src="js/pdfjs/shared/util.js"></script>
+  <link href="css/viewer.css" rel="stylesheet" media="screen" />
+  <script src="js/jquery.js"></script>
+  <script src="js/pdfjs/core/core.js" type="text/javascript"></script>
+  <script src="js/pdfjs/shared/util.js" type="text/javascript"></script>
+  <script src="js/pdfjs/display/api.js" type="text/javascript"></script>
   <script type="text/javascript" src="js/pdfjs/shared/colorspace.js"></script>
-  <script type="text/javascript" src="js/pdfjs/shared/pattern.js"></script>
-  <script type="text/javascript" src="js/pdfjs/shared/function.js"></script>
-  <script type="text/javascript" src="js/pdfjs/shared/annotation.js"></script>
-  <script type="text/javascript" src="js/pdfjs/display/api.js"></script>
-  <script type="text/javascript" src="js/pdfjs/display/metadata.js"></script>
+  <script src="js/textlayerbuilder.js" type="text/javascript"></script>
   <script type="text/javascript" src="js/pdfjs/display/canvas.js"></script>
   <script type="text/javascript" src="js/pdfjs/display/font_loader.js"></script>
-
+  <script src="js/viewer.js" type="text/javascript"></script>
   <script type="text/javascript">
     // Specify the main script used to create a new PDF.JS web worker.
     // In production, change this to point to the combined `pdf.js` file.
@@ -24,7 +24,8 @@
 </head>
 
 <body>
-  <canvas id="the-canvas" style="border:1px solid black;"/>
+  <div id="controlBar"></div>
+  <div id="pdfContainer" class="pdf-content" style="position: relative"></div>
 </body>
 
 </html>

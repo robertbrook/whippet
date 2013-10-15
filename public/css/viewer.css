@@ -1,0 +1,59 @@
+body {
+    font-family: arial, verdana, sans-serif;
+}
+
+.pdf-content {
+    border: 1px solid #000000;
+}
+
+#controlBar {
+  min-height: 30px;
+  background: #888;
+  border: 1px solid black;
+  position: relative;
+}
+
+#previous,
+#next {
+  border: 1px solid #ccc;
+  padding: 0.2em 0.4em;
+  position: absolute;
+  top: 2px;
+  color: #333;
+  background: #ddd;
+  text-decoration: none;
+}
+
+#previous.disabled,
+#next.disabled {
+  color: #999;
+  text-decoration: none;
+}
+
+#previous {
+  left: 8px;
+}
+
+#next {
+  right:8px;
+}
+
+
+.textLayer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    color: #000;
+    font-family: sans-serif;
+    overflow: hidden;
+}
+
+.textLayer > div {
+    color: transparent;
+    position: absolute;
+    line-height: 1;
+    white-space: pre;
+    cursor: text;
+}
