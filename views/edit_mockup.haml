@@ -27,8 +27,10 @@
 
 - if @day
   #pdf-viewer
-    %canvas#the-canvas
-    :javascript
-      drawViewer('#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]})
-
+    %div#controlBar
+    %div#pdfContainer{:class => "pdf-content", :style => "position: relative"}
+  
+  :javascript
+    $( "#pdf-viewer" ).css("margin-left", $( "#editor" ).width() + 10 + "px" );
+    drawViewer(0.8, '#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]}) 
   %hr

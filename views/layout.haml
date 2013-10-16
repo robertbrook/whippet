@@ -14,8 +14,8 @@
     - if @editing
       %style
         div#editor {width: 45%; float: left; clear: left; margin-right: 8%;}
-        div#pdf-viewer {width: 45%, float: left; clear: right;}
-        canvas#the-canvas {border: 1px solid black;}
+        canvas {position: absolute; left: 0}
+      %link{:href => "css/viewer.css", :rel => "stylesheet", :media => "screen"}
       %script{:src => "js/pdfjs/shared/util.js"}
       %script{:src => "js/pdfjs/shared/colorspace.js"}
       %script{:src => "js/pdfjs/shared/pattern.js"}
@@ -24,10 +24,11 @@
       %script{:src => "js/pdfjs/display/api.js"}
       %script{:src => "js/pdfjs/display/metadata.js"}
       %script{:src => "js/pdfjs/display/canvas.js"}
+      %script{:src => "js/textlayerbuilder.js"}
+      %script{:src => "js/viewer.js"}
       %script{:src => "js/pdfjs/display/font_loader.js"}
       %script
         PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
-      %script{:src => "js/pdf-demo.js"}
   %body
     .container
       .navbar.navbar-default{role: "navigation"}
@@ -53,6 +54,4 @@
       %p
         Information on this site is from PDFs previously made public on the web by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.<br>
         Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
-
-        
 

@@ -18,11 +18,18 @@
     // Specify the main script used to create a new PDF.JS web worker.
     // In production, change this to point to the combined `pdf.js` file.
     PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
+    var params = getUrlParams();
+    if (params["page"]) {
+      var page_no = parseInt(params["page"]);
+    } else {
+      var page_no = 1;
+    }
+    var file_name = params["pdf"]
   </script>
   <title>PDF Viewer Test</title>
 </head>
 
-<body onload="drawViewer(1.2)">
+<body onload="drawViewer(1.2, file_name, page_no)">
   <div id="controlBar"></div>
   <div id="pdfContainer" class="pdf-content" style="position: relative"></div>
 </body>

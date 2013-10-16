@@ -58,7 +58,7 @@ function renderPage(page) {
   canvas.height = viewport.height;
   canvas.width = viewport.width;
   var $controlbarContainer = jQuery("#controlBar");
-  $controlbarContainer.css("width", canvas.width + "px");
+  $controlbarContainer.css("width", canvas.width + 2 + "px");
   
   var $pdfContainer = jQuery("#pdfContainer");
   
@@ -66,7 +66,7 @@ function renderPage(page) {
   $pdfContainer.empty();
   
   //Append the canvas to the pdf container div
-  $pdfContainer.css("height", canvas.height + "px").css("width", canvas.width + "px");
+  $pdfContainer.css("height", canvas.height + 2 + "px").css("width", canvas.width + 2 + "px");
   $pdfContainer.append($canvas);
   
   //The following few lines of code set up scaling on the context if we are on a HiDPI display
@@ -130,17 +130,9 @@ function highlightLines(first_no, last_no) {
   }
 }
 
-function drawViewer(size) {
+function drawViewer(size, file, page_no) {
   PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error.
   scale = size; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
-  
-  var params = getUrlParams();
-  if (params["page"]) {
-    var page_no = parseInt(params["page"]);
-  } else {
-    var page_no = 1;
-  }
-  
   drawControlBar(page_no);
-  loadPdf("/pdf/" + params["pdf"], page_no);
+  loadPdf("/pdf/" + file, page_no);
 }

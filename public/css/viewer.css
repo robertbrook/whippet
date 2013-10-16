@@ -7,7 +7,7 @@ body {
 }
 
 #controlBar {
-  min-height: 30px;
+  min-height: 34px;
   background: #888;
   border: 1px solid black;
   position: relative;
