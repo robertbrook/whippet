@@ -1,3 +1,5 @@
+var scale;
+
 function getUrlParams() {
   var result = {};
   var paramParts;
@@ -128,9 +130,9 @@ function highlightLines(first_no, last_no) {
   }
 }
 
-$(function(){
+function drawViewer(size) {
   PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error.
-  scale = 1.2; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
+  scale = size; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
   
   var params = getUrlParams();
   if (params["page"]) {
@@ -141,4 +143,4 @@ $(function(){
   
   drawControlBar(page_no);
   loadPdf("/pdf/" + params["pdf"], page_no);
-});
+}
