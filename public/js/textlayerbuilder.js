@@ -49,7 +49,7 @@ var CustomStyle = (function CustomStyleClosure() {
     CustomStyle.setProp = function set(propName, element, str) {
         var prop = this.getProp(propName);
         if (prop != 'undefined')
-            element.style[prop] = str;
+            element.css(prop, str);
     };
     
     return CustomStyle;
@@ -80,6 +80,9 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
         var textLayerDiv = this.textLayerDiv;
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
+        var lineDivs = [];
+        var line = 0;
+        var $lineDiv = "";
         
         // No point in rendering so many divs as it'd make the browser unusable
         // even after the divs are rendered
@@ -89,16 +92,28 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
         
         for (var i = 0, ii = textDivs.length; i < ii; i++) {
             var textDiv = textDivs[i];
-            if ('isWhitespace' in textDiv.dataset) {
-                continue;
-            }
-            textLayerFrag.appendChild(textDiv);
             
-            ctx.font = textDiv.style.fontSize + ' ' + textDiv.style.fontFamily;
+            if (textDiv.data("isWhitespace") == true && 
+                line < 1 ||(i > 0 && textDivs[i-1].data("isWhiteSpace") == true)) 
+            {
+                continue;
+            } else {
+              textDiv.text(" ");
+            }
+            //textLayerFrag.appendChild(textDiv);
+            if ($lineDiv != "" && textDivs[i].css("top") == textDivs[i-1].css("top")) {
+              textDiv.css("width", textDiv.data("canvasWidth") + "px");
+              tempDiv = textDiv.clone();
+              tempDiv.css("top", 0);
+              tempDiv.css("position", "absolute");
+              $lineDiv.append(tempDiv);
+            }
+            
+            ctx.font = textDiv.css("font-size") + ' ' + textDiv.css("font-family");
             var width = ctx.measureText(textDiv.textContent).width;
             
             if (width > 0) {
-                var textScale = textDiv.dataset.canvasWidth / width;
+                var textScale = textDiv.data("canvasWidth") / width;
                 
                 var transform = 'scale(' + textScale + ', 1)';
                 if (bidiTexts[i].dir === 'ttb') {
@@ -107,9 +122,29 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
                 CustomStyle.setProp('transform', textDiv, transform);
                 CustomStyle.setProp('transformOrigin', textDiv, '0% 0%');
                 
-                textLayerDiv.appendChild(textDiv);
+                if (i == 0 || textDivs[i].css("top") != textDivs[i-1].css("top")) {
+                  if ($lineDiv != "") {
+                    $lineDiv.appendTo(textLayerDiv);
+                  }
+                  $lineDiv = jQuery("<div></div>");
+                  $lineDiv.addClass("textLine");
+                  $lineDiv.css("position", "absolute");
+                  $lineDiv.css("top", textDiv.css("top"));
+                  textDiv.css("width", textDiv.data("canvasWidth") + "px");
+                  $lineDiv.css("width", "100%");
+                  if (line == 0 && parseFloat(textDiv.css("top").replace("px", "")) > 800.0) {
+                    $lineDiv.attr("id", "line-footer");
+                  } else {
+                    line +=1;
+                    $lineDiv.attr("id", "line-" + line);
+                  }
+                  tempDiv = textDiv.clone();
+                  tempDiv.css("top", 0);
+                  $lineDiv.append(tempDiv);
+                }
             }
         }
+        $lineDiv.appendTo(textLayerDiv);
         
         this.renderingDone = true;
         
@@ -136,21 +171,21 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
     };
     
     this.appendText = function textLayerBuilderAppendText(geom) {
-        var textDiv = document.createElement('div');
+        var $textDiv = jQuery("<div></div>");
         
         // vScale and hScale already contain the scaling to pixel units
         var fontHeight = geom.fontSize * Math.abs(geom.vScale);
-        textDiv.dataset.canvasWidth = geom.canvasWidth * geom.hScale;
-        textDiv.dataset.fontName = geom.fontName;
+        $textDiv.data("canvasWidth", geom.canvasWidth * geom.hScale);
+        $textDiv.data("fontName", geom.fontName);
         
-        textDiv.style.fontSize = fontHeight + 'px';
-        textDiv.style.fontFamily = geom.fontFamily;
-        textDiv.style.left = geom.x + 'px';
-        textDiv.style.top = (geom.y - fontHeight) + 'px';
+        $textDiv.css("font-size", fontHeight + 'px');
+        $textDiv.css("font-family", geom.fontFamily);
+        $textDiv.css("margin-left", geom.x + 'px');
+        $textDiv.css("top", (geom.y - fontHeight) + 'px');
         
         // The content of the div is set in the `setTextContent` function.
         
-        this.textDivs.push(textDiv);
+        this.textDivs.push($textDiv);
     };
     
     this.insertDivContent = function textLayerUpdateTextContent() {
@@ -168,13 +203,13 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
             var bidiText = bidiTexts[i];
             var textDiv = textDivs[i];
             if (!/\S/.test(bidiText.str)) {
-                textDiv.dataset.isWhitespace = true;
+                textDiv.data("isWhitespace", true);
                 continue;
             }
             
-            textDiv.textContent = bidiText.str;
+            textDiv.text(bidiText.str);
             // bidiText.dir may be 'ttb' for vertical texts.
-            textDiv.dir = bidiText.dir === 'rtl' ? 'rtl' : 'ltr';
+            textDiv.attr("dir", bidiText.dir === 'rtl' ? 'rtl' : 'ltr');
         }
         
         this.setupRenderLayoutTimer();

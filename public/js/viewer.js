@@ -87,7 +87,6 @@ function renderPage(page) {
       context.scale(outputScale.sx, outputScale.sy);
   }
   
-  var canvasOffset = $canvas.offset();
   var $textLayerDiv = jQuery("<div />")
       .addClass("textLayer")
       .css("height", viewport.height + "px")
