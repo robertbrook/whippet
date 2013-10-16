@@ -114,6 +114,19 @@ function renderPage(page) {
   });
 }
 
+function highlightLine(line_no) {
+  $( "div#line-" + line_no ).addClass("chosen");
+}
+
+function removeAllHighlights() {
+  $( ".chosen" ).removeClass("chosen");
+}
+
+function highlightLines(first_no, last_no) {
+  for (var line_no = first_no; line_no <= last_no; line_no++) {
+    highlightLine(line_no);
+  }
+}
 
 $(function(){
   PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error.
