@@ -123,7 +123,7 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
                   $lineDiv.css("position", "absolute");
                   $lineDiv.css("top", textDiv.css("top"));
                   $lineDiv.css("width", "100%");
-                  if (line == 0 && parseFloat(textDiv.css("top").replace("px", "")) > 800.0) {
+                  if (line == 0 && parseFloat(textDiv.css("top").replace("px", "")) > 500.0) {
                     $lineDiv.attr("id", "line-footer");
                   } else {
                     line +=1;
