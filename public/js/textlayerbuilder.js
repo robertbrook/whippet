@@ -100,14 +100,6 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
             } else {
               textDiv.text(" ");
             }
-            //textLayerFrag.appendChild(textDiv);
-            if ($lineDiv != "" && textDivs[i].css("top") == textDivs[i-1].css("top")) {
-              textDiv.css("width", textDiv.data("canvasWidth") + "px");
-              tempDiv = textDiv.clone();
-              tempDiv.css("top", 0);
-              tempDiv.css("position", "absolute");
-              $lineDiv.append(tempDiv);
-            }
             
             ctx.font = textDiv.css("font-size") + ' ' + textDiv.css("font-family");
             var width = ctx.measureText(textDiv.textContent).width;
@@ -130,7 +122,6 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
                   $lineDiv.addClass("textLine");
                   $lineDiv.css("position", "absolute");
                   $lineDiv.css("top", textDiv.css("top"));
-                  textDiv.css("width", textDiv.data("canvasWidth") + "px");
                   $lineDiv.css("width", "100%");
                   if (line == 0 && parseFloat(textDiv.css("top").replace("px", "")) > 800.0) {
                     $lineDiv.attr("id", "line-footer");
@@ -156,12 +147,10 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
         
         // vScale and hScale already contain the scaling to pixel units
         var fontHeight = geom.fontSize * Math.abs(geom.vScale);
-        $textDiv.data("canvasWidth", geom.canvasWidth * geom.hScale);
         $textDiv.data("fontName", geom.fontName);
         
         $textDiv.css("font-size", fontHeight + 'px');
         $textDiv.css("font-family", geom.fontFamily);
-        $textDiv.css("margin-left", geom.x + 'px');
         $textDiv.css("top", (geom.y - fontHeight) + 'px');
         
         // The content of the div is set in the `setTextContent` function.
