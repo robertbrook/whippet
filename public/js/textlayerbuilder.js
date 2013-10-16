@@ -151,25 +151,6 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
         textLayerDiv.appendChild(textLayerFrag);
     };
     
-    this.setupRenderLayoutTimer = function textLayerSetupRenderLayoutTimer() {
-        // Schedule renderLayout() if user has been scrolling, otherwise
-        // run it right away
-        var RENDER_DELAY = 200; // in ms
-        var self = this;
-        //0 was originally PDFView.lastScroll
-        if (Date.now() - 0 > RENDER_DELAY) {
-            // Render right away
-            this.renderLayer();
-        } else {
-            // Schedule
-            if (this.renderTimer)
-                clearTimeout(this.renderTimer);
-            this.renderTimer = setTimeout(function () {
-                self.setupRenderLayoutTimer();
-            }, RENDER_DELAY);
-        }
-    };
-    
     this.appendText = function textLayerBuilderAppendText(geom) {
         var $textDiv = jQuery("<div></div>");
         
@@ -212,7 +193,7 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
             textDiv.attr("dir", bidiText.dir === 'rtl' ? 'rtl' : 'ltr');
         }
         
-        this.setupRenderLayoutTimer();
+        this.renderLayer();
     };
     
     this.setTextContent = function textLayerBuilderSetTextContent(textContent) {
