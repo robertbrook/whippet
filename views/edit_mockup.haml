@@ -24,7 +24,7 @@
             = block.note
   
         -block.business_items.each do |item|
-          .lead{:class => item.id, :onMouseOver => "highlightPdfLines('#{item.pdf_info['filename']}', #{item.pdf_info['page']}, #{item.pdf_info['line']}, #{item.pdf_info['last_line']});", :onMouseOut => "removeAllHighlights()"}= item.description
+          .lead{:class => item.id, :onMouseOver => "highlightPdfLines('#{item.pdf_info['filename']}', #{item.pdf_info['page']}, #{item.pdf_info['line']}, #{item.pdf_info['last_line'].to_i});", :onMouseOut => "removeAllHighlights()"}= item.description
 
 - if @day
   #pdf-viewer
