@@ -17,13 +17,14 @@
     
     - if @day.has_time_blocks?
       - @day.time_blocks.each do |block|
-        %h3{:class => block.id}
+        %h3{:class => block.id, :onMouseOver => "highlightPdfLine('#{block.pdf_info['filename']}', #{block.pdf_info['page']}, #{block.pdf_info['line']});", :onMouseOut => "removeAllHighlights()"}
           = block.title
         -if block.note
-          = block.note
+          %span{:onMouseOver => "highlightLine(#{block.pdf_info['line'] + 1});", :onMouseOut => "removeAllHighlights()"}
+            = block.note
   
         -block.business_items.each do |item|
-          .lead{:class => item.id}= item.description
+          .lead{:class => item.id, :onMouseOver => "highlightPdfLines('#{item.pdf_info['filename']}', #{item.pdf_info['page']}, #{item.pdf_info['line']}, #{item.pdf_info['last_line']});", :onMouseOut => "removeAllHighlights()"}= item.description
 
 - if @day
   #pdf-viewer

@@ -1,4 +1,6 @@
 var scale;
+var pdf_file;
+var current_page;
 
 function getUrlParams() {
   var result = {};
@@ -14,13 +16,19 @@ function getUrlParams() {
 }
 
 function loadPdf(file, page_num) {
+  var promise = $.Deferred();
   var pdf = PDFJS.getDocument(file);
   pdf.then(function(result) {
-    renderPdf(result, page_num, file);
+    current_page = page_num;
+    renderPdf(result, page_num, file).then(function() {
+      promise.resolve()
+    });
   });
+  return promise.promise();
 }
 
 function renderPdf(pdf, page_no, filename){
+  var promise = $.Deferred();
   $prevButton = jQuery("#previous");
   $nextButton = jQuery("#next");
   if (page_no > 1) {
@@ -37,7 +45,12 @@ function renderPdf(pdf, page_no, filename){
     $nextButton.attr('href', '#');
     $nextButton.addClass("disabled");
   }
-  pdf.getPage(page_no).then(renderPage);
+  pdf.getPage(page_no).then(function(page) {
+    renderPage(page).then(function() {
+      promise.resolve();
+    });
+  });
+  return promise.promise();
 }
 
 function drawControlBar(currentPage) {
@@ -49,6 +62,7 @@ function drawControlBar(currentPage) {
 }
 
 function renderPage(page) {
+  var promise = $.Deferred();
   var viewport = page.getViewport(scale);
   var $canvas = jQuery("<canvas></canvas>");
   
@@ -112,8 +126,11 @@ function renderPage(page) {
           textLayer: textLayer
       };
       
-      page.render(renderContext);
+      page.render(renderContext).then(function(){
+        promise.resolve()
+      });
   });
+  return promise.promise();
 }
 
 function highlightLine(line_no) {
@@ -130,9 +147,32 @@ function highlightLines(first_no, last_no) {
   }
 }
 
+function highlightPdfLine(file, page_no, line_no) {
+  removeAllHighlights();
+  if (pdf_file != file || page_no != current_page) {
+    loadPdf("/pdf/" + file, page_no).then(function() {
+      highlightLine(line_no);
+    });
+  } else {
+    highlightLine(line_no);
+  }
+}
+
+function highlightPdfLines(file, page_no, start_line, end_line) {
+  removeAllHighlights();
+  if (pdf_file != file || page_no != current_page) {
+    loadPdf("/pdf/" + file, page_no).then(function() {
+      highlightLines(start_line, end_line);
+    });
+  }
+  highlightLines(start_line, end_line);
+}
+
 function drawViewer(size, file, page_no) {
   PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error.
   scale = size; //Set this to whatever you want. This is basically the "zoom" factor for the PDF.
   drawControlBar(page_no);
+  pdf_file = file;
+  current_page = page_no;
   loadPdf("/pdf/" + file, page_no);
 }
