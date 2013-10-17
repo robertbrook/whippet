@@ -127,7 +127,7 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
           } else {
             if (/\S/.test(lines[lines.length-1])) {
               line += 1;
-              if (/[A-Z]+DAY \d+ [A-Z]+ \d\d\d\d/.test(lines[lines.length-1])) {
+              if (/[A-Z]+DAY \d+ [A-Z]+ \d\d\d\d/.test(lines[lines.length-1]) && line > 2) {
                 line +=1;
               }
               $lineDiv.attr("id", "line-" + line);
