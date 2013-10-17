@@ -142,8 +142,14 @@ function removeAllHighlights() {
 }
 
 function highlightLines(first_no, last_no) {
-  for (var line_no = first_no; line_no <= last_no; line_no++) {
-    highlightLine(line_no);
+  last_no = parseInt(last_no);
+  first_no = parseInt(first_no);
+  if (last_no > first_no) {
+    for (var line_no = first_no; line_no <= last_no; line_no++) {
+      highlightLine(line_no);
+    }
+  } else {
+    highlightLine(first_no);
   }
 }
 
