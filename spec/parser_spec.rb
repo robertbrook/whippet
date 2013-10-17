@@ -145,7 +145,16 @@ describe Parser do
           end
           
           it "should have a first item with the description '1.  Oral questions (30 minutes)'" do
-            @time.business_items[0]["description"].should eq "1.  Oral questions (30 minutes)"
+            item = @time.business_items[0]
+            item["description"].should eq "1.  Oral questions (30 minutes)"
+            item.pdf_info[:last_line].should eq 13
+          end
+          
+          it "should have a second item with the correct description spanning lines 14-16" do
+            item = @time.business_items[1]
+            item["description"].should eq "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012 (Amendment of Schedule 1) Order 2013 – Motion to Regret – Lord Bach/Lord McNally"
+            item.pdf_info[:line].should eq 14
+            item.pdf_info[:last_line].should eq 16
           end
         end
                 

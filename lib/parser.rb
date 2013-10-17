@@ -73,7 +73,7 @@ class Parser
         
         #a blank line
         when /^\s*\n?$/
-          process_blank_line(debug)
+          process_blank_line(line_no, debug)
         
         #whole line in square brackets
         when /^\s*\[.*\]\s*$/
@@ -82,7 +82,7 @@ class Parser
         
         #all the other things
         else
-          process_catchall(line, html, debug)
+          process_catchall(line, html, line_no, debug)
         end
       end
     end
@@ -108,7 +108,7 @@ class Parser
     @item_position = 0
   end
   
-  def fix_description()
+  def fix_description
     if @current_sitting_day.time_blocks.last and @current_sitting_day.time_blocks.last.business_items.count > 0
       item = @current_sitting_day.time_blocks.last.business_items.last
       item.description = item.description.rstrip
@@ -135,14 +135,18 @@ class Parser
     info
   end
   
-  def set_pdf_info(page, line_no)
-    {:filename => @pdf_filename, 
+  def set_pdf_info(page, line_no, last_line=nil)
+    info = {:filename => @pdf_filename, 
      :page => page.number, 
      :line => line_no, 
      :last_edited => Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))}
+    if last_line
+      info[:last_line] = last_line
+    end
+    info
   end
   
-  def init_new_day
+  def init_new_day(line_no)
     if @current_sitting_day
       unless @current_sitting_day.respond_to?(:time_blocks)
         @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
@@ -178,7 +182,7 @@ class Parser
   end
   
   def process_new_day(current_date, page, line_no)
-    init_new_day()
+    init_new_day(line_no)
     prev = get_previous_day(current_date)
     pdf_info = set_pdf_info(page, line_no)
     @old_day = nil
@@ -239,7 +243,7 @@ class Parser
     @current_sitting_day.time_blocks << @current_time_block
   end
   
-  def process_new_business_item(line, html, page, line_no)    
+  def process_new_business_item(line, html, page, line_no)
     @last_line_was_blank = false
     @in_item = true
     # first line of item
@@ -249,12 +253,12 @@ class Parser
     item.description = line.strip
     item.id = item.generate_id()
     
-    pdf_info = set_pdf_info(page, line_no)
+    pdf_info = set_pdf_info(page, line_no, line_no)
     item.pdf_info = pdf_info
     @current_time_block.business_items << item
   end
   
-  def process_blank_line(debug)
+  def process_blank_line(line_no, debug)
     if @current_sitting_day
       if @last_line_was_blank and @in_item
         p "A blank following a blank line, resetting the itemflag" if debug
@@ -265,10 +269,10 @@ class Parser
     end
   end
   
-  def process_catchall(line, html, debug)
+  def process_catchall(line, html, line_no, debug)
     if @current_sitting_day
       if @in_item
-        process_continuation_line(line, debug)
+        process_continuation_line(line, line_no, debug)
       else
         #the last line wasn't blank and we're not in item space - a note!
         process_notes_and_exceptions(line, html, debug)
@@ -276,13 +280,14 @@ class Parser
     end
   end
   
-  def process_continuation_line(line, debug)
+  def process_continuation_line(line, line_no, debug)
     @last_line_was_blank = false
     p "...item continuation line..." if debug
     #last line was a business item, treat this as a continuation
     last_item = @current_time_block.business_items.last
     new_desc = "#{last_item.description.rstrip} #{line.strip}"
     last_item.description = new_desc
+    last_item.pdf_info[:last_line] = line_no
     
     p "item text replaced with: #{new_desc}" if debug
   end
