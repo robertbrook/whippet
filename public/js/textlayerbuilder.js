@@ -85,6 +85,7 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
     var currentText = "";
     var lineText = "";
     var line = 0;
+    var days = 0;
     var $lineDiv = "";
     
     for (var i = 0, ii = textDivs.length; i < ii; i++) {
@@ -122,17 +123,19 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
           $lineDiv.css("position", "absolute");
           $lineDiv.css("top", textDivs[i-1].css("top"));
           $lineDiv.css("width", "100%");
-          if (line == 0 && parseFloat(textDivs[i-1].css("top").replace("px", "")) > 500.0) {
+          if (line < 1 && parseFloat(textDivs[i-1].css("top").replace("px", "")) > 500.0) {
             $lineDiv.attr("id", "line-footer");
           } else {
             if (/\S/.test(lines[lines.length-1])) {
               line += 1;
-              if (/[A-Z]+DAY \d+ [A-Z]+ \d\d\d\d/.test(lines[lines.length-1]) && line > 2) {
-                line +=1;
+              if (/[A-Z]+DAY \d+ [A-Z]+ \d\d\d\d/.test(lines[lines.length-1])) {
+                days += 1;
+                if (days > 1)
+                  line +=1;
               }
               $lineDiv.attr("id", "line-" + line);
             } else {
-              if (/\S/.test(lines[lines.length-2])) {
+              if (lines.length > 1 && /\S/.test(lines[lines.length-2])) {
                 line += 1;
                 $lineDiv.attr("id", "line-" + line);
               }
