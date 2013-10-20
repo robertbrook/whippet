@@ -138,10 +138,10 @@ class Parser
   def set_pdf_info(page, line_no, last_line=nil)
     info = {:filename => @pdf_filename, 
      :page => page.number, 
-     :line => line_no, 
+     :line => line_no+1, 
      :last_edited => Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))}
     if last_line
-      info[:last_line] = last_line
+      info[:last_line] = last_line+1
     end
     info
   end
@@ -287,7 +287,7 @@ class Parser
     last_item = @current_time_block.business_items.last
     new_desc = "#{last_item.description.rstrip} #{line.strip}"
     last_item.description = new_desc
-    last_item.pdf_info[:last_line] = line_no
+    last_item.pdf_info[:last_line] = line_no+1
     
     p "item text replaced with: #{new_desc}" if debug
   end

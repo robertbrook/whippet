@@ -1,5 +1,6 @@
 /**
  * Adapted from Vivin Suresh Paliath's (http://vivin.net) textlayerbuilder.js
+ * to draw numbered placeholders for lines rather than echoing canvas content.
  * Please assume all the errors are mine & all the nice documentation Vivin's!
  *
  *   -- Liz Conlan
@@ -126,18 +127,27 @@ var TextLayerBuilder = function textLayerBuilder(textLayerDiv, pageIdx) {
           if (line < 1 && parseFloat(textDivs[i-1].css("top").replace("px", "")) > 500.0) {
             $lineDiv.attr("id", "line-footer");
           } else {
+            // if the last line wasn't blank
             if (/\S/.test(lines[lines.length-1])) {
               line += 1;
-              if (/[A-Z]+DAY \d+ [A-Z]+ \d\d\d\d/.test(lines[lines.length-1])) {
-                days += 1;
-                if (days > 1)
-                  line +=1;
-              }
               $lineDiv.attr("id", "line-" + line);
-            } else {
-              if (lines.length > 1 && /\S/.test(lines[lines.length-2])) {
-                line += 1;
-                $lineDiv.attr("id", "line-" + line);
+            } else { //the last line was blank and...
+              //...this line is unexpectedly *higher* up the page than the last
+              if (i > 1 && parseFloat(textDivs[i-2].css("top")) > parseFloat(textDivs[i-1].css("top"))) {
+                //no number for you
+              } else {              
+                // ...this is not the first line
+                if (line > 0) {
+                  // if this is the third consecutive blank line
+                  // (but not preceding a Monday that's not the first day on the page)
+                  if ((lines.length > 2 && !/\S/.test(lines[lines.length-2]) && !/\S/.test(lines[lines.length-3])
+                     && (!/MONDAY \d+/.test(currentText) && days > 0))) {
+                    //don't number it
+                  } else {
+                    line += 1;
+                    $lineDiv.attr("id", "line-" + line);
+                  }
+                }
               }
             }
           }

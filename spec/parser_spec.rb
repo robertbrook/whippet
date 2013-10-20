@@ -71,9 +71,9 @@ describe Parser do
           @sitting_day.pdf_info[:last_edited].should eq Time.parse("D:20130328102303Z")
         end
         
-        it "should start on line 10 of page 1" do
+        it "should start on line 11 of page 1" do
           @sitting_day.pdf_info[:page].should eq 1
-          @sitting_day.pdf_info[:line].should eq 10
+          @sitting_day.pdf_info[:line].should eq 11
         end
                
         it "should have two (2) TimeBlocks" do
@@ -115,18 +115,18 @@ describe Parser do
             @time = @sitting_day.time_blocks.first
           end
           
-          it "should start on line 12 of page 1" do
+          it "should start on line 13 of page 1" do
             @time.pdf_info[:page].should eq 1
-            @time.pdf_info[:line].should eq 12
+            @time.pdf_info[:line].should eq 13
           end
           
           it "should have four (4) items" do
             @time.business_items.length.should eq 4
           end
           
-          it "should have business starting on line 17 of page 1" do
+          it "should have business starting on line 18 of page 1" do
             @time.business_items[2].pdf_info[:page].should eq 1
-            @time.business_items[2].pdf_info[:line].should eq 17
+            @time.business_items[2].pdf_info[:line].should eq 18
           end
           
           it "should record the positions of the business items" do
@@ -147,14 +147,14 @@ describe Parser do
           it "should have a first item with the description '1.  Oral questions (30 minutes)'" do
             item = @time.business_items[0]
             item["description"].should eq "1.  Oral questions (30 minutes)"
-            item.pdf_info[:last_line].should eq 13
+            item.pdf_info[:last_line].should eq 14
           end
           
-          it "should have a second item with the correct description spanning lines 14-16" do
+          it "should have a second item with the correct description spanning lines 15-17" do
             item = @time.business_items[1]
             item["description"].should eq "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012 (Amendment of Schedule 1) Order 2013 – Motion to Regret – Lord Bach/Lord McNally"
-            item.pdf_info[:line].should eq 14
-            item.pdf_info[:last_line].should eq 16
+            item.pdf_info[:line].should eq 15
+            item.pdf_info[:last_line].should eq 17
           end
         end
                 
@@ -163,9 +163,9 @@ describe Parser do
             @time = @sitting_day.time_blocks.last
           end
           
-          it "should start on line 23 of page 1" do
+          it "should start on line 24 of page 1" do
             @time.pdf_info[:page].should eq 1
-            @time.pdf_info[:line].should eq 23
+            @time.pdf_info[:line].should eq 24
           end
           
           it "should have no business items" do
@@ -305,6 +305,12 @@ describe Parser do
       bus_items[0]["change_type"].should eq "modified"
       bus_items[0]["description"].should eq("1.  QSD on Personal, Social and Health education in schools – Baroness Massey of Darwen/Lord Nash (time limit 1 hour)")
       bus_items[1]["description"].should eq("3.  Further business will be scheduled")
+    end
+    
+    it "should capture the line number correctly" do
+      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-26 00:00:00Z")).first
+      sitting_day.pdf_info[:line].should eq 1
+      sitting_day.time_blocks[0].pdf_info[:line].should eq 4
     end
     
     it "should report business_items displaced by an insertion as modified" do
