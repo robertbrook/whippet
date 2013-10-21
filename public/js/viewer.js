@@ -1,19 +1,31 @@
 var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
   PDFJS.disableWorker = true; //Not using web workers. Not disabling results in an error.
+  self = this;
   
-  this.pdf_file = pdf_file;
+  this.setPdfInfo = function pdfSplit(filename) {
+    self = this;
+    if (filename.indexOf("/") > 0) {
+      self.pdf_path = filename.substr(0, filename.lastIndexOf("/")+1);
+      self.pdf_file = filename.substr(filename.lastIndexOf("/")+1), filename.length;
+    } else {
+      self.pdf_path = '';
+      self.pdf_file = filename;
+    }
+  };
+  
+  this.setPdfInfo(pdf_file);
   this.current_page = current_page;
   this.scale = scale;
   
   this.loadFile = function loadPdf(file, page_num) {
     self = this;
     var promise = $.Deferred();
-    this.pdf_file = file;
-    this.current_page = page_num;
+    this.setPdfInfo(pdf_file);
     var pdf = PDFJS.getDocument(file);
     pdf.then(function(result) {
       self.renderFile(result, page_num, file).then(function() {
-        promise.resolve()
+        promise.resolve();
+        this.current_page = page_num;
       });
     });
     return promise.promise();
@@ -26,7 +38,8 @@ var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
     $nextButton = jQuery("#next");
     if (page_no > 1) {
       $prevButton.removeClass("disabled");
-      $prevButton.click(function(){self.loadFile(filename, page_no - 1)});
+      $prevButton.unbind("click");
+      $prevButton.click(function() {self.loadFile(filename, page_no - 1)});
       $prevButton.css( 'cursor', 'pointer' );
     } else {
       $prevButton.unbind("click");
@@ -35,15 +48,18 @@ var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
     }
     if (page_no < pdf.numPages) {
       $nextButton.removeClass("disabled");
-      $nextButton.click(function(){self.loadFile(filename, page_no + 1)});
+      $nextButton.unbind("click");
+      $nextButton.click(function() {self.loadFile(filename, page_no + 1)});
       $nextButton.css( 'cursor', 'pointer' );
     } else {
       $nextButton.unbind("click");
       $nextButton.addClass("disabled");
+      $nextButton.css( 'cursor', 'default' );
     }
     pdf.getPage(page_no).then(function(page) {
       self.renderPage(page).then(function() {
         promise.resolve();
+        self.current_page = page_no;
       });
     });
     return promise.promise();
@@ -153,8 +169,8 @@ var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
   this.highlightPdfLine = function highlightPdfLine(file, page_no, line_no) {
     self = this;
     this.removeHighlights();
-    if (pdf_file != file || page_no != current_page) {
-      self.loadFile("/pdf/" + file, page_no).then(function() {
+    if (this.pdf_path + this.pdf_file != file || page_no != this.current_page) {
+      self.loadFile(file, page_no).then(function() {
         self.highlightLine(line_no);
       });
     } else {
@@ -165,8 +181,8 @@ var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
   this.highlightPdfLines = function highlightPdfLines(file, page_no, start_line, end_line) {
     self = this;
     this.removeHighlights();
-    if (pdf_file != file || page_no != current_page) {
-      self.loadFile("/pdf/" + file, page_no).then(function() {
+    if (this.pdf_path + this.pdf_file != file || page_no != this.current_page) {
+      self.loadFile(file, page_no).then(function() {
         self.highlightLines(start_line, end_line);
       });
     }
@@ -175,7 +191,7 @@ var PdfViewer = function pdfViewerBuilder(scale, pdf_file, current_page) {
 
   this.render = function drawViewer() {
     this.drawControls();
-    this.loadFile("/pdf/" + this.pdf_file, this.current_page);
+    this.loadFile(this.pdf_path + this.pdf_file, this.current_page);
   };
 };
 

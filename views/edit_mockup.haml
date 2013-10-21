@@ -19,14 +19,14 @@
     
     - if @day.has_time_blocks?
       - @day.time_blocks.each do |block|
-        %h3{:class => block.id, :onMouseOver => "viewer.highlightPdfLine('#{block.pdf_info['filename']}', #{block.pdf_info['page']}, #{block.pdf_info['line']});", :onMouseOut => "viewer.removeHighlights()"}
+        %h3{:class => block.id, :onMouseOver => "viewer.highlightPdfLine('pdf/#{block.pdf_info['filename']}', #{block.pdf_info['page']}, #{block.pdf_info['line']});", :onMouseOut => "viewer.removeHighlights()"}
           = block.title
         -if block.note
-          %span{:onMouseOver => "highlightLine(#{block.pdf_info['line'] + 1});", :onMouseOut => "viewer.removeHighlights()"}
+          %span{:onMouseOver => "viewer.highlightPdfLine(#{block.pdf_info['line'] + 1});", :onMouseOut => "viewer.removeHighlights()"}
             = block.note
   
         -block.business_items.each do |item|
-          .lead{:class => item.id, :onMouseOver => "viewer.highlightPdfLines('#{item.pdf_info['filename']}', #{item.pdf_info['page']}, #{item.pdf_info['line']}, #{item.pdf_info['last_line'].to_i});", :onMouseOut => "viewer.removeHighlights()"}= item.description
+          .lead{:class => item.id, :onMouseOver => "viewer.highlightPdfLines('pdf/#{item.pdf_info['filename']}', #{item.pdf_info['page']}, #{item.pdf_info['line']}, #{item.pdf_info['last_line'].to_i});", :onMouseOut => "viewer.removeHighlights()"}= item.description
 
 - if @day
   #pdf-viewer
@@ -35,5 +35,5 @@
   
   :javascript
     $( "#pdf-viewer" ).css("margin-left", $( "#editor" ).width() + 10 + "px" );
-    var viewer = new PdfViewer(0.8, '#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]}); viewer.render(); 
+    var viewer = new PdfViewer(0.8, 'pdf/#{@day.pdf_info["filename"]}', #{@day.pdf_info["page"]}); viewer.render(); 
   %hr

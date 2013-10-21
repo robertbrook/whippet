@@ -30,7 +30,7 @@
   <title>PDF Viewer Test</title>
 </head>
 
-<body onload="var viewer = new PdfViewer(1.2, file_name, page_no); viewer.render();">
+<body onload="var viewer = new PdfViewer(1.2, 'pdf/' + file_name, page_no); viewer.render();">
   <div id="controlBar"></div>
   <div id="pdfContainer" class="pdf-content" style="position: relative"></div>
 </body>
