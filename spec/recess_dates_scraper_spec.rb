@@ -48,13 +48,13 @@ describe RecessDatesScraper do
         result.should eq (
           [
             {:name => "Summer",
-             :start_date => "Wednesday 31 July",
-             :finish_date => "Monday 7 October"},
+             :start_date => "Wednesday 31 July 2013",
+             :finish_date => "Monday 7 October 2013"},
             {:name => "Autumn long weekend",
-             :start_date => "Wednesday 13 November",
-             :finish_date => "Sunday 17 November"},
+             :start_date => "Wednesday 13 November 2013",
+             :finish_date => "Sunday 17 November 2013"},
             {:name => "Christmas",
-             :start_date => "Thursday 19 December",
+             :start_date => "Thursday 19 December 2013",
              :finish_date => "Monday 6 January 2014"}
           ])
       end
@@ -88,13 +88,13 @@ describe RecessDatesScraper do
         result.should eq (
           [
             {:name => "Summer",
-             :start_date => "Wednesday 31 July",
-             :finish_date => "Monday 7 October"},
+             :start_date => "Wednesday 31 July 2013",
+             :finish_date => "Monday 7 October 2013"},
             {:name => "Autumn long weekend",
-             :start_date => "Wednesday 13 November",
-             :finish_date => "Sunday 17 November"},
+             :start_date => "Wednesday 13 November 2013",
+             :finish_date => "Sunday 17 November 2013"},
             {:name => "Christmas",
-             :start_date => "Thursday 19 December",
+             :start_date => "Thursday 19 December 2013",
              :finish_date => "Monday 6 January 2014"}
           ])
       end
