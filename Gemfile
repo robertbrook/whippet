@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem 'sinatra'
 gem 'pdf-reader'
+gem 'rest-client'
 gem 'nokogiri'
 gem 'mongo_mapper'
 gem 'bson_ext'
@@ -21,7 +22,8 @@ end
 
 group :test do
   gem 'rspec'
+  gem 'mocha'
   gem 'simplecov', '0.7.1'
   gem 'rack-test'
-  gem 'autotest'
+  # gem 'autotest'
 end
