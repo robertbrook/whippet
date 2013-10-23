@@ -34,7 +34,7 @@ class RecessDatesScraper
       when ""
         #blank, ignore
       when /^Note/
-        #work out how to extract data
+        #work out how to extract data from here?
         break
       when /^<strong>/
         #the sign-off, stop! (there might not be a note)
