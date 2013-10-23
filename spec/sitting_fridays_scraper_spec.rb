@@ -40,9 +40,10 @@ describe SittingFridaysScraper do
       end
       
       it "should return a list of dates in sitting_days" do
-        @scraper.scrape()
+        result = @scraper.scrape()
         @scraper.sitting_days.should eq (
           ["5 July 2013", "19 July 2013", "25 October 2013", "8 November 2013", "6 December 2013"])
+        result.should eq @scraper.sitting_days
       end
     end
     

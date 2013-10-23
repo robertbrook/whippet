@@ -19,6 +19,7 @@ class SittingFridaysScraper
         break
       end
     end
+    return @sitting_days
   end
   
   private
