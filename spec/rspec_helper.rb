@@ -5,7 +5,14 @@ if ENV['COVERAGE']
   end
 end
 
+require 'active_record'
+
 ENV["RACK_ENV"] = "test" unless ENV["RACK_ENV"]
+begin
+  test = ActiveRecord::Base.connection
+rescue ActiveRecord::ConnectionNotEstablished
+  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[ENV["RACK_ENV"]])
+end
 
 require 'rspec/autorun'
 require 'rack/test'

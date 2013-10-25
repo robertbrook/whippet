@@ -55,8 +55,8 @@ describe Parser do
           @sitting_day = SittingDay.where(:date => Time.parse("2013-03-27 00:00:00Z")).first
         end
         
-        it "should have a sensible ID" do
-          @sitting_day.id.should eq("CalendarDay_2013-03-27")
+        it "should have a sensible ident" do
+          @sitting_day.ident.should eq("CalendarDay_2013-03-27")
         end
         
         it "should not be flagged as provisional" do
@@ -64,25 +64,25 @@ describe Parser do
         end
         
         it "should have the pdf file name (FB-TEST.pdf)" do
-          @sitting_day.pdf_info[:filename].should eq 'FB-TEST.pdf'
+          @sitting_day.meta["pdf_info"]["filename"].should eq 'FB-TEST.pdf'
         end
         
         it "should store the pdf last edited datetime" do
-          @sitting_day.pdf_info[:last_edited].should eq Time.parse("D:20130328102303Z")
+          Time.parse(@sitting_day.meta["pdf_info"]["last_edited"]).should eq Time.parse("D:20130328102303Z")
         end
         
         it "should start on line 11 of page 1" do
-          @sitting_day.pdf_info[:page].should eq 1
-          @sitting_day.pdf_info[:line].should eq 11
+          @sitting_day.meta["pdf_info"]["page"].should eq 1
+          @sitting_day.meta["pdf_info"]["line"].should eq 11
         end
                
         it "should have two (2) TimeBlocks" do
           @sitting_day.time_blocks.length.should eq 2
         end
         
-        it "should generate sensible ids for the TimeBlocks" do
-          @sitting_day.time_blocks.first.id.should eq "TimeBlock_chamber_1100"
-          @sitting_day.time_blocks.last.id.should eq "TimeBlock_grand_committee_1545"
+        it "should generate sensible idents for the TimeBlocks" do
+          @sitting_day.time_blocks.first.ident.should eq "TimeBlock_chamber_1100"
+          @sitting_day.time_blocks.last.ident.should eq "TimeBlock_grand_committee_1545"
         end
         
         it "should have a first TimeBlock entitled 'Business in the Chamber at 11.00am'" do
@@ -93,10 +93,6 @@ describe Parser do
           @sitting_day.time_blocks.first.time_as_number.should eq 1100
         end
         
-        it "should have a first TimeBlock not marked as provisional" do
-          @sitting_day.time_blocks.first.is_provisional.should_not eq true
-        end
-                
         it "should have a last TimeBlock entitled 'Business in Grand Committee at 3.45pm'" do
           @sitting_day.time_blocks.last.title.should eq "Business in Grand Committee at 3.45pm"
         end
@@ -116,8 +112,8 @@ describe Parser do
           end
           
           it "should start on line 13 of page 1" do
-            @time.pdf_info[:page].should eq 1
-            @time.pdf_info[:line].should eq 13
+            @time.meta["pdf_info"]["page"].should eq 1
+            @time.meta["pdf_info"]["line"].should eq 13
           end
           
           it "should have four (4) items" do
@@ -125,8 +121,8 @@ describe Parser do
           end
           
           it "should have business starting on line 18 of page 1" do
-            @time.business_items[2].pdf_info[:page].should eq 1
-            @time.business_items[2].pdf_info[:line].should eq 18
+            @time.business_items[2].meta["pdf_info"]["page"].should eq 1
+            @time.business_items[2].meta["pdf_info"]["line"].should eq 18
           end
           
           it "should record the positions of the business items" do
@@ -141,20 +137,20 @@ describe Parser do
           end
           
           it "should have a first item with an id of BusinessItem_oral_questions" do
-            @time.business_items[0]["_id"].should eq "BusinessItem_oral_questions"
+            @time.business_items[0]["ident"].should eq "BusinessItem_oral_questions"
           end
           
           it "should have a first item with the description '1.  Oral questions (30 minutes)'" do
             item = @time.business_items[0]
             item["description"].should eq "1.  Oral questions (30 minutes)"
-            item.pdf_info[:last_line].should eq 14
+            item.meta["pdf_info"]["last_line"].should eq 14
           end
           
           it "should have a second item with the correct description spanning lines 15-17" do
             item = @time.business_items[1]
             item["description"].should eq "2.  Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012 (Amendment of Schedule 1) Order 2013 – Motion to Regret – Lord Bach/Lord McNally"
-            item.pdf_info[:line].should eq 15
-            item.pdf_info[:last_line].should eq 17
+            item.meta["pdf_info"]["line"].should eq 15
+            item.meta["pdf_info"]["last_line"].should eq 17
           end
         end
                 
@@ -164,8 +160,8 @@ describe Parser do
           end
           
           it "should start on line 24 of page 1" do
-            @time.pdf_info[:page].should eq 1
-            @time.pdf_info[:line].should eq 24
+            @time.meta["pdf_info"]["page"].should eq 1
+            @time.meta["pdf_info"]["line"].should eq 24
           end
           
           it "should have no business items" do
@@ -189,18 +185,6 @@ describe Parser do
         
         it "should have three TimeBlocks" do
           @sitting_day.time_blocks.length.should eq 3
-        end
-        
-        it "the first TimeBlock should be flagged as provisional" do
-          @sitting_day.time_blocks[0].is_provisional.should eq true
-        end
-        
-        it "the second TimeBlock should be flagged as provisional" do
-          @sitting_day.time_blocks[1].is_provisional.should eq true
-        end
-        
-        it "the third TimeBlock should be flagged as provisional" do
-          @sitting_day.time_blocks[2].is_provisional.should eq true
         end
       end
     end
@@ -265,13 +249,13 @@ describe Parser do
     
     it "should capture the changes" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
-      sitting_day.diffs.should be_an_instance_of(Array)
-      sitting_day.diffs.should_not be_empty
+      sitting_day.history["diffs"].should be_an_instance_of(Array)
+      sitting_day.history["diffs"].should_not be_empty
     end
     
     it "should return empty diffs where no changes have been made" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-05-09 00:00:00Z")).first
-      sitting_day.diffs.should be_empty
+      sitting_day.history.should be_nil
     end
     
     it "should replace the older content with the new version" do
@@ -286,17 +270,9 @@ describe Parser do
       sitting_day.is_provisional.should_not be_true
     end
     
-    it "should record the previous provisional status in the diffs" do
-      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
-      diff = sitting_day.diffs.first
-      
-      diff["time_blocks"].first["is_provisional"].should eq true
-      diff["time_blocks"].last["is_provisional"].should eq true
-    end
-    
     it "should register a modification where the text has changed" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-04-24 00:00:00Z")).first
-      diff = sitting_day.diffs.first
+      diff = sitting_day.history["diffs"].first
       
       diff["time_blocks"].count.should eq 1
       diff["time_blocks"][0]["business_items"].count.should eq 2
@@ -309,13 +285,13 @@ describe Parser do
     
     it "should capture the line number correctly" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-26 00:00:00Z")).first
-      sitting_day.pdf_info[:line].should eq 1
-      sitting_day.time_blocks[0].pdf_info[:line].should eq 4
+      sitting_day.meta["pdf_info"]["line"].should eq 1
+      sitting_day.time_blocks[0].meta["pdf_info"]["line"].should eq 4
     end
     
     it "should report business_items displaced by an insertion as modified" do
-      sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
-      diff = sitting_day.diffs.first
+      sitting_day = CalendarDay.find_by_date(Time.parse("2013-03-25"))
+      diff = sitting_day.history["diffs"][0]
       time_block = diff["time_blocks"][1]
       time_block["business_items"][0]["change_type"].should eq "new"
       time_block["business_items"][1]["change_type"].should eq "modified"

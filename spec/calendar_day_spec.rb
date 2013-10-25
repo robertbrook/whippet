@@ -2,6 +2,8 @@
 
 require './spec/rspec_helper.rb'
 require './models/calendar_day'
+require './models/time_block'
+require './models/business_item'
 
 describe CalendarDay do
   context "in general" do
@@ -43,13 +45,13 @@ describe CalendarDay do
   context "when asked for the source documents" do
     before :each do
       @day = SittingDay.new
-      @day.pdf_info = {:filename => "file.pdf"}
+      @day.meta = {"pdf_info" => {"filename" => "file.pdf"}}
     end
     
     it "should return an array with the primary source as the first element" do
       time_block = TimeBlock.new()
-      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
-      item2 = BusinessItem.new(:pdf_info => {:filename => "file3.pdf"})
+      item1 = BusinessItem.new(:meta => {"pdf_info" => {"filename" => "file2.pdf"}})
+      item2 = BusinessItem.new(:meta => {"pdf_info" => {"filename" => "file3.pdf"}})
       time_block.business_items = [item1, item2]
       @day.time_blocks = [time_block]
       @day.source_docs.should eq ["file.pdf", "file2.pdf", "file3.pdf"]
@@ -57,8 +59,8 @@ describe CalendarDay do
     
     it "should not return duplicate file names" do
       time_block = TimeBlock.new()
-      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
-      item2 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      item1 = BusinessItem.new(:meta => {"pdf_info" => {"filename" => "file2.pdf"}})
+      item2 = BusinessItem.new(:meta => {"pdf_info" => {"filename" => "file2.pdf"}})
       time_block.business_items = [item1, item2]
       @day.time_blocks = [time_block]
       @day.source_docs.should eq ["file.pdf", "file2.pdf"]
@@ -66,7 +68,7 @@ describe CalendarDay do
     
     it "should not return nil where there is no filename" do
       time_block = TimeBlock.new()
-      item1 = BusinessItem.new(:pdf_info => {:filename => "file2.pdf"})
+      item1 = BusinessItem.new(:meta => {"pdf_info" => {"filename" => "file2.pdf"}})
       item2 = BusinessItem.new()
       time_block.business_items = [item1, item2]
       @day.time_blocks = [time_block]
@@ -99,7 +101,7 @@ describe CalendarDay do
       diff[:note].should eq "House not expected to sit"
       diff[:accepted].should eq false
       diff[:is_provisional].should eq false
-      diff[:_type].should eq "NonSittingDay"
+      diff[:type].should eq "NonSittingDay"
     end
     
     it "should not return a list of changes if the time blocks are the same" do
@@ -114,8 +116,8 @@ describe CalendarDay do
     
     context "when a time block is added" do
       it "should return change_type of 'new' for the block" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :ident => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :ident => "grand_committee_1545")
         current_day = SittingDay.new()
         shorter_day = SittingDay.new()
         shorter_day.time_blocks = [tb1]
@@ -128,8 +130,8 @@ describe CalendarDay do
       end
       
       it "should return the title for the block" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :ident => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :ident => "grand_committee_1545")
         current_day = SittingDay.new()
         shorter_day = SittingDay.new()
         shorter_day.time_blocks = [tb1]
@@ -141,15 +143,15 @@ describe CalendarDay do
         block_changes.should be_an_instance_of Array
         block_changes.should eq [
           {:change_type => "new",
-           :id => "grand_committee_1545",
+           :ident => "grand_committee_1545",
            :title => "Business in Grand Committee at 3.45pm"}]
       end
     end
     
     context "when a time block is deleted" do
       it "should return a change_type of 'deleted' for the block" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :ident => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :ident => "grand_committee_1545")
         tb2.position = 2
         
         longer_day = SittingDay.new()
@@ -164,15 +166,15 @@ describe CalendarDay do
       end
       
       it "should return all the details of the deleted block" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "grand_committee_1545")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :ident => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :ident => "grand_committee_1545")
         tb2.position = 2
-        tb2.pdf_info = {
-            filename: "FB-TEST.pdf",
-            page: 1,
-            line: 29,
-            last_edited: "2013-03-28T10:23:03Z"
-          }
+        tb2.meta = {"pdf_info" => {
+            "filename" => "FB-TEST.pdf",
+            "page" => 1,
+            "line" => 29,
+            "last_edited" => "2013-03-28T10:23:03Z"
+          }}
         
         longer_day = SittingDay.new()
         current_day = SittingDay.new()
@@ -184,15 +186,15 @@ describe CalendarDay do
         block_changes = diff[:time_blocks]
         block_changes.should eq [
           {:change_type => "deleted",
-           :id => "grand_committee_1545",
+           :ident => "grand_committee_1545",
            :title => "Business in Grand Committee at 3.45pm",
            :position => 2,
-           :pdf_info=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}]
+           :meta => {"pdf_info"=>{"filename"=>"FB-TEST.pdf", "page"=>1, "line"=>29, "last_edited"=>"2013-03-28T10:23:03Z"}}}]
       end
       
       it "should return all the business_item data for removed time_blocks" do
-        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :id => "chamber_1100")
-        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :id => "chamber_1545")
+        tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :ident => "chamber_1100")
+        tb2 = TimeBlock.new(:title => "Business in Grand Committee at 3.45pm", :ident => "chamber_1545")
         tb2.position = 2
         item = BusinessItem.new(:description => "Further business will be scheduled", :position => 1)
         tb2.business_items = [item]
@@ -247,7 +249,7 @@ describe CalendarDay do
         end
         
         it "should return the description for the item" do
-          item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
+          item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "id")
           @tb1.business_items = [item]
           @current_day.time_blocks = [@tb1]
           @longer_day.time_blocks = [@tb2]
@@ -256,7 +258,7 @@ describe CalendarDay do
           
           item_changes = diff[:time_blocks].first[:business_items]
           item_changes.should be_an_instance_of Array
-          item_changes.should eq [{:change_type => "new", :id => "id", :description => "1.  description goes here"}]
+          item_changes.should eq [{:change_type => "new", :ident => "id", :description => "1.  description goes here"}]
         end
       end
       
@@ -274,7 +276,7 @@ describe CalendarDay do
         end
         
         it "should return all the details of the original item" do
-          item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :pdf_info => {}, :id => "id")
+          item = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "id")
           @tb1.business_items = [item]
           @current_day.time_blocks = [@tb2]
           @longer_day.time_blocks = [@tb1]
@@ -285,17 +287,17 @@ describe CalendarDay do
           item_changes.should be_an_instance_of Array
           item_changes.should eq [
               {:change_type => "deleted",
-               :id => "id",
+               :ident => "id",
                :description => "1.  description goes here",
-               :position => 1, 
-               :pdf_info => {}}]
+               :position => 1,
+               :meta => nil}]
         end
       end
       
       context "when a business item has been modified" do
         it "should return a change_type of 'modified' for the item" do
-          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
-          item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :note => "note added", :id => "id")
+          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "id")
+          item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :note => "note added", :ident => "id")
           @tb1.business_items = [item1]
           @tb2.business_items = [item2]
           @current_day.time_blocks = [@tb1]
@@ -307,8 +309,8 @@ describe CalendarDay do
         end
         
         it "should see a positional change as a modification, despite the effect on the description text" do
-          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
-          item2 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :note => "note added", :id => "id")
+          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "id")
+          item2 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :note => "note added", :ident => "id")
           @tb1.business_items = [item1]
           @tb2.business_items = [item2]
           @current_day.time_blocks = [@tb1]
@@ -320,11 +322,10 @@ describe CalendarDay do
         end
         
         it "should return the original values of the changed fields" do
-          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "id")
-          item2 = BusinessItem.new(:description => "2.  description goes here", :id => "id")
+          item1 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "id")
+          item2 = BusinessItem.new(:description => "2.  description goes here", :ident => "id")
           item2.position = 2
           item2.note = "note added"
-          item2.pdf_info = {}
           
           @tb1.business_items = [item1]
           @tb2.business_items = [item2]
@@ -335,12 +336,12 @@ describe CalendarDay do
           item_changes = diff[:time_blocks].first[:business_items]
           item_changes.should be_an_instance_of Array
           item_changes.should eq [
-            {:change_type => "modified",
-             :id => "id",
-             :description => "2.  description goes here",
-             :note => "note added",
+            {:note => "note added",
              :position => 2,
-             :pdf_info => {}
+             :description => "2.  description goes here",
+             :change_type => "modified",
+             :ident => "id",
+             :meta => nil
              }]
         end
         
@@ -375,12 +376,12 @@ describe CalendarDay do
     end
     
     it "should cope with complex time blocks changes" do
-      tb0 = TimeBlock.new(:title => "Business in the Chamber at 10am", :position => 0, :id => "chamber_1000")
-      tb1 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 1, :id => "chamber_1530")
-      tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2, :id => "chamber_1100")
-      tb3 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
-      tb4 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 2, :id => "chamber_1530")
-      tb5 = TimeBlock.new(:title => "Business in Grand Committee at 3.30pm", :position => 3, :id => "gc_1530")
+      tb0 = TimeBlock.new(:title => "Business in the Chamber at 10am", :position => 0, :ident => "chamber_1000")
+      tb1 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 1, :ident => "chamber_1530")
+      tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 2, :ident => "chamber_1100")
+      tb3 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :ident => "chamber_1100")
+      tb4 = TimeBlock.new(:title => "Business in the Chamber at 3.30pm", :position => 2, :ident => "chamber_1530")
+      tb5 = TimeBlock.new(:title => "Business in Grand Committee at 3.30pm", :position => 3, :ident => "gc_1530")
       
       day1 = SittingDay.new()
       day1.time_blocks = [tb1, tb2, tb5]
@@ -415,13 +416,13 @@ describe CalendarDay do
     it "should cope with complex business_item changes" do
       day1 = SittingDay.new
       day2 = SittingDay.new
-      tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
-      tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :id => "chamber_1100")
+      tb1 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :ident => "chamber_1100")
+      tb2 = TimeBlock.new(:title => "Business in the Chamber at 11.00am", :position => 1, :ident => "chamber_1100")
       
-      item0 = BusinessItem.new(:description => "1.  surplus to requirements", :position => 1, :id => "surplus")
-      item1 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :id => "desc_here")
-      item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :id => "desc_here")
-      item3 = BusinessItem.new(:description => "2.  hello, I'm new", :position => 2, :id => "hello")
+      item0 = BusinessItem.new(:description => "1.  surplus to requirements", :position => 1, :ident => "surplus")
+      item1 = BusinessItem.new(:description => "2.  description goes here", :position => 2, :ident => "desc_here")
+      item2 = BusinessItem.new(:description => "1.  description goes here", :position => 1, :ident => "desc_here")
+      item3 = BusinessItem.new(:description => "2.  hello, I'm new", :position => 2, :ident => "hello")
       
       tb1.business_items = [item2, item3]
       tb2.business_items = [item0, item1]

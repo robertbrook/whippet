@@ -1,26 +1,25 @@
 require 'sinatra'
-require 'mongo_mapper'
-require './lib/parser'
+require 'active_record'
 require 'haml'
 require 'ri_cal'
 
+require "./models/calendar_day"
+require "./models/time_block"
+require "./models/business_item"
+
+before do
+  env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
+  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
+end
+
 helpers do
   def get_pdf_scope(filename)
-    days = CalendarDay.where("pdf_info.filename" => filename).sort(:date.asc).all
+    days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
     unless days.empty?
       [days.first.date, days.last.date]
     else
       []
     end
-  end
-end
-
-before do
-  if db = ENV["MONGOHQ_DEV_URI"]
-    MongoMapper.setup({'production' => {'uri' => db}}, 'production')
-  else
-    env = ENV['RACK_ENV']
-    MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
   end
 end
 
@@ -30,27 +29,27 @@ get '/' do
   @page = params[:page].to_i > 0 ? params[:page].to_i : 1
   @total = CalendarDay.count
   @offset = (@page - 1) * 10
-  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10, :offset => @offset)
+  @calendar_days = CalendarDay.order("date desc").limit(10).offset(@offset)
   haml :index
 end
 
 get '/index.json' do  
   content_type :json
-  CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+  CalendarDay.all(:order => "date desc", :limit => 10).to_json
 end
 
 get '/index.xml' do  
   content_type :xml
-  CalendarDay.all(:order => :date.desc, :limit => 10).to_xml
+  CalendarDay.all(:order => "date desc", :limit => 10).to_xml
 end
 
 get '/rss' do
-  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
+  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
   builder :rss
 end
 
 get '/opml' do
-  @calendar_days = CalendarDay.all(:order => :date.desc, :limit => 10)
+  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
   builder :opml
 end
 
@@ -62,7 +61,7 @@ get '/cal' do
   	limit = 4
   end
   	
-  sitting_days = CalendarDay.all(:order => :date.desc, :limit => limit)
+  sitting_days = CalendarDay.all(:order => "date desc", :limit => limit)
   
   if params.has_key?("ics") # will respond to cal?ics
     content_type 'text/calendar'
@@ -77,7 +76,7 @@ sitting_days.each { |sitting_day|
   sitting_day.time_blocks.each { |time_block|
     ical.event { |event|
       time_as_string = time_block.time_as_number.to_s.insert(2, ':')
-      event.uid = time_block._id.to_s
+      event.uid = time_block.ident
       event.dtend = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
       event.dtstart = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
       event.summary = time_block.title

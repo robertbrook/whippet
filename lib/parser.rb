@@ -1,19 +1,15 @@
 require "pdf/reader"
 require "nokogiri"
-require "mongo_mapper"
+require "active_record"
 
 require "./models/calendar_day"
+require "./models/business_item"
+require "./models/time_block"
 require "./lib/pdf_page"
 
 class Parser
   #prepare to ingest a single pdf
   def initialize(target_pdf)
-    if db = ENV["MONGOHQ_DEV_URI"]
-      MongoMapper.setup({'production' => {'uri' => db}}, 'production')
-    else
-      env = ENV['RACK_ENV'] || "development"
-      MongoMapper.setup({"#{env}" => {'uri' => YAML::load_file("./config/mongo.yml")[env]['uri']}}, env)
-    end
     @pdf = PDF::Reader.new(target_pdf)
     @pdf_filename = target_pdf.split("/").last
   end
@@ -154,12 +150,13 @@ class Parser
         fix_description()
       end
       if @old_day
-        change = @current_sitting_day.diff(@old_day)
+        change = @current_sitting_day.diff(@old_day)        
         unless change.empty?
-          @current_sitting_day.diffs << change
+          append_to_diffs(@current_sitting_day, change)
         end
       end
       @current_sitting_day.save
+      @old_day.delete if @old_day
     end
     @last_line_was_blank = false
     @in_item = false
@@ -172,8 +169,9 @@ class Parser
     CalendarDay.new(
       :date => date,
       :accepted => false,
-      :pdf_info => pdf_info,
-      :id => "CalendarDay_#{date.strftime("%Y-%m-%d")}")
+      :meta => ({"pdf_info" => pdf_info}),
+      :ident => "CalendarDay_#{date.strftime("%Y-%m-%d")}"
+    )
   end
   
   def get_previous_day(current_date)
@@ -191,10 +189,11 @@ class Parser
       @current_sitting_day.is_provisional = true
     end
     if prev
-      if prev.pdf_info[:last_edited] < Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))
-        #the found version is old, delete it and allow the new info to replace it
-        @old_day = prev.dup
-        prev.delete
+      if Time.parse(prev.meta["pdf_info"]["last_edited"]) < 
+          Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))
+        #the found version is old, keep ahold of it for the time being
+        @old_day = prev
+        # prev.delete
       else
         #the new data is old or a duplicate, ignore it
         @current_sitting_day = nil
@@ -232,13 +231,12 @@ class Parser
     block.position = @block_position
     block.time_as_number = parse_heading_time(line)
     block.title = line.strip
-    block.id = block.generate_id()
+    block.ident = block.generate_ident()
     
     Time.parse(deref_pdf_info(@pdf, :ModDate))
     
     pdf_info = set_pdf_info(page, line_no)
-    block.pdf_info = pdf_info
-    block.is_provisional = true if @provisional
+    block.meta = {"pdf_info" => pdf_info}
     @current_time_block = block
     @current_sitting_day.time_blocks << @current_time_block
   end
@@ -251,10 +249,10 @@ class Parser
     item = BusinessItem.new
     item.position = @item_position
     item.description = line.strip
-    item.id = item.generate_id()
+    item.ident = item.generate_ident()
     
     pdf_info = set_pdf_info(page, line_no, line_no)
-    item.pdf_info = pdf_info
+    item.meta = {"pdf_info" => pdf_info}
     @current_time_block.business_items << item
   end
   
@@ -287,7 +285,7 @@ class Parser
     last_item = @current_time_block.business_items.last
     new_desc = "#{last_item.description.rstrip} #{line.strip}"
     last_item.description = new_desc
-    last_item.pdf_info[:last_line] = line_no+1
+    last_item.meta["pdf_info"]["last_line"] = line_no+1
     
     p "item text replaced with: #{new_desc}" if debug
   end
@@ -325,9 +323,23 @@ class Parser
     if @old_day
       change = @current_sitting_day.diff(@old_day)
       unless change.empty?
-        @current_sitting_day.diffs << change
+        append_to_diffs(@current_sitting_day, change)
       end
+      @old_day.delete
     end
     @current_sitting_day.save
+  end
+  
+  def append_to_diffs(record, change)    
+    if record.history.nil?
+      record.history = {"diffs" => [change]}
+    else
+      record.history["diffs"] << change
+    end
+    
+    # if record.ident == "CalendarDay_2013-03-25"
+    #   p record.history
+    #   p "**"
+    # end
   end
 end

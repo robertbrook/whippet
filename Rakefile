@@ -1,14 +1,28 @@
 require 'bundler'
 Bundler.setup
 
+require 'active_record'
 require 'rspec/core/rake_task'
 
+Dir["tasks/*.rake"].sort.each { |ext| load ext }
+
 namespace :spec do
-  desc "Run tests with SimpleCov"
+  task :prepare do
+    ENV["RACK_ENV"] = "test"
+    Rake::Task["db:drop"].invoke
+    Rake::Task["db:create"].invoke
+    Rake::Task["db:migrate"].invoke
+  end
+end
+
+desc "Run tests with SimpleCov"
+task :spec do |t|
+  Rake::Task["spec:prepare"].invoke
   RSpec::Core::RakeTask.new(:cov) do |t|
     ENV["COVERAGE"] = "1"
   end
 end
+
 
 RSpec::Core::RakeTask.new(:spec)
 
@@ -18,7 +32,7 @@ desc "Run the rake spec task"
 task :test => [:spec]
 
 desc "Parse PDFs in data directory"
-task :puller do |t|
+task :puller => :environment do |t|
   report_env()
   require "./lib/parser"
   
@@ -30,7 +44,7 @@ task :puller do |t|
 end
 
 desc "import a single pdf file"
-task :import_pdf_file do
+task :import_pdf_file=> :environment  do
   report_env()
   require "./lib/parser"
   

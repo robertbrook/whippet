@@ -11,7 +11,7 @@
       %h3
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
-    - day.time_blocks.each do |block|
+    - day.time_blocks.order("position asc").each do |block|
       .col-md-4.lead
         =block.time_as_number
         %strong
@@ -20,7 +20,7 @@
         - if block.note
           =block.note
 
-        - block.business_items.each do |item|
+        - block.business_items.order("position asc").each do |item|
           %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>").gsub(/^(\d).\s/, '<span class="xtext-muted" style="margin-right:1.4em;">\1</span> ')
           
 %hr.hidden-xs.hidden-sm
