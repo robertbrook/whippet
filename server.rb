@@ -35,21 +35,21 @@ end
 
 get '/index.json' do  
   content_type :json
-  CalendarDay.all(:order => "date desc", :limit => 10).to_json
+  CalendarDay.order("date desc").limit(10).to_json
 end
 
 get '/index.xml' do  
   content_type :xml
-  CalendarDay.all(:order => "date desc", :limit => 10).to_xml
+  CalendarDay.order("date desc").limit(10).to_xml
 end
 
 get '/rss' do
-  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
+  @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :rss
 end
 
 get '/opml' do
-  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
+  @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :opml
 end
 
@@ -61,7 +61,7 @@ get '/cal' do
   	limit = 4
   end
   	
-  sitting_days = CalendarDay.all(:order => "date desc", :limit => limit)
+  sitting_days = CalendarDay.order("date desc").limit(limit)
   
   if params.has_key?("ics") # will respond to cal?ics
     content_type 'text/calendar'
@@ -122,7 +122,7 @@ get "/pdf/:filename" do
 end
 
 get '/editor' do  
-  @calendar_days_json = CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+  @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
   @hulk = true
   haml :editor
 end
