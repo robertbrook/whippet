@@ -8,6 +8,14 @@ class CalendarDay < ActiveRecord::Base
     false
   end
   
+  def excluded_fields
+    ["meta", "history"]
+  end
+  
+  def unique_id_within_group
+    "ident"
+  end
+  
   def becomes(klass)
     became = klass.new
     self.instance_variables.each do |var|
@@ -15,6 +23,10 @@ class CalendarDay < ActiveRecord::Base
     end
     became.type = klass.name
     became
+  end
+  
+  def parent_class_array(obj)
+    obj.class.reflect_on_all_associations(:belongs_to).map { |x| x.name }
   end
   
   def source_docs
@@ -26,20 +38,30 @@ class CalendarDay < ActiveRecord::Base
     pdfs.uniq.delete_if { |x| x.nil? }
   end
   
-  def diff(other)    
+  def diff(other)
     unless other.is_a?(CalendarDay)
       raise "Unable to compare #{self.class} to #{other.class}"
     end
     
+    self_attribs = self.get_attributes(self.excluded_fields)
+    other_attribs = other.get_attributes(other.excluded_fields)
+    
     #compare the simple values
-    change = compare_simple_values(self, other)
+    change = compare_attributes(self_attribs, other_attribs, self)
     
     #analyse the time_blocks
-    change = analyze_time_blocks(self, other, change)
+    unless @analyze_subobjects == false
+      change = analyze_subobjects(self, other, change)
+    end
     
     #the last bit - no change, no report; simples
     change[:meta] = other.meta unless change.empty?
     change
+  end
+  
+  def get_attributes(excluded)
+    attribs = attributes.dup
+    attribs.delete_if { |key, value| excluded.include?(key) or key == "id" }
   end
   
   
@@ -49,200 +71,136 @@ class CalendarDay < ActiveRecord::Base
     arr.select { |x| x.ident == value }.first
   end
   
-  def find_item_by_ident(block, value)
-    block.business_items.select { |x| x.ident == value }.first
+  def map_obj_idents(obj)
+    obj.map { |x| x.attributes[x.unique_id_within_group] }
   end
   
-  def map_timeblock_idents(day)
-    day.has_time_blocks? ? day.time_blocks.map { |x| x.ident } : []
-  end
-  
-  def map_item_idents(block)
-    block.business_items.empty? ? [] : block.business_items.map { |x| x.ident }
-  end
-  
-  def ident_in_list?(id, id_list)
-    return true if id_list.include?(id)
+  def ident_in_list?(ident, ident_list)
+    return true if ident_list.include?(ident)
     false
   end
   
-  def compare_current_blocks(current_block_idents, previous_block_idents, current_day, previous_day)
-    blocks = []
-    current_block_idents.each do |ident|
-      current_block = current_day.has_time_blocks? ? find_in_array_by_ident(time_blocks, ident) : {}
-      previous_block = previous_day.has_time_blocks? ? find_in_array_by_ident(previous_day.time_blocks, ident) : {}
+  def compare_current_subs(current_obj_idents, previous_obj_idents, current_subs, previous_subs)
+    objects = []
+    current_obj_idents.each do |idnt|
+      current_sub = find_in_array_by_ident(current_subs, idnt)
+      previous_sub = find_in_array_by_ident(previous_subs, idnt)
       
-      if ident_in_list?(ident, previous_block_idents)
+      if ident_in_list?(idnt, previous_obj_idents)
         #pre-existing thing, compare the differences...
-        block = compare_timeblock_with_previous_version(current_block, previous_block)
+        current_attribs = current_sub.get_attributes(current_sub.excluded_fields)
+        previous_attribs = previous_sub.get_attributes(previous_sub.excluded_fields)
+        
+        #compare the simple values
+        obj = compare_attributes(current_attribs, previous_attribs, current_sub)
+        
+        #analyse the time_blocks
+        unless @analyze_subobjects == false
+          obj = analyze_subobjects(current_sub, previous_sub, obj)
+        end
+        
         #...and only store if something's changed
-        blocks << block unless block.empty?
+        unless obj.empty?
+          obj[:change_type] = "modified"
+          objects << obj
+        end
       else
         #a new thing, just need to note its arrival
-        blocks << {:title => current_block.title, :ident => current_block.ident, :change_type => "new"}
+        objects << {unique_id_within_group.to_sym => eval("current_sub.#{unique_id_within_group}"), :change_type => "new"}
       end
     end
-    blocks
+    objects
   end
   
-  def preserve_deleted_blocks(deleted_idents, previous_day)
-    blocks = []
+  def preserve_deleted_subs(deleted_idents, previous_subs, previous_obj, sub)
+    objects = []
     deleted_idents.each do |ident|
-      previous_block = find_in_array_by_ident(previous_day.time_blocks, ident)
-      block = preserve_deleted_timeblock(previous_block)
-      blocks << block
+      previous_sub = find_in_array_by_ident(eval("previous_obj.#{sub}.to_a"), ident)
+      obj = preserve_deleted_obj(previous_sub)
+      objects << obj
     end
-    blocks
+    objects
   end
   
-  def compare_simple_values(current_day, previous_day, change={})
-    change[:note] = previous_day.note if current_day.note.to_s != previous_day.note.to_s
-    change[:type] = previous_day.type if current_day.type != previous_day.type
-    change[:accepted] = previous_day.accepted if current_day.accepted != previous_day.accepted
-    change[:is_provisional] = previous_day.is_provisional if current_day.is_provisional != previous_day.is_provisional
+  def compare_attributes(current, previous, current_obj, change={})
+    previous.each do |key, value|
+      change[key.to_sym] = value if value != current[key]
+    end
+    unless change.empty?
+      change[current_obj.unique_id_within_group.to_sym] = eval("current_obj.#{current_obj.unique_id_within_group}")
+    end
     change
   end
   
-  def analyze_time_blocks(current_day, previous_day, change={})
-    if current_day.has_time_blocks? or previous_day.has_time_blocks?
-      blocks = []
-      current_block_idents = map_timeblock_idents(current_day)
-      previous_block_idents = map_timeblock_idents(previous_day)
+  def analyze_subobjects(current_obj, previous_obj, change={})
+    #need both - comparable objects need not have the same reflections
+    current_subs = current_obj.reflections.keys
+    current_subs.delete_if { |key, _| parent_class_array(current_obj).include?(key) }
+    previous_subs = previous_obj.reflections.keys
+    previous_subs.delete_if { |key, _| parent_class_array(previous_obj).include?(key) }
+    
+    #things that are available to the current object
+    current_subs.each do |sub|
+      objects = []
+      current_objects = current_obj.association(sub).target
+      previous_objects = previous_obj.respond_to?(sub) ? eval("previous_obj.#{sub}.to_a") : []
+      current_obj_idents = map_obj_idents(current_objects)
+      previous_obj_idents = map_obj_idents(previous_objects)
       
       #loop through the ids in the current block
-      blocks += compare_current_blocks(current_block_idents, previous_block_idents, current_day, previous_day)
+      objects += compare_current_subs(current_obj_idents, previous_obj_idents, current_objects, previous_objects)
       
       #look for ids that only exist in the previous block
-      blocks += preserve_deleted_blocks(previous_block_idents - current_block_idents, previous_day)
+      objects += preserve_deleted_subs((previous_obj_idents - current_obj_idents), previous_subs, previous_obj, sub)
       
       #update time_blocks if any changes were found
-      change[:time_blocks] = blocks unless blocks.empty?
+      change[sub] = objects unless objects.empty?
+    end
+    
+    #things that are only available to the previous object
+    (previous_subs - current_subs).each do |sub|
+      objects = []
+      previous_obj_idents = map_obj_idents(previous_obj)
+      objects += preserve_deleted_subs(previous_obj_idents, (previous_subs - current_subs), previous_obj, sub)
+      change[sub] = objects unless objects.empty?
     end
     change
   end
   
-  def compare_timeblock_with_previous_version(current_block, previous_block)
-    block = {}
-    unless previous_block.note == current_block.note
-      block[:note] = previous_block.note
-    end
-    unless previous_block.position == current_block.position
-      block[:position] = previous_block.position
-    end
-    unless previous_block.title == current_block.title
-      block[:title] = previous_block.title
-    end
-    
-    bus_items = compare_business_items(current_block, previous_block)
-    unless bus_items.empty?
-      block[:business_items] = bus_items
-    end
-    unless block.empty?
-      block[:ident] = current_block.ident
-      block[:title] = current_block.title
-      block[:change_type] = "modified"
-      block[:meta] = previous_block.meta
-    end
-    block
-  end
-  
-  def compare_item_with_previous_version(current_item, previous_item)
-    item = {}
-    unless previous_item.note == current_item.note
-      item[:note] = previous_item.note
-    end
-    unless previous_item.position == current_item.position
-      item[:position] = previous_item.position
-    end
-    unless previous_item.description == current_item.description
-      item[:description] = previous_item.description
-    end
-    
-    unless item.empty?
-      item[:change_type] = "modified"
-      item[:description] = previous_item.description
-      item[:ident] = previous_item.ident
-      item[:meta] = previous_item.meta
-    end
-    item
-  end
-  
-  def preserve_deleted_timeblock(deleted_block)
-    block = {}
-    block[:change_type] = "deleted"
-    block[:ident] = deleted_block.ident
-    block[:title] = deleted_block.title
-    block[:note] = deleted_block.note if deleted_block.note
-    block[:position] = deleted_block.position
-    block[:meta] = deleted_block.meta
-    bus_items = copy_business_items(deleted_block, block)
-    block[:business_items] = bus_items unless bus_items.empty?
-    block
-  end
-  
-  def preserve_deleted_item(deleted_item)
-    item = {}
-    item[:change_type] = "deleted"
-    item[:description] = deleted_item.description
-    item[:ident] = deleted_item.ident
-    item[:position] = deleted_item.position
-    item[:note] = deleted_item.note if deleted_item.note and deleted_item.note.empty? == false
-    item[:meta] = deleted_item.meta
-    item
-  end
-  
-  def copy_business_items(previous_block, changes)
-    items = []
-    previous_block.business_items.each do |prev_item|
-      item = preserve_deleted_item(prev_item)
-      items << item
-    end
-    items
-  end
-  
-  def compare_business_items(current_block, previous_block)
-    current_idents = map_item_idents(current_block)
-    previous_idents = map_item_idents(previous_block)
-    
-    # loop over each id
-    items = compare_current_items(current_idents, current_block, previous_idents, previous_block)
-    
-    #loop over the deleted items
-    items += preserve_deleted_items(previous_idents - current_idents, previous_block)
-    
-    items
-  end
-  
-  def compare_current_items(current_idents, current_block, previous_idents, previous_block)
-    items = []
-    current_idents.each do |ident|
-      if ident_in_list?(ident, previous_idents)
-        #pre-existing thing...
-        current_item = find_item_by_ident(current_block, ident)
-        previous_item = find_item_by_ident(previous_block, ident)
-        
-        item = compare_item_with_previous_version(current_item, previous_item)
-        items << item unless item.empty?
-      else
-        #a new thing, just need to note its arrival
-        item = {}
-        item[:change_type] = "new"
-        item[:ident] = ident
-        item[:description] = find_item_by_ident(current_block, ident).description
-        items << item
+  def preserve_deleted_obj(deleted, excluded_fields=@excluded_fields)
+    obj = {}
+    #get attributes of object marked for deletion...
+    attribs = deleted.get_attributes(deleted.excluded_fields)
+    #...and copy them for preservation
+    attribs.keys.each do |att|
+      value = nil
+      if deleted.respond_to?(att)
+        value = eval("deleted.#{att}")
       end
+      
+      obj[att.to_sym] = value unless value.nil?
     end
-    items
-  end
-  
-  def preserve_deleted_items(deleted_idents, previous_block)
-    items = []
-    deleted_idents.each do |ident|
-      previous_item = find_item_by_ident(previous_block, ident)
-      item = preserve_deleted_item(previous_item)
-      items << item
+    
+    #look to see if our target object has sub-objects of its own
+    previous_sub_keys = deleted.reflections.keys
+    previous_sub_keys.delete_if { |key, _| parent_class_array(deleted).include?(key) }
+    
+    #preserve subs
+    previous_sub_keys.each do |sub|
+      subs = []
+      previous_subs = deleted.respond_to?(sub) ? eval("deleted.#{sub}.to_a") : []
+      previous_subs.each do |deleted_sub|  
+        preserved = preserve_deleted_obj(deleted_sub)
+        subs << preserved
+      end
+      obj[sub] = subs unless subs.empty?
     end
-    items
+    
+    unless obj.empty?
+      obj[:meta] = deleted.meta 
+      obj[:change_type] = "deleted"
+    end
+    obj
   end
 end
 

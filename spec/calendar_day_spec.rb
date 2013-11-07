@@ -143,8 +143,7 @@ describe CalendarDay do
         block_changes.should be_an_instance_of Array
         block_changes.should eq [
           {:change_type => "new",
-           :ident => "grand_committee_1545",
-           :title => "Business in Grand Committee at 3.45pm"}]
+           :ident => "grand_committee_1545"}]
       end
     end
     
@@ -258,7 +257,7 @@ describe CalendarDay do
           
           item_changes = diff[:time_blocks].first[:business_items]
           item_changes.should be_an_instance_of Array
-          item_changes.should eq [{:change_type => "new", :ident => "id", :description => "1.  description goes here"}]
+          item_changes.should eq [{:ident=>"id", :change_type=>"new"}]
         end
       end
       
@@ -336,12 +335,11 @@ describe CalendarDay do
           item_changes = diff[:time_blocks].first[:business_items]
           item_changes.should be_an_instance_of Array
           item_changes.should eq [
-            {:note => "note added",
+            {:description => "2.  description goes here",
              :position => 2,
-             :description => "2.  description goes here",
-             :change_type => "modified",
+             :note => "note added",
              :ident => "id",
-             :meta => nil
+             :change_type => "modified"
              }]
         end
         
@@ -398,15 +396,15 @@ describe CalendarDay do
       block3 = diff[:time_blocks][3]
       
       block0[:change_type].should eq "modified"
-      block0[:title].should eq "Business in the Chamber at 3.30pm"
+      block0[:ident].should eq "chamber_1530"
       block0[:position].should eq 2
       
       block1[:change_type].should eq "modified"
-      block1[:title].should eq "Business in the Chamber at 11.00am"
+      block1[:ident].should eq "chamber_1100"
       block1[:position].should eq 1
       
       block2[:change_type].should eq "new"
-      block2[:title].should eq "Business in Grand Committee at 3.30pm"
+      block2[:ident].should eq "gc_1530"
       
       block3[:change_type].should eq "deleted"
       block3[:title].should eq "Business in the Chamber at 10am"
@@ -444,7 +442,7 @@ describe CalendarDay do
       diff0[:position].should eq 2
       
       diff1[:change_type].should eq "new"
-      diff1[:description].should eq "2.  hello, I'm new"
+      diff1[:ident].should eq "hello"
       
       diff2[:change_type].should eq "deleted"
       diff2[:description].should eq "1.  surplus to requirements"
