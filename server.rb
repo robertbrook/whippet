@@ -9,7 +9,15 @@ require "./models/business_item"
 
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
+  
+  if env == "production"
+    ActiveRecord::Base.establish_connection(YAML.load(ERB.new(File.read('config/database.yml')[env]).result))
+  else
+    ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
+  end 
+  
+  
+
 end
 
 helpers do
