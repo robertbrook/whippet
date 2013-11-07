@@ -45,6 +45,7 @@ GEM
       ruby-rc4
       ttfunk
     pg (0.17.0)
+    psych (2.0.1)
     rack (1.5.2)
     rack-protection (1.5.1)
       rack
@@ -94,6 +95,7 @@ DEPENDENCIES
   nokogiri
   pdf-reader
   pg
+  psych
   rack-test
   rake
   rest-client
