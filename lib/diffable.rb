@@ -15,9 +15,7 @@ module Diffable
       change = compare_attributes(self_attribs, other_attribs, self)
       
       #analyse the time_blocks
-      unless @analyze_subobjects == false
-        change = analyze_subobjects(self, other, change)
-      end
+      change = analyze_subobjects(self, other, change)
       
       #the last bit - no change, no report; simples
       other.class.conditional_fields.each do |key|
@@ -85,9 +83,7 @@ module Diffable
           obj = compare_attributes(current_attribs, previous_attribs, current_sub)
           
           #analyse the time_blocks
-          unless @analyze_subobjects == false
-            obj = analyze_subobjects(current_sub, previous_sub, obj)
-          end
+          obj = analyze_subobjects(current_sub, previous_sub, obj)
           
           #...and only store if something's changed
           unless obj.empty?
@@ -103,7 +99,7 @@ module Diffable
       objects
     end
     
-    def preserve_deleted_subs(deleted_idents, previous_subs, previous_obj, sub)
+    def preserve_deleted_by_ident(deleted_idents, previous_subs, previous_obj, sub)
       objects = []
       deleted_idents.each do |ident|
         previous_sub = find_in_array_by_ident(eval("previous_obj.#{sub}.to_a"), ident)
@@ -141,7 +137,7 @@ module Diffable
         objects += compare_current_subs(current_obj_idents, previous_obj_idents, current_objects, previous_objects)
         
         #look for ids that only exist in the previous block
-        objects += preserve_deleted_subs((previous_obj_idents - current_obj_idents), previous_subs, previous_obj, sub)
+        objects += preserve_deleted_by_ident((previous_obj_idents - current_obj_idents), previous_subs, previous_obj, sub)
         
         #update time_blocks if any changes were found
         change[sub] = objects unless objects.empty?
@@ -151,7 +147,7 @@ module Diffable
       (previous_subs - current_subs).each do |sub|
         objects = []
         previous_obj_idents = map_obj_idents(previous_obj)
-        objects += preserve_deleted_subs(previous_obj_idents, (previous_subs - current_subs), previous_obj, sub)
+        objects += preserve_deleted_by_ident(previous_obj_idents, (previous_subs - current_subs), previous_obj, sub)
         change[sub] = objects unless objects.empty?
       end
       change
@@ -175,15 +171,7 @@ module Diffable
       previous_sub_keys = reflected_names(deleted)
       
       #preserve subs
-      previous_sub_keys.each do |sub|
-        subs = []
-        previous_subs = deleted.respond_to?(sub) ? eval("deleted.#{sub}.to_a") : []
-        previous_subs.each do |deleted_sub|  
-          preserved = preserve_deleted_obj(deleted_sub)
-          subs << preserved
-        end
-        obj[sub] = subs unless subs.empty?
-      end
+      obj = preserve_deleted_subs(previous_sub_keys, deleted, obj)
       
       unless obj.empty?
         deleted.class.conditional_fields.each do |key|
@@ -192,6 +180,19 @@ module Diffable
         obj[:change_type] = "deleted"
       end
       obj
+    end
+    
+    def preserve_deleted_subs(keys, deleted, change={})
+      keys.each do |sub|
+        subs = []
+        previous_subs = deleted.respond_to?(sub) ? eval("deleted.#{sub}.to_a") : []
+        previous_subs.each do |deleted_sub|  
+          preserved = preserve_deleted_obj(deleted_sub)
+          subs << preserved
+        end
+        change[sub] = subs unless subs.empty?
+      end
+      change
     end
   end
   
