@@ -4,6 +4,7 @@ require './spec/rspec_helper.rb'
 require './models/calendar_day'
 require './models/time_block'
 require './models/business_item'
+require './models/speaker_list'
 
 describe CalendarDay do
   context "in general" do
