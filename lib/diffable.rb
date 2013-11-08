@@ -11,11 +11,7 @@ module Diffable
       self_attribs = self.get_attributes(self.class.excluded_from_copy)
       other_attribs = other.get_attributes(other.class.excluded_from_copy)
       
-      #compare the simple values
-      change = compare_attributes(self_attribs, other_attribs, self)
-      
-      #analyse the time_blocks
-      change = analyze_subobjects(self, other, change)
+      change = compare_objects(self_attribs, other_attribs, self, other)
       
       #the last bit - no change, no report; simples
       other.class.conditional_fields.each do |key|
@@ -79,11 +75,7 @@ module Diffable
           current_attribs = current_sub.get_attributes(current_sub.class.excluded_from_copy)
           previous_attribs = previous_sub.get_attributes(previous_sub.class.excluded_from_copy)
           
-          #compare the simple values
-          obj = compare_attributes(current_attribs, previous_attribs, current_sub)
-          
-          #analyse the time_blocks
-          obj = analyze_subobjects(current_sub, previous_sub, obj)
+          obj = compare_objects(current_attribs, previous_attribs, current_sub, previous_sub, obj)
           
           #...and only store if something's changed
           unless obj.empty?
@@ -180,6 +172,15 @@ module Diffable
         obj[:change_type] = "deleted"
       end
       obj
+    end
+    
+    def compare_objects(current_attribs, other_attribs, current, other, change={})
+      #compare the simple values
+      change = compare_attributes(current_attribs, other_attribs, current)
+      
+      #analyse the subobjects
+      change = analyze_subobjects(current, other, change)
+      change
     end
     
     def preserve_deleted_subs(keys, deleted, change={})
