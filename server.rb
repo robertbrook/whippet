@@ -2,6 +2,7 @@ require 'sinatra'
 require 'active_record'
 require 'haml'
 require 'ri_cal'
+require 'erb'
 
 require "./models/calendar_day"
 require "./models/time_block"
@@ -10,11 +11,12 @@ require "./models/speaker_list"
 
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-#   dbconfig = YAML.load(ERB.new(File.read('config/database.yml')).result)
-#   ActiveRecord::Base.establish_connection(dbconfig[env])
-
-  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
-  
+  if ENV["DATABASE_URL"] #hai heroku
+    config = YAML.load(ERB.new(File.read('config/database.yml')).result)
+  else
+    config = YAML::load(File.open('config/database.yml'))
+  end
+  ActiveRecord::Base.establish_connection(config[env])
 end
 
 helpers do
