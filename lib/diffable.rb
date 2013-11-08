@@ -6,19 +6,7 @@ module Diffable
   
   module InstanceMethods
     def diff(other)
-      if self.class.superclass == ActiveRecord::Base
-        if other.class != self.class || other.class.superclass != self.class
-          raise "Unable to compare #{self.class} to #{other.class}"
-        end
-      elsif other.class.superclass == ActiveRecord::Base
-        if self.class != other.class || self.class.superclass != other.class
-          raise "Unable to compare #{self.class} to #{other.class}"
-        end
-      else
-        if self.class != other.class && other.class.superclass != self.class.superclass
-          raise "Unable to compare #{self.class} to #{other.class}"
-        end
-      end
+      check_class_compatibility(self, other)
       
       self_attribs = self.get_attributes(self.class.excluded_from_copy)
       other_attribs = other.get_attributes(other.class.excluded_from_copy)
@@ -56,6 +44,18 @@ module Diffable
     end
     
     private
+    
+    def check_class_compatibility(current, other)
+      if current.class.superclass == ActiveRecord::Base || other.class.superclass == ActiveRecord::Base
+        if other.class != current.class || other.class.superclass != current.class
+          raise "Unable to compare #{current.class} to #{other.class}"
+        end
+      else
+        if current.class != other.class && other.class.superclass != current.class.superclass
+          raise "Unable to compare #{current.class} to #{other.class}"
+        end
+      end
+    end
     
     def find_in_array_by_ident(arr, value)
       arr.select { |x| eval(%Q|x.#{x.class.unique_within_group}|) == value }.first
