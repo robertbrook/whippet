@@ -6,6 +6,7 @@ require 'ri_cal'
 require "./models/calendar_day"
 require "./models/time_block"
 require "./models/business_item"
+require "./models/speaker_list"
 
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
