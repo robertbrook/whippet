@@ -1,3 +1,5 @@
+require 'erb'
+
 task :environment do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
   if ENV["DATABASE_URL"] #hai heroku
@@ -54,11 +56,11 @@ namespace :db do
   task :drop do
     env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
     if ENV["DATABASE_URL"] #hai heroku
-      config = YAML.load(ERB.new(File.read('config/database.yml')).result)
+      config = YAML.load(ERB.new(File.read('config/database.yml')).result)[env]
     else
-      config = YAML::load(File.open('config/database.yml'))
+      config = YAML::load(File.open('config/database.yml'))[env]
     end
-    connect(config[env])
+    connect(config)
     ActiveRecord::Base.connection.drop_database config['database']
   end
   
