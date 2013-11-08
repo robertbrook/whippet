@@ -1,8 +1,0 @@
-development:
-  uri: mongodb://plausible_uri
-
-production:
-  uri: mongodb://plausible_uri_production
-        
-test:
-  uri: mongodb://plausible_uri_test
