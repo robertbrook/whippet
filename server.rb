@@ -21,7 +21,17 @@ end
 
 helpers do
   def get_pdf_scope(filename)
-    days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
+    postgres = `postgres --version`
+    matches = postgres.scan /(\d+.\d+.\d+)/
+    version = matches.flatten.first.split(".")
+    days = []
+    if version[0] > 8 and version[1] > 2
+      # 9.3.x or better? Great, use the full json query syntax
+      days = CalendarDay.where("meta->'pdf_info'->>'filename' = ?", "#{filename}").order("date asc")
+    else
+      # ah, ok - workaround time. This could go wrong - it might pickup subobjects with the matching filename
+      days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
+    end
     unless days.empty?
       [days.first.date, days.last.date]
     else
