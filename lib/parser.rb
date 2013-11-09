@@ -5,6 +5,7 @@ require "active_record"
 require "./models/calendar_day"
 require "./models/business_item"
 require "./models/time_block"
+require "./models/speaker_list"
 require "./lib/pdf_page"
 
 class Parser
@@ -193,7 +194,6 @@ class Parser
           Time.parse(deref_pdf_info(@pdf, :ModDate).gsub(/\+\d+'\d+'/, "Z"))
         #the found version is old, keep ahold of it for the time being
         @old_day = prev
-        # prev.delete
       else
         #the new data is old or a duplicate, ignore it
         @current_sitting_day = nil
