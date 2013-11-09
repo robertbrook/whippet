@@ -29,8 +29,8 @@ module Diffable
       classes = obj.reflections
       class_names = []
       classes.each do |key, cl|
-        if cl.association_class != ActiveRecord::Associations::BelongsToAssociation \
-           and eval(cl.class_name).respond_to?("diffable")
+        if eval(cl.class_name).respond_to?("diffable") \
+           and cl.association_class != ActiveRecord::Associations::BelongsToAssociation
           class_names << key
         end
       end
