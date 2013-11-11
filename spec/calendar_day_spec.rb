@@ -470,17 +470,10 @@ end
 describe BusinessItem do
   context "when implying a name from a from a description" do
     it "should return an empty array if there are no names" do
-      test_item = BusinessItem.new()
-      test_item.description = "1. Oral questions (30 minutes)"
+#       test_item = BusinessItem.new()
+#       test_item.description = "1. Oral questions (30 minutes)"
 #       test_item.names = []
-      pending("Not yet implemented")
-    end
-    
-    it "should not return a name where there is no name information" do
-      test_item = BusinessItem.new()
-      test_item.description = "1. Oral questions (30 minutes)"
-#       test_item.names.should eq ""
-      pending("Not yet implemented")
+      pending("requires names array for Business Item")
     end
   end
 end
