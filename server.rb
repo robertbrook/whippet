@@ -4,10 +4,10 @@ require 'haml'
 require 'ri_cal'
 require 'erb'
 
-require "./models/calendar_day"
-require "./models/time_block"
-require "./models/business_item"
-require "./models/speaker_list"
+require './models/calendar_day'
+require './models/time_block'
+require './models/business_item'
+require './models/speaker_list'
 
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
@@ -154,3 +154,4 @@ get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
 end
+
