@@ -42,8 +42,10 @@ describe "TheServer" do
   end
   
   context "when asked for the URL /2013/03/27" do
-    it "should have a link to the PDF"
-      
+    it "should have a link to the PDF" do
+      pending("requires populated route for URL")
+    end
+        
     it "should have a link to the Lords calendar"
   end
     
