@@ -34,7 +34,6 @@ class CalendarDay < ActiveRecord::Base
 end
 
 class SittingDay < CalendarDay
-  include Diffable
   has_many :time_blocks, :dependent => :destroy
   set_excluded_from_copy :meta
   set_unique_within_group :ident
@@ -42,7 +41,6 @@ class SittingDay < CalendarDay
 end
 
 class NonSittingDay < CalendarDay
-  include Diffable
   set_excluded_from_copy :meta
   set_unique_within_group :ident
   set_conditional_fields :meta
