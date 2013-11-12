@@ -4,7 +4,7 @@ require "./lib/diffable.rb"
 
 class CalendarDay < ActiveRecord::Base
   include Diffable
-  set_excluded_from_copy :meta
+  set_excluded_from_copy :meta, :history
   set_conditional_fields :meta
   
   def has_time_blocks?
@@ -35,13 +35,13 @@ end
 
 class SittingDay < CalendarDay
   has_many :time_blocks, :dependent => :destroy
-  set_excluded_from_copy :meta
+  set_excluded_from_copy :meta, :history
   set_unique_within_group :ident
   set_conditional_fields :meta
 end
 
 class NonSittingDay < CalendarDay
-  set_excluded_from_copy :meta
+  set_excluded_from_copy :meta, :history
   set_unique_within_group :ident
   set_conditional_fields :meta
 end

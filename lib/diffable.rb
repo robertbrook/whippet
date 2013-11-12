@@ -203,7 +203,7 @@ module Diffable
     @diffable = true
     
     def set_excluded_from_copy(*h)
-      @excluded_from_copy = ["history"]
+      @excluded_from_copy = []
       h.each { |key| eval(%Q|@excluded_from_copy << "#{key.to_s}"|) }
     end
     
