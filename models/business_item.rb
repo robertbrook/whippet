@@ -4,7 +4,7 @@ class BusinessItem < ActiveRecord::Base
   belongs_to :time_block
   
   include Diffable
-  set_excluded_from_copy :meta, :time_block_id
+  set_excluded_fields :meta, :time_block_id
   set_unique_within_group :ident
   set_conditional_fields :meta
   

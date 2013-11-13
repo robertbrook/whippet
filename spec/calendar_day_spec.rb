@@ -340,6 +340,7 @@ describe CalendarDay do
              :position => 2,
              :note => "note added",
              :ident => "id",
+             :meta => nil,
              :change_type => "modified"
              }]
         end

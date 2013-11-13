@@ -151,7 +151,7 @@ class Parser
         fix_description()
       end
       if @old_day
-        change = @current_sitting_day.diff(@old_day)        
+        change = @current_sitting_day.diff(@old_day)
         unless change.empty?
           append_to_diffs(@current_sitting_day, change)
         end
@@ -316,7 +316,7 @@ class Parser
     end
   end
   
-  def tidy_up    
+  def tidy_up
     unless @current_sitting_day.respond_to?(:time_blocks)
       @current_sitting_day = @current_sitting_day.becomes(NonSittingDay)
     end

@@ -6,7 +6,7 @@ class TimeBlock < ActiveRecord::Base
   has_one :speaker_list
   
   include Diffable
-  set_excluded_from_copy :meta, :sitting_day_id
+  set_excluded_fields :meta, :sitting_day_id
   set_unique_within_group :ident
   set_conditional_fields :meta
   
