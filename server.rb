@@ -70,8 +70,8 @@ get '/opml' do
   builder :opml
 end
 
-get '/cal' do
-
+get '/index.ics' do
+  content_type 'text/calendar'
   if params[:limit].to_i.between?(1, 20)
   	limit = params[:limit]
   else
@@ -79,12 +79,6 @@ get '/cal' do
   end
   	
   sitting_days = CalendarDay.order("date desc").limit(limit)
-  
-  if params.has_key?("ics") # will respond to cal?ics
-    content_type 'text/calendar'
-  else
-  	content_type 'text/plain'
-  end
 
 ical_content = RiCal.Calendar { |ical|
 sitting_days.each { |sitting_day|
