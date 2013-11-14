@@ -3,15 +3,15 @@
     Export as: 
     %a{href: "/index.txt"} Text
     &mdash; 
-    %a{href: "/cal"} iCal
+    %a{href: "/index.ics"} iCal
     &mdash;
     %a{href: "/index.xml"} XML
     &mdash;
     %a{href: "/index.json"} JSON
     &mdash;
-    %a{href: "/opml"} OPML
+    %a{href: "/index.opml"} OPML
     &mdash;
-    %a{href: "/rss"} RSS
+    %a{href: "/index.rss"} RSS
 
 - @calendar_days.each do |day|
   =haml(:_calendar_day, :locals => {:day => day})
