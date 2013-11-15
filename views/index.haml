@@ -1,5 +1,5 @@
 .text-center
-  Page #{@page} of #{@total} results
+  #{@total} results &mdash; Page #{@page} 
   
 - @calendar_days.each do |day|
   =haml(:_calendar_day, :locals => {:day => day})
