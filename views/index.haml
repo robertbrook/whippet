@@ -1,4 +1,6 @@
-
+.text-center
+  Page #{@page} of #{@total} results
+  
 - @calendar_days.each do |day|
   =haml(:_calendar_day, :locals => {:day => day})
 
