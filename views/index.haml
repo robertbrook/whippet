@@ -1,17 +1,3 @@
-.row.lead
-  .col-md-8.col-md-offset-4
-    Export as: 
-    %a{href: "/index.txt"} Text
-    &mdash; 
-    %a{href: "/index.ics"} iCal
-    &mdash;
-    %a{href: "/index.xml"} XML
-    &mdash;
-    %a{href: "/index.json"} JSON
-    &mdash;
-    %a{href: "/index.opml"} OPML
-    &mdash;
-    %a{href: "/index.rss"} RSS
 
 - @calendar_days.each do |day|
   =haml(:_calendar_day, :locals => {:day => day})

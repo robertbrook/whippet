@@ -14,13 +14,25 @@ describe "TheServer" do
   
   context "when asked for /index.ics" do
     it "should not give a blank response" do
-      get "/index.ics"
-      last_response.should_not eq ""
+      pending("requires test for non-blank response")
     end
     
     it "should generate output with MIME type text/calendar" do
       get "/index.ics"      
       last_response.header['Content-Type'].should include 'text/calendar'
+    end
+  end
+  
+    context "when asked for /index.txt" do
+    it "should not give a blank response" do
+      pending("requires test for non-blank response")
+#       get "/index.ics"
+#       last_response.should_not eq ""
+    end
+    
+    it "should generate output with MIME type text/plain" do
+      get "/index.txt"      
+      last_response.header['Content-Type'].should include 'text/plain'
     end
   end
   

@@ -50,6 +50,11 @@ get '/' do
   haml :index
 end
 
+get '/index.txt' do  
+  content_type :text
+  "text output here"
+end
+
 get '/index.json' do  
   content_type :json
   CalendarDay.order("date desc").limit(10).to_json
