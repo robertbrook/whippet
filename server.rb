@@ -50,6 +50,11 @@ get '/' do
   haml :index
 end
 
+get '/index.txt' do  
+  content_type :text
+  "text output here"
+end
+
 get '/index.json' do  
   content_type :json
   CalendarDay.order("date desc").limit(10).to_json
@@ -60,12 +65,12 @@ get '/index.xml' do
   CalendarDay.order("date desc").limit(10).to_xml
 end
 
-get '/rss' do
+get '/index.rss' do
   @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :rss
 end
 
-get '/opml' do
+get '/index.opml' do
   @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :opml
 end

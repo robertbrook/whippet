@@ -8,7 +8,7 @@ task :environment do
     config = YAML::load(File.open('config/database.yml'))
   end
   ActiveRecord::Base.establish_connection(config[env])
-  p "** #{env}"
+  puts "** #{env}"
 end
 
 namespace :db do
@@ -61,7 +61,13 @@ namespace :db do
       config = YAML::load(File.open('config/database.yml'))[env]
     end
     connect(config)
-    ActiveRecord::Base.connection.drop_database config['database']
+    
+    begin
+      ActiveRecord::Base.connection.drop_database config['database']
+    rescue
+      puts "Couldn't create database: #{config.inspect}"
+    end
+    
   end
   
   namespace :drop do

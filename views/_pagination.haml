@@ -1,5 +1,3 @@
-
-
 .ul.pager.lead
   
   - if @page > 1
@@ -10,9 +8,7 @@
     %li.disabled
       %a
         &larr; Previous
-        
-  
-  
+          
   - if @offset + 10 < @total
     %li
       %a{:href => "/?page=#{@page+1}"}
@@ -22,5 +18,3 @@
       %a
         Next &rarr;
 
-.text-center.lead
-  Page #{@page} of #{@total} results
