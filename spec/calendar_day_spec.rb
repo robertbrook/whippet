@@ -5,6 +5,7 @@ require './models/calendar_day'
 require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
+require 'date'
 
 describe CalendarDay do
   context "in general" do
@@ -40,6 +41,27 @@ describe CalendarDay do
       sit = SittingDay.new
       sit.time_blocks = [TimeBlock.new]
       sit.has_time_blocks?.should eq true
+    end
+  end
+  
+  context "when asked to check whether a date is a Non Sitting Friday" do
+    it "should return false if given an invalid date" do
+      CalendarDay.non_sitting_friday?("invalid").should eq false
+    end
+    
+    it "should return false if the date is not a Friday" do
+      CalendarDay.non_sitting_friday?("Monday 18 November 2013").should eq false
+    end
+    
+    it "should return false if the date is in the sitting_fridays table" do
+      result = mock("SittingFriday")
+      SittingFriday.expects(:find_by).with(:date => Date.parse("5 July 2013")).returns(result)
+      CalendarDay.non_sitting_friday?("5 July 2013").should eq false
+    end
+    
+    it "should return true if given a friday not in the sitting_fridays table" do
+      SittingFriday.expects(:find_by).with(:date => Date.parse("12 July 2013")).returns(nil)
+      CalendarDay.non_sitting_friday?("12 July 2013").should eq true
     end
   end
   

@@ -1,11 +1,30 @@
 #encoding: utf-8
 
 require "diffable"
+require "date"
+require "./models/sitting_friday"
 
 class CalendarDay < ActiveRecord::Base
   include Diffable
   set_excluded_fields :meta, :history
   set_conditional_fields :meta
+  
+  #class method
+  def self.non_sitting_friday?(date)
+    #check it's a real date
+    begin
+      date = Date.parse(date)
+    rescue
+      return false
+    end
+    #check it's a friday
+    return false unless date.friday?
+    #check it's not listed as sitting
+    if SittingFriday.find_by(:date => date)
+      return false
+    end
+    true
+  end
   
   def has_time_blocks?
     if respond_to?(:time_blocks)
