@@ -66,8 +66,9 @@ describe CalendarDay do
       CalendarDay.non_sitting_friday?("5 July 2013").should eq false
     end
     
-    it "should return true if given a friday with no evidence to suggest it's a sitting day" do
+    it "should return true if given a Friday with no evidence to suggest it's a sitting day" do
       SittingFriday.expects(:find_by).with(:date => Date.parse("12 July 2013")).returns(nil)
+      SittingDay.expects(:find_by).with(:date => Date.parse("12 July 2013")).returns(nil)
       CalendarDay.non_sitting_friday?("12 July 2013").should eq true
     end
   end
