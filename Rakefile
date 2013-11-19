@@ -64,6 +64,13 @@ task :import_recess_dates => :environment do
   parser.parse
 end
 
+desc "import Sitting Friday dates from web"
+task :import_sitting_fridays => :environment do
+  require "./lib/sitting_fridays_parser"
+  parser = SittingFridaysParser.new
+  parser.parse
+end
+
 desc "Show target URL"
 task :target do
   require "open-uri"
