@@ -28,7 +28,7 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :default => :spec
 
-desc "Run the rake spec task"
+desc "Alias for rake:spec"
 task :test => [:spec]
 
 desc "Parse PDFs in data directory"
@@ -55,6 +55,13 @@ task :import_pdf_file=> :environment  do
   else
     p 'USAGE: rake import_pdf_file pdf=data/FB-TEST.pdf'
   end
+end
+
+desc "import recess dates from web"
+task :import_recess_dates => :environment do
+  require "./lib/recess_dates_parser"
+  parser = RecessDatesParser.new
+  parser.parse
 end
 
 desc "Show target URL"
