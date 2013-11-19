@@ -19,8 +19,12 @@ class CalendarDay < ActiveRecord::Base
     end
     #check it's a friday
     return false unless date.friday?
-    #check it's not listed as sitting
+    #check it's not listed as a SittingFriday
     if SittingFriday.find_by(:date => date)
+      return false
+    end
+    #check it's not already a SittingDay
+    if SittingDay.find_by(:date => date)
       return false
     end
     true
