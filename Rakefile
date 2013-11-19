@@ -34,10 +34,10 @@ task :test => [:spec]
 desc "Parse PDFs in data directory"
 task :puller => :environment do |t|
   report_env()
-  require "./lib/parser"
+  require "./lib/pdf_parser"
   
   Dir.glob('./data/*.pdf') do |pdf|
-    @parser = Parser.new(pdf)
+    @parser = PdfParser.new(pdf)
     @parser.process
     p pdf
   end
@@ -46,11 +46,11 @@ end
 desc "import a single pdf file"
 task :import_pdf_file=> :environment  do
   report_env()
-  require "./lib/parser"
+  require "./lib/pdf_parser"
   
   input_file = ENV['pdf']
   if input_file
-    parser = Parser.new(input_file)
+    parser = PdfParser.new(input_file)
     parser.process
   else
     p 'USAGE: rake import_pdf_file pdf=data/FB-TEST.pdf'

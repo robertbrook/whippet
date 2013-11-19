@@ -8,7 +8,7 @@ require "./models/business_item"
 require "./models/time_block"
 require "./models/speaker_list"
 
-class Parser
+class PdfParser
   #prepare to ingest a single pdf
   def initialize(target_pdf)
     @pdf = PDF::Reader.new(target_pdf)
