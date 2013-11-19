@@ -14,7 +14,7 @@ class SittingFridaysParser
   def parse
     sitting_days = scrape()
     sitting_days.each do |day|
-      SittingFriday.find_or_create_by(:sitting_friday => day)
+      SittingFriday.find_or_create_by(:date => day)
     end
   end
   

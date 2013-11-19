@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131119164548) do
+ActiveRecord::Schema.define(version: 20131119183125) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 20131119164548) do
   end
 
   create_table "sitting_fridays", force: true do |t|
-    t.date "sitting_friday"
+    t.date "date"
     t.json "meta"
   end
 

@@ -72,9 +72,9 @@ describe SittingFridaysParser do
     end
     
     it "should write each found date to the database" do
-      SittingFriday.expects(:find_or_create_by).with(:sitting_friday => "5 July 2013")
-      SittingFriday.expects(:find_or_create_by).with(:sitting_friday => "25 October 2013")
-      SittingFriday.expects(:find_or_create_by).with(:sitting_friday => "8 November 2013")
+      SittingFriday.expects(:find_or_create_by).with(:date => "5 July 2013")
+      SittingFriday.expects(:find_or_create_by).with(:date => "25 October 2013")
+      SittingFriday.expects(:find_or_create_by).with(:date => "8 November 2013")
       @parser.parse
     end
   end
