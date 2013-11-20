@@ -25,7 +25,7 @@ helpers do
     matches = postgres.scan /(\d+.\d+.\d+)/
     version = matches.flatten.first.split(".")
     days = []
-    if version[0] > 8 and version[1] > 2
+    if version[0].to_i > 8 and version[1].to_i > 2
       # 9.3.x or better? Great, use the full json query syntax
       days = CalendarDay.where("meta->'pdf_info'->>'filename' = ?", "#{filename}").order("date asc")
     else
@@ -132,6 +132,7 @@ get "/edit-mockup" do
     @day = CalendarDay.where(:date => Time.parse(@date.strftime("%Y-%m-%d 00:00:00Z"))).first
   else
     @day = SittingDay.first
+    p = SittingDay.first
     @date = @day.date
   end
   @editing = true
