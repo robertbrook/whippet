@@ -45,6 +45,10 @@ describe CalendarDay do
   end
   
   context "when asked to check whether a date is a Non Sitting Friday" do
+    it "should return true if given the date '2013-07-12'" do
+      CalendarDay.non_sitting_friday?('2013-07-12').should eq true
+    end
+
     it "should return false if given an invalid date" do
       CalendarDay.non_sitting_friday?("invalid").should eq false
     end
