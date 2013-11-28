@@ -71,6 +71,13 @@ task :import_sitting_fridays => :environment do
   parser.parse
 end
 
+desc "import Government Spokespersons from web"
+task :import_government_spokespersons => :environment do
+  require "./lib/government_spokespersons_parser"
+  parser = GovernmentSpokespersonsParser.new
+  parser.parse
+end
+
 desc "Show target URL"
 task :target do
   require "open-uri"

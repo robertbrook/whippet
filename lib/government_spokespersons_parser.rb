@@ -18,33 +18,36 @@ class GovernmentSpokespersonsParser
       p government_spokesperson
     end
   end
-  ############# from here ##########
+
   def scrape
-    response = RestClient.get(@page)
-    doc = Nokogiri::HTML(response.body)
-    paras = doc.xpath("//div[@id='mainmiddle']/p")
-    paras.each do |para|
-      if para.text.strip =~ /.*The House will sit/
-        @sitting_days = extract_sitting_days(para.text)
-        break
-      end
+    page = Nokogiri::HTML(RestClient.get(@page)) 
+    page.css("div.normalcontent > p").children.each do |thing|
+      case thing
+        when Nokogiri::XML::Text
+          puts thing.text
+        when Nokogiri::XML::Element
+          if thing.name == 'strong'
+            thing.children.each do |elem|
+              puts elem.text
+            end
+          else 
+            puts thing.name if thing.name != 'br'
+          end
+      end 
+      
     end
-    return @sitting_days
+       
+#     
+#     
+
+    # paras.each do |para|
+#       if para.text.strip =~ /.*The House will sit/
+#         @sitting_days = extract_sitting_days(para.text)
+#         break
+#       end
+#     end
+#     return @government_spokespersons
   end
   
-  private
   
-  def extract_sitting_days(text)
-    text.match(/Fridays in (\d+):/)
-    year = $1
-    
-    excerpt_start = text.index("in #{year}") + "in #{year}".length + 1
-    excerpt_end = text.index(".")-1
-    day_text = text[excerpt_start..excerpt_end]
-    days = []
-    day_text.split(",").each do |day|
-      days << "#{day.strip} #{year}"
-    end
-    days
-  end
 end
