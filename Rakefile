@@ -77,10 +77,8 @@ task :target do
   require "nokogiri"
 
   forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/fb"))
-  target_link = forthcoming_business_page.css('a').detect {|link| link['href'].class == String and  link['href'].include? 'www.lordswhips.org.uk/download.axd?id='}
-  
-  
-  p URI::encode(target_link['href'])
+  target_link = forthcoming_business_page.xpath("//a[contains(@href,'download.axd?')]")
+  p 'http://www.lordswhips.org.uk' + target_link[0]['href']
 #io     = open(URI::encode(target_link[0]['href']))
 end
 
