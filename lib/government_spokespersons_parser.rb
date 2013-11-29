@@ -22,36 +22,31 @@ class GovernmentSpokespersonsParser
   def scrape
     page = Nokogiri::HTML(RestClient.get(@page)) 
     page.css("div.normalcontent > p").children.each do |line|
+        person = {}
 
-      if line.name == "br"
-        ''
-      else
-        if line.name == "strong"
-          puts
-          p line.text.strip
-        else
-            if line.text.length > 2
-              p line.text.strip.split(':')
-            end
+        if line.text.length > 2
+          
+          if line.name == "strong"
+            remit = line.text.strip
+          end
+          
+          possible_role_and_name = line.text.strip.split(':')
+          if (possible_role_and_name.length > 1)
+            person['remit'] = remit
+            person['role'] = possible_role_and_name[0]
+            person['name'] = possible_role_and_name[1].strip
+          else
+            person['remit'] = remit
+            person['role'] = ''
+            person['name'] = possible_role_and_name[0]
+          end
+          
+          p person
+          
         end
         
-      end 
-
-      
- 
-      
     end
        
-#     
-#     
-
-    # paras.each do |para|
-#       if para.text.strip =~ /.*The House will sit/
-#         @sitting_days = extract_sitting_days(para.text)
-#         break
-#       end
-#     end
-#     return @government_spokespersons
   end
   
   
