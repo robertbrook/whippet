@@ -21,19 +21,24 @@ class GovernmentSpokespersonsParser
 
   def scrape
     page = Nokogiri::HTML(RestClient.get(@page)) 
-    page.css("div.normalcontent > p").children.each do |thing|
-      case thing
-        when Nokogiri::XML::Text
-          puts thing.text
-        when Nokogiri::XML::Element
-          if thing.name == 'strong'
-            thing.children.each do |elem|
-              puts elem.text
+    page.css("div.normalcontent > p").children.each do |line|
+
+      if line.name == "br"
+        ''
+      else
+        if line.name == "strong"
+          puts
+          p line.text.strip
+        else
+            if line.text.length > 2
+              p line.text.strip.split(':')
             end
-          else 
-            puts thing.name if thing.name != 'br'
-          end
+        end
+        
       end 
+
+      
+ 
       
     end
        
