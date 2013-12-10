@@ -20,7 +20,12 @@ class GovernmentSpokespersonsParser
   end
 
   def scrape
-    page = Nokogiri::HTML(RestClient.get(@page)) 
+    if File.exist?('./data/spokespersons.html')
+      page = Nokogiri::HTML('./data/spokespersons.html')
+    else
+      page = Nokogiri::HTML(RestClient.get(@page))
+    end
+
     page.css("div.normalcontent > p").children.each do |line|
         person = {}
 
