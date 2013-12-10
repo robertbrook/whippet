@@ -1,7 +1,7 @@
 require 'rest-client'
 require 'nokogiri'
 require 'active_record'
-require "./models/government_spokesperson"
+require './models/government_spokesperson'
 
 class GovernmentSpokespersonsParser
   attr_reader :government_spokespersons, :page
