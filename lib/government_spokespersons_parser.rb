@@ -30,12 +30,11 @@ class GovernmentSpokespersonsParser
 #       pp line
 
       if line.name == 'strong'
-        section = line.children.text
-        p section
+        @section = line.children.text
       end      
       
-      if section
-        p 'in section: ' + section
+      if @section
+        p 'in section: ' + @section
       else
         p 'not in a section: ' + line.text
       end
