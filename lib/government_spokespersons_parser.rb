@@ -9,7 +9,6 @@ class GovernmentSpokespersonsParser
   
   def initialize
     @page = "http://www.lordswhips.org.uk/government-spokespersons"
-    @local_test_file = './data/spokespersons.html'
     @government_spokespersons = []
   end
   
@@ -21,11 +20,9 @@ class GovernmentSpokespersonsParser
   end
 
   def scrape
-    if File.exist?(@local_test_file)
-      page = Nokogiri::HTML(File.open(@local_test_file))
-    else
-      page = Nokogiri::HTML(RestClient.get(@page))
-    end
+
+    page = Nokogiri::HTML(RestClient.get(@page))
+
     page.css("div.normalcontent > p").children.each do |line|
 #       pp line
 
@@ -34,9 +31,9 @@ class GovernmentSpokespersonsParser
       end      
       
       if @section
-        p 'in section: ' + @section
+        'in section: ' + @section
       else
-        p 'not in a section: ' + line.text
+        'not in a section: ' + line.text
       end
       
     end
