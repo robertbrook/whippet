@@ -19,6 +19,14 @@ namespace :spec do
     Rake::Task["spec:prepare"].invoke
     ENV["COVERAGE"] = "1"
   end
+  
+  desc "Run tests with SimpleCov and open generated index"
+  RSpec::Core::RakeTask.new(:covopen) do |t|
+    Rake::Task["spec:cov"].invoke
+    `open ./coverage/index.html`
+  end
+  
+  
 end
 
 RSpec::Core::RakeTask.new(:spec)
