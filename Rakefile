@@ -28,9 +28,6 @@ RSpec::Core::RakeTask.new(:spec)
 
 task :default => :spec
 
-desc "Alias for rake:spec"
-task :test => [:spec]
-
 desc "Parse PDFs in data directory"
 task :puller => :environment do |t|
   report_env()
