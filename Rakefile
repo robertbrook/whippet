@@ -13,16 +13,13 @@ namespace :spec do
     Rake::Task["db:create"].invoke
     Rake::Task["db:migrate"].invoke
   end
-end
-
-desc "Run tests with SimpleCov"
-task :spec do |t|
-  Rake::Task["spec:prepare"].invoke
+  
+  desc "Run tests with SimpleCov"
   RSpec::Core::RakeTask.new(:cov) do |t|
+    Rake::Task["spec:prepare"].invoke
     ENV["COVERAGE"] = "1"
   end
 end
-
 
 RSpec::Core::RakeTask.new(:spec)
 
