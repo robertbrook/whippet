@@ -505,10 +505,24 @@ end
 describe BusinessItem do
   context "when implying a name from a from a description" do
     it "should return an empty array if there are no names" do
-#       test_item = BusinessItem.new()
-#       test_item.description = "1. Oral questions (30 minutes)"
-#       test_item.names = []
-      pending("requires names array for Business Item")
+      test_item = BusinessItem.new()
+      test_item.description = "1. Oral questions (30 minutes)"
+      test_item.names.should eq []
     end
+    
+    it "should return an array of one name where the name is 'Lord McNally'" do
+      pending("calculating names from description")
+      test_item = BusinessItem.new()
+      test_item.description = "2. Offender Rehabilitation Bill [HL] – Committee (Day 1) – Lord McNally"
+      test_item.names.should eq ["Lord McNally"]
+    end
+    
+    it "should return an array of one name where the name is 'Baroness Stowell of Beeston'" do
+      pending("calculating names from description")
+      test_item = BusinessItem.new()
+      test_item.description = "2. Marriage (Same-sex couples) Bill – Second Reading – Baroness Stowell of Beeston"
+      test_item.names.should eq ["Lord McNally"]
+    end
+    
   end
 end

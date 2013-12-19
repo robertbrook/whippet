@@ -15,4 +15,12 @@ class BusinessItem < ActiveRecord::Base
   def generate_ident
     "BusinessItem_#{brief_summary.downcase.gsub(" ", "_").gsub(/\W/, "")}"
   end
+  
+  def names
+#     extract names from description and populate return
+#     ["Where's the names then?"]
+    []
+  end
+  
+  
 end
