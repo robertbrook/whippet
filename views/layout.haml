@@ -4,31 +4,31 @@
     %meta{:charset => "utf-8"}
     %title Lords Whip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
-    %script{:src => "js/jquery.js"}
-    %script{:src => "js/bootstrap.min.js"}
+    %script{:src => "/js/jquery.js"}
+    %script{:src => "/js/bootstrap.min.js"}
     - if @hulk
-      %script{:src => "js/hulk.min.js"}
-    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+      %script{:src => "/js/hulk.min.js"}
+    %link{:href => "/css/bootstrap.min.css", :rel => "stylesheet"}
     %style
-      body {padding-top:30px;border-left:3px solid crimson;}
+      body {padding-top:30px;border-top:3px solid crimson;}
     - if @editing
       %style
         div#editor {width: 50%; float: left; clear: left; margin-right: 8%;}
         canvas {position: absolute; left: 0}
-      %link{:href => "css/viewer.css", :rel => "stylesheet", :media => "screen"}
-      %script{:src => "js/pdfjs/shared/util.js"}
-      %script{:src => "js/pdfjs/shared/colorspace.js"}
-      %script{:src => "js/pdfjs/shared/pattern.js"}
-      %script{:src => "js/pdfjs/shared/function.js"}
-      %script{:src => "js/pdfjs/shared/annotation.js"}
-      %script{:src => "js/pdfjs/display/api.js"}
-      %script{:src => "js/pdfjs/display/metadata.js"}
-      %script{:src => "js/pdfjs/display/canvas.js"}
-      %script{:src => "js/textlayerbuilder.js"}
-      %script{:src => "js/viewer.js"}
-      %script{:src => "js/pdfjs/display/font_loader.js"}
+      %link{:href => "/css/viewer.css", :rel => "stylesheet", :media => "screen"}
+      %script{:src => "/js/pdfjs/shared/util.js"}
+      %script{:src => "/js/pdfjs/shared/colorspace.js"}
+      %script{:src => "/js/pdfjs/shared/pattern.js"}
+      %script{:src => "/js/pdfjs/shared/function.js"}
+      %script{:src => "/js/pdfjs/shared/annotation.js"}
+      %script{:src => "/js/pdfjs/display/api.js"}
+      %script{:src => "/js/pdfjs/display/metadata.js"}
+      %script{:src => "/js/pdfjs/display/canvas.js"}
+      %script{:src => "/js/textlayerbuilder.js"}
+      %script{:src => "/js/viewer.js"}
+      %script{:src => "/js/pdfjs/display/font_loader.js"}
       %script
-        PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
+        PDFJS.workerSrc = '/js/pdfjs/worker_loader.js';
   %body
     .container
       .navbar.navbar-default{role: "navigation"}
