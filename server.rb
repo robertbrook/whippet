@@ -30,6 +30,7 @@ helpers do
       days = CalendarDay.where("meta->'pdf_info'->>'filename' = ?", "#{filename}").order("date asc")
     else
       # ah, ok - workaround time. This could go wrong - it might pickup subobjects with the matching filename
+      # hmm. I should rip this off.
       days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
     end
     unless days.empty?
@@ -119,6 +120,28 @@ get "/:date.json" do
   end
   day.to_json
 end
+
+get "/search/:search_text.xml" do
+  content_type :xml
+  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+  items.to_xml
+end
+
+get "/search/:search_text.json" do
+  content_type :json
+  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+  items.to_json
+end
+
+get "/search/:search_text" do
+  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+  @items = items
+  haml :search
+end
+
+
+
+
 
 get "/:date" do
   if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/

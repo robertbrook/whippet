@@ -22,5 +22,4 @@ class BusinessItem < ActiveRecord::Base
     []
   end
   
-  
 end
