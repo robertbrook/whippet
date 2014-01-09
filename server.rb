@@ -139,10 +139,6 @@ get "/search/:search_text" do
   haml :search
 end
 
-
-
-
-
 get "/:date" do
   if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
     "html for #{params[:date]}"

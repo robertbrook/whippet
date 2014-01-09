@@ -10,7 +10,7 @@
       %script{:src => "/js/hulk.min.js"}
     %link{:href => "/css/bootstrap.min.css", :rel => "stylesheet"}
     %style
-      body {padding-top:30px;border-top:3px solid crimson;}
+      body {padding:30px 0px;}
     - if @editing
       %style
         div#editor {width: 50%; float: left; clear: left; margin-right: 8%;}
@@ -31,8 +31,11 @@
         PDFJS.workerSrc = '/js/pdfjs/worker_loader.js';
   %body
     .container
+      .alert.alert-info.alert-dismissable
+        %button.close{"aria-hidden" => "true", "data-dismiss" => "alert", type: "button"} ×
+        Information on this site is from PDFs previously made public on the web by <a href='http://www.lordswhips.org.uk'><b>The Government Whips' Office</b></a>, part of the <a href='https://www.gov.uk/government/organisations/cabinet-office'><b>Cabinet Office</a>'s</b> <a href='https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords'><b>Government in Parliament Group</b></a>. Source code for this site is available at <a href="https://github.com/robertbrook/whippet"><b>github.com/robertbrook/whippet</b></a>.
       .navbar.navbar-default{role: "navigation"}
-        .navbar-header
+        %nav.navbar-header
           %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", type: "button"}
             %span.sr-only Toggle navigation
             %span.icon-bar
@@ -47,12 +50,10 @@
             %button.btn.btn-default{type: "submit"} Search
           %ul.nav.navbar-nav.pull-right
             %li
-              %a{href: "/edit-mockup"} Editor preview
+              %a{href: "/edit-mockup"} Editor
           
       .clearfix
         =yield
-      .panel.panel-default
-        .panel-body
-          Information on this site is from PDFs previously made public on the web by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.<br>
-          Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
+
+        
 
