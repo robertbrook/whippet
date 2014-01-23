@@ -5,11 +5,6 @@ require './lib/speakers_list_parser'
 
 describe SpeakersListParser do
   describe "when creating a new instance" do 
-    it "should return a SpeakersListParser" do
-      @parser.should be_an_instance_of(SpeakersListParser)
-      p @parser
-      p "ok"
-    end
-    	
+    it "should return a SpeakersListParser"
     end
 end
