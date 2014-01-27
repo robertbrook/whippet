@@ -44,9 +44,9 @@
           %a.navbar-brand{href: "/"} Lords Whip
 
         .collapse.navbar-collapse.navbar-ex1-collapse
-          %form.navbar-form.navbar-right{role: "search"}
+          %form.navbar-form.navbar-right{role: "search", action: "/search"}
             .form-group
-              %input.form-control.disabled{type: "text"}
+              %input.form-control{type: "text", name: "q"}
             %button.btn.btn-default{type: "submit"} Search
           %ul.nav.navbar-nav.pull-right
             %li

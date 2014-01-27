@@ -108,6 +108,17 @@ sitting_days.each { |sitting_day|
 
 end
 
+get "/search.?:format?" do
+  unless params[:q].empty?
+    items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
+    @items = items
+    @format = params[:format]
+    haml :search
+  else
+    "sorry: I need something to search for"
+  end
+end
+
 get "/:date.json" do
   content_type :json
   unless params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
@@ -121,23 +132,19 @@ get "/:date.json" do
   day.to_json
 end
 
-get "/search/:search_text.xml" do
-  content_type :xml
-  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
-  items.to_xml
-end
+# get "/search/:search_text.xml" do
+#   content_type :xml
+#   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+#   items.to_xml
+# end
+# 
+# get "/search/:search_text.json" do
+#   content_type :json
+#   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+#   items.to_json
+# end
 
-get "/search/:search_text.json" do
-  content_type :json
-  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
-  items.to_json
-end
 
-get "/search/:search_text" do
-  items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
-  @items = items
-  haml :search
-end
 
 get "/:date" do
   if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
