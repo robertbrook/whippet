@@ -1,13 +1,18 @@
-%h1 Search results
-
-%h2
-  =@format
+.page-header
+  %h1
+    =params[:q]
+    %small
+      - if @items.length > 0
+        Search results
+      - else
+        No results found
 
 - @items.each do |item|
-  %p.lead
+  %p.lead<
     =item.description
-    <br>&nbsp;
+    %br
     =item.time_block.title
-    
+    &nbsp;
     %a=item.meta['pdf_info']['filename']
+    
     
