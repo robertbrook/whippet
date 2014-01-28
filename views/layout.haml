@@ -46,7 +46,7 @@
         .collapse.navbar-collapse.navbar-ex1-collapse
           %form.navbar-form.navbar-right{role: "search", action: "/search"}
             .form-group
-              %input.form-control{type: "text", name: "q"}
+              %input.form-control{type: "text", name: "q", value: @params['q']}
             %button.btn.btn-default{type: "submit"} Search
           %ul.nav.navbar-nav.pull-right
             %li
