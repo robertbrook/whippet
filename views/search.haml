@@ -6,12 +6,8 @@
 - @items.each do |item|
   %p.lead
     =item.description
-    <br>
+    <br>&nbsp;
+    =item.time_block.title
+    
     %a=item.meta['pdf_info']['filename']
-  
-  
-/ <BusinessItem id: 10, time_block_id: 6, ident: "BusinessItem__statute_law", description: "3.  ‡ Statute Law (Repeals) Bill – Second Reading –...", position: 3, note: nil, meta: {"pdf_info"=>{"filename"=>"FB 2012 10 31.pdf", "page"=>2, "line"=>19, "last_edited"=>"2012-10-30T19:32:09Z", "last_line"=>20}}>
-
-
-  
-
+    
