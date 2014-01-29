@@ -1,7 +1,14 @@
+require 'erb'
+
 task :environment do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
-  p "** #{env}"
+  if ENV["DATABASE_URL"] #hai heroku
+    config = YAML.load(ERB.new(File.read('config/database.yml')).result)
+  else
+    config = YAML::load(File.open('config/database.yml'))
+  end
+  ActiveRecord::Base.establish_connection(config[env])
+  puts "** #{env}"
 end
 
 namespace :db do
@@ -16,7 +23,12 @@ namespace :db do
   desc "Create the database defined in config/database.yml for the current RACK_ENV"
   task :create do
     env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-    config = YAML::load(File.open('config/database.yml'))[env]
+    if ENV["DATABASE_URL"] #hai heroku
+      dbconfig = YAML.load(ERB.new(File.read('config/database.yml')).result)
+    else
+      dbconfig = YAML::load(File.open('config/database.yml'))
+    end
+    config = dbconfig[env]
     connect(config)
     ActiveRecord::Base.connection.create_database(config['database'])
   end
@@ -24,7 +36,12 @@ namespace :db do
   namespace :create do
     desc "Create all the local databases defined in config/database.yml"
     task(:all) do
-      YAML::load(File.open('config/database.yml')).each_value do |config|
+      if ENV["DATABASE_URL"] #hai heroku
+        dbconfig = YAML.load(ERB.new(File.read('config/database.yml')).result)
+      else
+        dbconfig = YAML::load(File.open('config/database.yml'))
+      end
+      dbconfig.each_value do |config|
         next unless config['database']
         unless @config
           connect(config)
@@ -38,15 +55,30 @@ namespace :db do
   desc "Drops the database for the current RACK_ENV"
   task :drop do
     env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-    config = YAML::load(File.open('config/database.yml'))[env]
+    if ENV["DATABASE_URL"] #hai heroku
+      config = YAML.load(ERB.new(File.read('config/database.yml')).result)[env]
+    else
+      config = YAML::load(File.open('config/database.yml'))[env]
+    end
     connect(config)
-    ActiveRecord::Base.connection.drop_database config['database']
+    
+    begin
+      ActiveRecord::Base.connection.drop_database config['database']
+    rescue
+      puts "Couldn't create database: #{config.inspect}"
+    end
+    
   end
   
   namespace :drop do
     desc "Drops all the local databases defined in config/database.yml"
     task :all do
-      YAML::load(File.open('config/database.yml')).each_value do |config|
+      if ENV["DATABASE_URL"] #hai heroku
+        dbconfig = YAML.load(ERB.new(File.read('config/database.yml')).result)
+      else
+        dbconfig = YAML::load(File.open('config/database.yml'))
+      end
+      dbconfig.each_value do |config|
         next unless config['database']
         unless @config
           connect(config)

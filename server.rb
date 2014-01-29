@@ -2,19 +2,36 @@ require 'sinatra'
 require 'active_record'
 require 'haml'
 require 'ri_cal'
+require 'erb'
 
-require "./models/calendar_day"
-require "./models/time_block"
-require "./models/business_item"
+require './models/calendar_day'
+require './models/time_block'
+require './models/business_item'
+require './models/speaker_list'
 
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
-  ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[env])
+  if ENV["DATABASE_URL"] #hai heroku
+    config = YAML.load(ERB.new(File.read('config/database.yml')).result)
+  else
+    config = YAML::load(File.open('config/database.yml'))
+  end
+  ActiveRecord::Base.establish_connection(config[env])
 end
 
 helpers do
   def get_pdf_scope(filename)
-    days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
+    postgres = `postgres --version`
+    matches = postgres.scan /(\d+.\d+.\d+)/
+    version = matches.flatten.first.split(".")
+    days = []
+    if version[0] > 8 and version[1] > 2
+      # 9.3.x or better? Great, use the full json query syntax
+      days = CalendarDay.where("meta->'pdf_info'->>'filename' = ?", "#{filename}").order("date asc")
+    else
+      # ah, ok - workaround time. This could go wrong - it might pickup subobjects with the matching filename
+      days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
+    end
     unless days.empty?
       [days.first.date, days.last.date]
     else
@@ -33,41 +50,40 @@ get '/' do
   haml :index
 end
 
+get '/index.txt' do  
+  content_type :text
+  "text output here"
+end
+
 get '/index.json' do  
   content_type :json
-  CalendarDay.all(:order => "date desc", :limit => 10).to_json
+  CalendarDay.order("date desc").limit(10).to_json
 end
 
 get '/index.xml' do  
   content_type :xml
-  CalendarDay.all(:order => "date desc", :limit => 10).to_xml
+  CalendarDay.order("date desc").limit(10).to_xml
 end
 
-get '/rss' do
-  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
+get '/index.rss' do
+  @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :rss
 end
 
-get '/opml' do
-  @calendar_days = CalendarDay.all(:order => "date desc", :limit => 10)
+get '/index.opml' do
+  @calendar_days = CalendarDay.order("date desc").limit(10)
   builder :opml
 end
 
-get '/cal' do
-
+get '/index.ics' do
+  content_type 'text/calendar'
   if params[:limit].to_i.between?(1, 20)
   	limit = params[:limit]
   else
   	limit = 4
   end
   	
-  sitting_days = CalendarDay.all(:order => "date desc", :limit => limit)
-  
-  if params.has_key?("ics") # will respond to cal?ics
-    content_type 'text/calendar'
-  else
-  	content_type 'text/plain'
-  end
+  sitting_days = CalendarDay.order("date desc").limit(limit)
 
 ical_content = RiCal.Calendar { |ical|
 sitting_days.each { |sitting_day|
@@ -91,7 +107,7 @@ sitting_days.each { |sitting_day|
 
 end
 
-get "/date/:date/?" do
+get "/:date.json" do
   content_type :json
   unless params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
     halt 403, {:error => "need to supply a date in the format yyyy-mm-dd"}.to_json
@@ -102,6 +118,12 @@ get "/date/:date/?" do
     halt 404, {:error => "no data for supplied date #{params[:date]}"}.to_json
   end
   day.to_json
+end
+
+get "/:date" do
+  if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
+    "html for #{params[:date]}"
+  end
 end
 
 get "/edit-mockup" do
@@ -122,7 +144,7 @@ get "/pdf/:filename" do
 end
 
 get '/editor' do  
-  @calendar_days_json = CalendarDay.all(:order => :date.desc, :limit => 10).to_json
+  @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
   @hulk = true
   haml :editor
 end
@@ -131,3 +153,4 @@ get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
 end
+

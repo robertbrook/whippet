@@ -10,6 +10,8 @@ gem 'json', '~> 1.7.7'
 gem 'rake'
 gem 'haml', :require => 'haml'
 gem 'ri_cal'
+gem 'rspec'
+gem 'diffable'
 
 group :production do
   ruby '1.9.3'
@@ -21,7 +23,6 @@ group :development do
 end
 
 group :test do
-  gem 'rspec'
   gem 'mocha'
   gem 'simplecov', '0.7.1'
   gem 'rack-test'

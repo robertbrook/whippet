@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 
 ENV['RACK_ENV'] = 'test'
 
@@ -12,48 +12,50 @@ end
  
 describe "TheServer" do
   
-  context "when asked for /cal" do
+  context "when asked for /index.ics" do
     it "should not give a blank response" do
-      get "/cal"
-      last_response.should_not eq ""
-    end
-    
-    it "should give an HTTP OK" do
-      get "/cal"
-      last_response.should be_ok
-    end
-    
-    it "should generate output with MIME type text/plain" do
-      get "/cal"      
-      last_response.header['Content-Type'].should include 'text/plain'
-    end
-  end
-  
-  context "when asked for /cal?ics" do
-    it "should not give a blank response" do
-      get "/cal?ics"
-      last_response.should_not eq ""
+      pending("requires test for non-blank response")
     end
     
     it "should generate output with MIME type text/calendar" do
-      get "/cal?ics"      
+      get "/index.ics"      
       last_response.header['Content-Type'].should include 'text/calendar'
     end
   end
   
-  context "when asked for the URL /2013/03/27" do
-    it "should have a link to the PDF"
-      
-    it "should have a link to the Lords calendar"
+    context "when asked for /index.txt" do
+    it "should not give a blank response" do
+      pending("requires test for non-blank response")
+#       get "/index.ics"
+#       last_response.should_not eq ""
+    end
+    
+    it "should generate output with MIME type text/plain" do
+      get "/index.txt"      
+      last_response.header['Content-Type'].should include 'text/plain'
+    end
+  end
+  
+  context "when asked for the URL /2013-03-27" do
+    it "should have a link to the PDF" do
+      pending("requires populated route for URL")
+    end
+        
+    it "should have a link to the Lords calendar" do 
+      pending("requires view for date page in HTML")
+    end
   end
     
   context "when running a search for 'Regulations'" do  
-    it "should return these results"
+    it "should return these results" do 
+      pending("requires search function and results view")
+    end
   end
     
   context "when running a search for 'Lord McNally'" do
-    it "should return these results"
+    it "should return these results" do 
+      pending("requires search function and results view")
+    end
     
-    it "should return one result only"
   end
 end

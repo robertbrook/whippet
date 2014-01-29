@@ -5,6 +5,11 @@ class TimeBlock < ActiveRecord::Base
   has_many :business_items, :dependent => :destroy
   has_one :speaker_list
   
+  include Diffable
+  set_excluded_fields :meta, :sitting_day_id
+  set_unique_within_group :ident
+  set_conditional_fields :meta
+  
   def place
     title.match(/Business (?:[a-z]+ )+((?:[A-Z][a-z]+ )+)/)[1].strip
   end
