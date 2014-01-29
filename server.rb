@@ -25,11 +25,12 @@ helpers do
     matches = postgres.scan /(\d+.\d+.\d+)/
     version = matches.flatten.first.split(".")
     days = []
-    if version[0] > 8 and version[1] > 2
+    if version[0].to_i > 8 and version[1].to_i > 2
       # 9.3.x or better? Great, use the full json query syntax
       days = CalendarDay.where("meta->'pdf_info'->>'filename' = ?", "#{filename}").order("date asc")
     else
       # ah, ok - workaround time. This could go wrong - it might pickup subobjects with the matching filename
+      # hmm. I should rip this off.
       days = CalendarDay.where("meta::text like ?", %Q|%"filename":"#{filename}"%|).order("date asc")
     end
     unless days.empty?
@@ -107,6 +108,17 @@ sitting_days.each { |sitting_day|
 
 end
 
+get "/search.?:format?" do
+  unless params[:q].empty?
+    items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
+    @items = items
+    @format = params[:format]
+    haml :search
+  else
+    "sorry: I need something to search for"
+  end
+end
+
 get "/:date.json" do
   content_type :json
   unless params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
@@ -120,6 +132,20 @@ get "/:date.json" do
   day.to_json
 end
 
+# get "/search/:search_text.xml" do
+#   content_type :xml
+#   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+#   items.to_xml
+# end
+# 
+# get "/search/:search_text.json" do
+#   content_type :json
+#   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
+#   items.to_json
+# end
+
+
+
 get "/:date" do
   if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
     "html for #{params[:date]}"
@@ -132,6 +158,7 @@ get "/edit-mockup" do
     @day = CalendarDay.where(:date => Time.parse(@date.strftime("%Y-%m-%d 00:00:00Z"))).first
   else
     @day = SittingDay.first
+    p = SittingDay.first
     @date = @day.date
   end
   @editing = true

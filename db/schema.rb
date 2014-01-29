@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131024140534) do
+ActiveRecord::Schema.define(version: 20131119183125) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,14 +40,15 @@ ActiveRecord::Schema.define(version: 20131024140534) do
   add_index "calendar_days", ["ident"], name: "index_calendar_days_on_ident", using: :btree
 
   create_table "recesses", force: true do |t|
-    t.string "name"
-    t.date   "start_date"
-    t.date   "finish_date"
-    t.json   "meta"
+    t.string  "name"
+    t.date    "start_date"
+    t.date    "finish_date"
+    t.json    "meta"
+    t.integer "year"
   end
 
   create_table "sitting_fridays", force: true do |t|
-    t.date "sitting_friday"
+    t.date "date"
     t.json "meta"
   end
 

@@ -4,35 +4,38 @@
     %meta{:charset => "utf-8"}
     %title Lords Whip
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1.0"}
-    %script{:src => "js/jquery.js"}
-    %script{:src => "js/bootstrap.min.js"}
+    %script{:src => "/js/jquery.js"}
+    %script{:src => "/js/bootstrap.min.js"}
     - if @hulk
-      %script{:src => "js/hulk.min.js"}
-    %link{:href => "css/bootstrap.min.css", :rel => "stylesheet"}
+      %script{:src => "/js/hulk.min.js"}
+    %link{:href => "/css/bootstrap.min.css", :rel => "stylesheet"}
     %style
-      body {padding-top:30px;border-left:3px solid crimson;}
+      body {padding:30px 0px;}
     - if @editing
       %style
         div#editor {width: 50%; float: left; clear: left; margin-right: 8%;}
         canvas {position: absolute; left: 0}
-      %link{:href => "css/viewer.css", :rel => "stylesheet", :media => "screen"}
-      %script{:src => "js/pdfjs/shared/util.js"}
-      %script{:src => "js/pdfjs/shared/colorspace.js"}
-      %script{:src => "js/pdfjs/shared/pattern.js"}
-      %script{:src => "js/pdfjs/shared/function.js"}
-      %script{:src => "js/pdfjs/shared/annotation.js"}
-      %script{:src => "js/pdfjs/display/api.js"}
-      %script{:src => "js/pdfjs/display/metadata.js"}
-      %script{:src => "js/pdfjs/display/canvas.js"}
-      %script{:src => "js/textlayerbuilder.js"}
-      %script{:src => "js/viewer.js"}
-      %script{:src => "js/pdfjs/display/font_loader.js"}
+      %link{:href => "/css/viewer.css", :rel => "stylesheet", :media => "screen"}
+      %script{:src => "/js/pdfjs/shared/util.js"}
+      %script{:src => "/js/pdfjs/shared/colorspace.js"}
+      %script{:src => "/js/pdfjs/shared/pattern.js"}
+      %script{:src => "/js/pdfjs/shared/function.js"}
+      %script{:src => "/js/pdfjs/shared/annotation.js"}
+      %script{:src => "/js/pdfjs/display/api.js"}
+      %script{:src => "/js/pdfjs/display/metadata.js"}
+      %script{:src => "/js/pdfjs/display/canvas.js"}
+      %script{:src => "/js/textlayerbuilder.js"}
+      %script{:src => "/js/viewer.js"}
+      %script{:src => "/js/pdfjs/display/font_loader.js"}
       %script
-        PDFJS.workerSrc = 'js/pdfjs/worker_loader.js';
+        PDFJS.workerSrc = '/js/pdfjs/worker_loader.js';
   %body
     .container
+      .alert.alert-info.alert-dismissable
+        %button.close{"aria-hidden" => "true", "data-dismiss" => "alert", type: "button"} ×
+        Information on this site is from PDFs previously made public on the web by <a href='http://www.lordswhips.org.uk'><b>The Government Whips' Office</b></a>, part of the <a href='https://www.gov.uk/government/organisations/cabinet-office'><b>Cabinet Office</a>'s</b> <a href='https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords'><b>Government in Parliament Group</b></a>. Source code for this site is available at <a href="https://github.com/robertbrook/whippet"><b>github.com/robertbrook/whippet</b></a>.
       .navbar.navbar-default{role: "navigation"}
-        .navbar-header
+        %nav.navbar-header
           %button.navbar-toggle{"data-target" => ".navbar-ex1-collapse", "data-toggle" => "collapse", type: "button"}
             %span.sr-only Toggle navigation
             %span.icon-bar
@@ -41,17 +44,16 @@
           %a.navbar-brand{href: "/"} Lords Whip
 
         .collapse.navbar-collapse.navbar-ex1-collapse
-          %form.navbar-form.navbar-right{role: "search"}
+          %form.navbar-form.navbar-right{role: "search", action: "/search"}
             .form-group
-              %input.form-control.disabled{type: "text"}
+              %input.form-control{type: "text", name: "q", value: @params['q']}
             %button.btn.btn-default{type: "submit"} Search
           %ul.nav.navbar-nav.pull-right
             %li
-              %a{href: "/edit-mockup"} Editor preview
+              %a{href: "/edit-mockup"} Editor
           
       .clearfix
         =yield
-      %p
-        Information on this site is from PDFs previously made public on the web by <a href="http://www.lordswhips.org.uk">The Government Whips' Office</a>, part of the <a href="https://www.gov.uk/government/organisations/cabinet-office">Cabinet Office</a>'s <a href="https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords">Government in Parliament Group</a>.<br>
-        Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
+
+        
 

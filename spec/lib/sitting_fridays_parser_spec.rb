@@ -1,24 +1,24 @@
 # encoding: utf-8
 
 require './spec/rspec_helper.rb'
-require './lib/sitting_fridays_scraper'
+require './lib/sitting_fridays_parser'
 
-describe SittingFridaysScraper do
+describe SittingFridaysParser do
   before(:all) do
-    @scraper = SittingFridaysScraper.new()
+    @parser = SittingFridaysParser.new()
   end
   
   describe "when creating a new instance" do 
-    it "should return a SittingFridaysScraper" do
-      @scraper.should be_an_instance_of(SittingFridaysScraper)
+    it "should return a SittingFridaysParser" do
+      @parser.should be_an_instance_of(SittingFridaysParser)
     end
     
     it "should know which page to look at" do
-      @scraper.page.should eq "http://www.lordswhips.org.uk/sitting-fridays"
+      @parser.page.should eq "http://www.lordswhips.org.uk/sitting-fridays"
     end
     
     it "should set sitting_days to an empty array" do
-      @scraper.sitting_days.should eq []
+      @parser.sitting_days.should eq []
     end
   end
   
@@ -40,10 +40,10 @@ describe SittingFridaysScraper do
       end
       
       it "should return a list of dates in sitting_days" do
-        result = @scraper.scrape()
-        @scraper.sitting_days.should eq (
+        result = @parser.scrape()
+        @parser.sitting_days.should eq (
           ["5 July 2013", "19 July 2013", "25 October 2013", "8 November 2013", "6 December 2013"])
-        result.should eq @scraper.sitting_days
+        result.should eq @parser.sitting_days
       end
     end
     
@@ -59,10 +59,23 @@ describe SittingFridaysScraper do
       end
       
       it "should return a list of dates in sitting_days" do
-        @scraper.scrape()
-        @scraper.sitting_days.should eq (
+        @parser.scrape()
+        @parser.sitting_days.should eq (
           ["5 July 2013", "19 July 2013", "25 October 2013"])
       end
+    end
+  end
+  
+  context "when asked to parse the data" do
+    before(:each) do
+      @parser.expects(:scrape).returns(["5 July 2013", "25 October 2013", "8 November 2013"])
+    end
+    
+    it "should write each found date to the database" do
+      SittingFriday.expects(:find_or_create_by).with(:date => "5 July 2013")
+      SittingFriday.expects(:find_or_create_by).with(:date => "25 October 2013")
+      SittingFriday.expects(:find_or_create_by).with(:date => "8 November 2013")
+      @parser.parse
     end
   end
 end

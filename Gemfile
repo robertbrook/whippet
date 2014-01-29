@@ -2,6 +2,7 @@ source "http://rubygems.org"
 
 gem 'sinatra'
 gem 'pdf-reader'
+gem 'pdf-reader-markup'
 gem 'rest-client'
 gem 'nokogiri'
 gem 'activerecord', '~> 4.0.0'

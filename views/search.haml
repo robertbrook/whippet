@@ -1,0 +1,18 @@
+.page-header
+  %h1
+    =params[:q]
+    %small
+      - if @items.length > 0
+        Search results
+      - else
+        No results found
+
+- @items.each do |item|
+  %p.lead<
+    =item.description
+    %br
+    =item.time_block.title
+    &nbsp;
+    %a=item.meta['pdf_info']['filename']
+    
+    

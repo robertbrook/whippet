@@ -1,9 +1,9 @@
 #encoding: utf-8
 
 require './spec/rspec_helper.rb'
-require './lib/pdf_page'
+require 'pdf/reader/markup'
 
-describe PdfPage do
+describe "PdfReaderMarkup" do
   context "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before(:all) do
       @pdf = PDF::Reader.new("./data/FB-TEST.pdf")
@@ -11,11 +11,11 @@ describe PdfPage do
     
     context "when asked to load page 1" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages.first)
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages.first)
       end
       
       it "should return the expected number of lines" do
-        @pdf_page.lines.count.should eq 31
+        @pdf_page.lines.count.should eq 32
       end
       
       it "should return both the original plain text and the html markup for each line" do
@@ -41,7 +41,7 @@ describe PdfPage do
     
     context "when asked to load page 3" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[2])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[2])
       end
       
       it "should find the italic text correctly" do
@@ -56,11 +56,11 @@ describe PdfPage do
     
     context "when asked to load page 7" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[6])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[6])
       end
       
       it "should cope with the information text"  do
-        line = @pdf_page.lines[2]
+        line = @pdf_page.lines[3]
         line.should eq "  This document informally advertises the business which the Government anticipates the House will\n"
       end
     end
@@ -73,7 +73,7 @@ describe PdfPage do
     
     context "when asked to load page 1" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages.first)
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages.first)
       end
       
       it "should return both the original plain text and the html markup for each line" do
@@ -96,7 +96,7 @@ describe PdfPage do
     
     context "when asked to load page 2" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[1])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[1])
       end
       
       it "should return both the original plain text and the html markup for each line" do
@@ -116,7 +116,7 @@ describe PdfPage do
     
     context "when asked to load page 3" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[2])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[2])
       end
       
       it "should return both the original plain text and the html markup for each line" do
@@ -133,7 +133,7 @@ describe PdfPage do
     
     context "when asked to load page 4" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[3])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[3])
       end
       
       it "should return text and html markup" do
@@ -144,7 +144,7 @@ describe PdfPage do
     
     context "when asked to load page 5" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[4])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[4])
       end
       
       it "should return the plain text and html markup for each line" do
@@ -155,7 +155,7 @@ describe PdfPage do
     
     context "when asked to load page 6" do
       before(:all) do
-        @pdf_page = PdfPage.new(@pdf.pages[5])
+        @pdf_page = PDF::Reader::MarkupPage.new(@pdf.pages[5])
       end
       
       it "should return both the original plain text and the html markup for each line" do

@@ -5,6 +5,7 @@ require './models/calendar_day'
 require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
+require 'date'
 
 describe CalendarDay do
   context "in general" do
@@ -40,6 +41,39 @@ describe CalendarDay do
       sit = SittingDay.new
       sit.time_blocks = [TimeBlock.new]
       sit.has_time_blocks?.should eq true
+    end
+  end
+  
+  context "when asked to check whether a date is a Non Sitting Friday" do
+    it "should return true if given the date '2013-07-12'" do
+      CalendarDay.non_sitting_friday?('2013-07-12').should eq true
+    end
+
+    it "should return false if given an invalid date" do
+      CalendarDay.non_sitting_friday?("invalid").should eq false
+    end
+    
+    it "should return false if the date is not a Friday" do
+      CalendarDay.non_sitting_friday?("Monday 18 November 2013").should eq false
+    end
+    
+    it "should return false if the date is in the sitting_fridays table" do
+      result = mock("SittingFriday")
+      SittingFriday.expects(:find_by).with(:date => Date.parse("5 July 2013")).returns(result)
+      CalendarDay.non_sitting_friday?("5 July 2013").should eq false
+    end
+    
+    it "should return false if the date is recorded as a sitting day" do
+      result = mock("SittingDay")
+      SittingFriday.expects(:find_by).with(:date => Date.parse("5 July 2013")).returns(nil)
+      SittingDay.expects(:find_by).with(:date => Date.parse("5 July 2013")).returns(result)
+      CalendarDay.non_sitting_friday?("5 July 2013").should eq false
+    end
+    
+    it "should return true if given a Friday with no evidence to suggest it's a sitting day" do
+      SittingFriday.expects(:find_by).with(:date => Date.parse("12 July 2013")).returns(nil)
+      SittingDay.expects(:find_by).with(:date => Date.parse("12 July 2013")).returns(nil)
+      CalendarDay.non_sitting_friday?("12 July 2013").should eq true
     end
   end
   
@@ -471,10 +505,24 @@ end
 describe BusinessItem do
   context "when implying a name from a from a description" do
     it "should return an empty array if there are no names" do
-#       test_item = BusinessItem.new()
-#       test_item.description = "1. Oral questions (30 minutes)"
-#       test_item.names = []
-      pending("requires names array for Business Item")
+      test_item = BusinessItem.new()
+      test_item.description = "1. Oral questions (30 minutes)"
+      test_item.names.should eq []
     end
+    
+    it "should return an array of one name where the name is 'Lord McNally'" do
+      pending("calculating names from description")
+      test_item = BusinessItem.new()
+      test_item.description = "2. Offender Rehabilitation Bill [HL] – Committee (Day 1) – Lord McNally"
+      test_item.names.should eq ["Lord McNally"]
+    end
+    
+    it "should return an array of one name where the name is 'Baroness Stowell of Beeston'" do
+      pending("calculating names from description")
+      test_item = BusinessItem.new()
+      test_item.description = "2. Marriage (Same-sex couples) Bill – Second Reading – Baroness Stowell of Beeston"
+      test_item.names.should eq ["Lord McNally"]
+    end
+    
   end
 end

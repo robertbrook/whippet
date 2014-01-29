@@ -1,4 +1,5 @@
 require "pdf/reader"
+require "pdf/reader/markup"
 require "nokogiri"
 require "active_record"
 
@@ -6,9 +7,8 @@ require "./models/calendar_day"
 require "./models/business_item"
 require "./models/time_block"
 require "./models/speaker_list"
-require "./lib/pdf_page"
 
-class Parser
+class PdfParser
   #prepare to ingest a single pdf
   def initialize(target_pdf)
     @pdf = PDF::Reader.new(target_pdf)
@@ -26,7 +26,7 @@ class Parser
     pages.each do |page|
       break if @fin
       
-      pdf_page = PdfPage.new(page)
+      pdf_page = PDF::Reader::MarkupPage.new(page)
       pdf_page.lines.each_with_index do |line, line_no|
         html = pdf_page.formatted_lines[line_no]
         

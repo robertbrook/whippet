@@ -1,17 +1,17 @@
 # encoding: utf-8
 
 require './spec/rspec_helper.rb'
-require './lib/parser'
+require './lib/pdf_parser'
 
-describe Parser do
+describe PdfParser do
   context "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before(:all) do
-      @parser = Parser.new("./data/FB-TEST.pdf")
+      @parser = PdfParser.new("./data/FB-TEST.pdf")
     end
     
     describe "in general" do
       it "should return a Parser" do
-        @parser.should be_an_instance_of(Parser)
+        @parser.should be_an_instance_of(PdfParser)
       end
     end
     
@@ -192,7 +192,7 @@ describe Parser do
   
   context "when given the Forthcoming Business for 9th May 2013 PDF as FB-TEST-2.PDF" do
     before(:all) do
-      @parser = Parser.new("./data/FB-TEST-2.pdf")
+      @parser = PdfParser.new("./data/FB-TEST-2.pdf")
     end
     
     describe "when asked to process the document" do
@@ -236,10 +236,10 @@ describe Parser do
   
   context "when given consecutive Forthcoming Business documents where one overrides the other" do
     before(:all) do
-      @parser = Parser.new("./data/FB 2013 03 13.pdf")
+      @parser = PdfParser.new("./data/FB 2013 03 13.pdf")
       CalendarDay.delete_all
       @parser.process()
-      @parser = Parser.new("./data/FB 2013 03 20 r.pdf")
+      @parser = PdfParser.new("./data/FB 2013 03 20 r.pdf")
       @parser.process()
     end
     
@@ -302,10 +302,10 @@ describe Parser do
   
   context "when given consecutive Forthcoming Business documents in reverse order" do
     before(:all) do
-      @parser = Parser.new("./data/FB 2013 03 20 r.pdf")
+      @parser = PdfParser.new("./data/FB 2013 03 20 r.pdf")
       CalendarDay.delete_all
       @parser.process()
-      @parser = Parser.new("./data/FB 2013 03 13.pdf")
+      @parser = PdfParser.new("./data/FB 2013 03 13.pdf")
       @parser.process()
     end
     

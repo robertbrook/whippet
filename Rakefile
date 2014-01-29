@@ -13,31 +13,33 @@ namespace :spec do
     Rake::Task["db:create"].invoke
     Rake::Task["db:migrate"].invoke
   end
-end
-
-desc "Run tests with SimpleCov"
-task :spec do |t|
-  Rake::Task["spec:prepare"].invoke
+  
+  desc "Run tests with SimpleCov"
   RSpec::Core::RakeTask.new(:cov) do |t|
+    Rake::Task["spec:prepare"].invoke
     ENV["COVERAGE"] = "1"
   end
+  
+  desc "Run tests with SimpleCov and open generated index"
+  RSpec::Core::RakeTask.new(:covopen) do |t|
+    Rake::Task["spec:cov"].invoke
+    `open ./coverage/index.html`
+  end
+  
+  
 end
-
 
 RSpec::Core::RakeTask.new(:spec)
 
 task :default => :spec
 
-desc "Run the rake spec task"
-task :test => [:spec]
-
 desc "Parse PDFs in data directory"
 task :puller => :environment do |t|
   report_env()
-  require "./lib/parser"
+  require "./lib/pdf_parser"
   
   Dir.glob('./data/*.pdf') do |pdf|
-    @parser = Parser.new(pdf)
+    @parser = PdfParser.new(pdf)
     @parser.process
     p pdf
   end
@@ -46,15 +48,36 @@ end
 desc "import a single pdf file"
 task :import_pdf_file=> :environment  do
   report_env()
-  require "./lib/parser"
+  require "./lib/pdf_parser"
   
   input_file = ENV['pdf']
   if input_file
-    parser = Parser.new(input_file)
+    parser = PdfParser.new(input_file)
     parser.process
   else
     p 'USAGE: rake import_pdf_file pdf=data/FB-TEST.pdf'
   end
+end
+
+desc "import recess dates from web"
+task :import_recess_dates => :environment do
+  require "./lib/recess_dates_parser"
+  parser = RecessDatesParser.new
+  parser.parse
+end
+
+desc "import Sitting Friday dates from web"
+task :import_sitting_fridays => :environment do
+  require "./lib/sitting_fridays_parser"
+  parser = SittingFridaysParser.new
+  parser.parse
+end
+
+desc "import Government Spokespersons from web"
+task :import_government_spokespersons => :environment do
+  require "./lib/government_spokespersons_parser"
+  parser = GovernmentSpokespersonsParser.new
+  parser.parse
 end
 
 desc "Show target URL"
@@ -63,10 +86,8 @@ task :target do
   require "nokogiri"
 
   forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/fb"))
-  target_link = forthcoming_business_page.css('a').detect {|link| link['href'].class == String and  link['href'].include? 'www.lordswhips.org.uk/download.axd?id='}
-  
-  
-  p URI::encode(target_link['href'])
+  target_link = forthcoming_business_page.xpath("//a[contains(@href,'download.axd?')]")
+  p 'http://www.lordswhips.org.uk' + target_link[0]['href']
 #io     = open(URI::encode(target_link[0]['href']))
 end
 

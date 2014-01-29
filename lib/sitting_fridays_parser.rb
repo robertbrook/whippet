@@ -1,12 +1,21 @@
 require 'rest-client'
 require 'nokogiri'
+require 'active_record'
+require "./models/sitting_friday"
 
-class SittingFridaysScraper
+class SittingFridaysParser
   attr_reader :sitting_days, :page
   
   def initialize
     @page = "http://www.lordswhips.org.uk/sitting-fridays"
     @sitting_days = []
+  end
+  
+  def parse
+    sitting_days = scrape()
+    sitting_days.each do |day|
+      SittingFriday.find_or_create_by(:date => day)
+    end
   end
   
   def scrape

@@ -46,6 +46,9 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
+    pdf-reader-markup (0.0.1)
+      nokogiri
+      pdf-reader (~> 1.3)
     pg (0.17.1)
     rack (1.5.2)
     rack-protection (1.5.2)
@@ -96,6 +99,7 @@ DEPENDENCIES
   mocha
   nokogiri
   pdf-reader
+  pdf-reader-markup
   pg
   rack-test
   rake
