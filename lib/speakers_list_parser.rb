@@ -4,19 +4,19 @@ require 'active_record'
 require "./models/speakers_list"
 
 class SpeakersListParser
-  # attr_reader :sitting_days, :page
+   attr_reader :speakers_lists, :page
 #   
-#   def initialize
-#     @page = "http://www.lordswhips.org.uk/sitting-fridays"
-#     @sitting_days = []
-#   end
+  def initialize
+    @page = "http://www.lordswhips.org.uk/speakers-lists"
+    @speakers_lists = []
+  end
 #   
-#   def parse
-#     sitting_days = scrape()
-#     sitting_days.each do |day|
-#       SittingFriday.find_or_create_by(:date => day)
-#     end
-#   end
+  def parse
+    sitting_days = scrape()
+    sitting_days.each do |day|
+      SittingFriday.find_or_create_by(:date => day)
+    end
+  end
 #   
 #   def scrape
 #     response = RestClient.get(@page)
