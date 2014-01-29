@@ -23,5 +23,23 @@ describe SpeakersListParser do
       @parser.speakers_lists.should eq []
     end
     
-    end
+  end
+  
+  describe "when attempting to scrape a Speakers List page" do
+    
+    it "should time out after failing to get a reponse after three seconds"
+    
+    
+  end
+  
+  describe "after successfully scraping a Speakers List page" do
+  
+    it "should return an array of target URLs" 
+    
+    it "should follow each target URL"
+    
+    it "should parse from each target URL"
+  
+  end
+  
 end

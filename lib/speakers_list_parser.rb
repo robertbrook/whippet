@@ -5,31 +5,32 @@ require "./models/speakers_list"
 
 class SpeakersListParser
    attr_reader :speakers_lists, :page
-#   
+  
   def initialize
     @page = "http://www.lordswhips.org.uk/speakers-lists"
     @speakers_lists = []
   end
-#   
+   
   def parse
-    sitting_days = scrape()
-    sitting_days.each do |day|
-      SittingFriday.find_or_create_by(:date => day)
-    end
+    speakers_lists = scrape()
+    # speakers_lists.each do |day|
+#       SittingFriday.find_or_create_by(:date => day)
+#     end
   end
-#   
-#   def scrape
-#     response = RestClient.get(@page)
-#     doc = Nokogiri::HTML(response.body)
-#     paras = doc.xpath("//div[@id='mainmiddle']/p")
-#     paras.each do |para|
-#       if para.text.strip =~ /.*The House will sit/
+   
+  def scrape
+    response = RestClient.get(@page)
+    doc = Nokogiri::HTML(response.body)
+    paras = doc.xpath("//a[@class='smbtnprint toright']/")
+    paras.each do |para|
+      p para
+      # if para.text.strip =~ /.*The House will sit/
 #         @sitting_days = extract_sitting_days(para.text)
 #         break
 #       end
-#     end
-#     return @sitting_days
-#   end
+    end
+    return @speakers_lists
+  end
 #   
 #   private
 #   
