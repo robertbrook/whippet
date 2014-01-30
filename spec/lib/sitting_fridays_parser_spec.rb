@@ -64,6 +64,47 @@ describe SittingFridaysParser do
           ["5 July 2013", "19 July 2013", "25 October 2013"])
       end
     end
+    
+    describe "when finding the page has a list of dates with no year specified" do
+      before(:each) do
+        html = %Q|<div class="rightDotBorder">
+
+                <div id="mainmiddle" class="Tgrayborder">
+                    
+
+<h1>Sitting Fridays</h1>
+
+    <div class="normalcontent">
+        <p>The House will sit on the following Fridays: &nbsp;24 January, 7 February.<br />
+<br />
+Further sitting Fridays may be advertised in due course.<br />
+<br />
+<strong style="margin: 0px; padding: 0px; border: 0px; color: rgb(51, 51, 51);">ANELAY OF ST JOHNS</strong><br style="color: rgb(51, 51, 51);" />
+<span style="color: rgb(51, 51, 51);">15 January 2013</span></p>
+
+    </div>
+    <div class="clr20"></div>
+    <div style="border-bottom: solid 1px #ccc;"></div>
+    <div class="clr20"></div>
+
+
+
+                </div>
+                <!--end of mainright-->
+            </div>
+            <!--end of rightDotBorder-->|
+        
+        @response2 = mock("Next Fake Response")
+        @response2.stubs(:body).returns(html)
+        RestClient.expects(:get).returns(@response2)
+      end
+      
+      it "should return a list of dates in sitting_days with the assumption that the year is the current year" do
+        @parser.scrape()
+        @parser.sitting_days.should eq (
+          ["24 January 2014", "7 February 2014"])
+      end
+    end
   end
   
   context "when asked to parse the data" do
