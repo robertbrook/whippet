@@ -17,9 +17,11 @@ class BusinessItem < ActiveRecord::Base
   end
   
   def names
-#     extract names from description and populate return
-#     ["Where's the names then?"]
-    []
+    if description.index('–')
+      [description.split(" – ")[-1]]
+    else
+      []
+    end
   end
   
 end

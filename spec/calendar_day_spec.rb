@@ -511,18 +511,25 @@ describe BusinessItem do
     end
     
     it "should return an array of one name where the name is 'Lord McNally'" do
-      pending("calculating names from description")
       test_item = BusinessItem.new()
       test_item.description = "2. Offender Rehabilitation Bill [HL] – Committee (Day 1) – Lord McNally"
       test_item.names.should eq ["Lord McNally"]
     end
     
     it "should return an array of one name where the name is 'Baroness Stowell of Beeston'" do
-      pending("calculating names from description")
       test_item = BusinessItem.new()
       test_item.description = "2. Marriage (Same-sex couples) Bill – Second Reading – Baroness Stowell of Beeston"
-      test_item.names.should eq ["Lord McNally"]
+      test_item.names.should eq ["Baroness Stowell of Beeston"]
     end
+    
+    it "should return an array of two names where the two names are present" do
+      pending "manage splitting on forward slash, time limit in parens"
+      test_item = BusinessItem.new()
+      test_item.description = "QSD on the effectiveness of the Charity Commission – Baroness Barker/Lord Wallace of Saltaire (time limit 1 hour)"
+      test_item.names.should eq ["Baroness Barker", "Lord Wallace of Saltaire"]
+    end
+    
+    
     
   end
 end
