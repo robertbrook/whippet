@@ -9,17 +9,17 @@ describe SpeakersListParser do
     @parser = SpeakersListParser.new()
   end
   
-  describe "when creating a new instance" do 
+  describe "when making a new Speakers List parser" do 
   
-    it "should return a SpeakersListParser" do
+    it "should be a Speakers List parser" do
       @parser.should be_an_instance_of(SpeakersListParser)
     end
     
-    it "should know which page to look at" do
+    it "should look at the Speakers List URL" do
       @parser.page.should eq "http://www.lordswhips.org.uk/speakers-lists"
     end
     
-    it "should set speakers_list to an empty array" do
+    it "should start with an empty list of Speakers Lists" do
       @parser.speakers_lists.should eq []
     end
     
@@ -27,8 +27,9 @@ describe SpeakersListParser do
   
   describe "when attempting to scrape a Speakers List page" do
     
-    it "should time out after failing to get a reponse after three seconds"
-    
+    it "should time out after failing to get a reponse after three seconds" do 
+      pending "writing some actual code"  
+    end
     
   end
   
