@@ -39,7 +39,8 @@ describe "The server" do
   context "when asked for the URL /2013-03-27" do
     it "should have a link to the PDF" do
       pending("requires populated route for URL")
-#       get "/2013-03-27"
+      # get "/2013-03-27"
+#       last_response.body.should include 'PDF LINK'
     end
         
     it "should have a link to the Lords calendar" do 
