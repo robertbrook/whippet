@@ -39,27 +39,41 @@ describe "The server" do
   context "when asked for the URL /2013-03-27" do
     it "should have a link to the PDF" do
       pending("requires populated route for URL")
-      # get "/2013-03-27"
-#       last_response.body.should include 'PDF LINK'
+      get "/2013-03-27"
+      last_response.body.should include 'PDF LINK'
     end
         
     it "should have a link to the Lords calendar" do 
       pending("requires view for date page in HTML")
-#       get "/2013-03-27"
+      get "/2013-03-27"
     end
   end
     
   context "when running a search for 'Regulations'" do  
     it "should return these results" do 
       pending("requires search function and results view")
-#       get "/search/Regulations"
+      get "/search?q=Regulations"
+    end
+  end
+  
+  context "when running a search with one space" do  
+    it "should return no results" do 
+      get "/search?q=+"
+      last_response.body.should include '<h1>Try another search</h1>'
+    end
+  end
+  
+  context "when running a search with four spaces" do  
+    it "should return no results" do 
+      get "/search?q=++++"
+      last_response.body.should include '<h1>Try another search</h1>'
     end
   end
     
   context "when running a search for 'Lord McNally'" do
     it "should return these results" do 
       pending("requires search function and results view")
-#       get "/search/Lord%20McNally"
+      get "/search?q=Lord%20McNally"
 
     end
     
