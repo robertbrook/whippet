@@ -59,14 +59,14 @@ describe "The server" do
   context "when running a search with one space" do  
     it "should return no results" do 
       get "/search?q=+"
-      last_response.body.should include '<h1>Try another search</h1>'
+      last_response.body.should include '<small>No results found</small>'
     end
   end
   
   context "when running a search with four spaces" do  
     it "should return no results" do 
       get "/search?q=++++"
-      last_response.body.should include '<h1>Try another search</h1>'
+      last_response.body.should include '<small>sorry: I need something to search for</small>'
     end
   end
     

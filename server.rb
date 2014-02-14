@@ -109,13 +109,19 @@ sitting_days.each { |sitting_day|
 end
 
 get "/search.?:format?" do
-  unless params[:q].empty?
-    items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
-    @items = items
+  unless params[:q].empty? and params[:q] != '+'
+    @items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
     @format = params[:format]
+    if @items.length > 0
+      @subtitle = "Search results"
+    else
+      @subtitle = "No results found"
+    end
     haml :search
   else
-    "sorry: I need something to search for"
+    @items = []
+    @subtitle = "sorry: I need something to search for"
+    haml :search
   end
 end
 
@@ -143,8 +149,6 @@ end
 #   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
 #   items.to_json
 # end
-
-
 
 get "/:date" do
   if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
