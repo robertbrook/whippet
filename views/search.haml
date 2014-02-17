@@ -3,13 +3,15 @@
     =params[:q]
     %small<
       =@subtitle
-
-- @items.each do |item|
-  %p.lead<
-    =item.description
-    %br
-    =item.time_block.title
-    &nbsp;
-    %a=item.meta['pdf_info']['filename']
+      
+- if @items.length > 0
+  #search-results
+    - @items.each do |item|
+      %p.lead.search-result<
+        =item.description
+        %br
+        =item.time_block.title
+        &nbsp;
+        %a=item.meta['pdf_info']['filename']
     
     
