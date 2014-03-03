@@ -5,6 +5,7 @@ ENV['RACK_ENV'] = 'test'
 require './spec/rspec_helper.rb'
 require 'rack/test'
 require './server'
+require 'pp'
 
 def app
   Sinatra::Application
@@ -24,15 +25,32 @@ describe "The server" do
     end
   end
   
-    context "when asked for /index.txt" do
+  context "when asked for /index.txt" do
     it "should not give a blank response" do
        get "/index.txt"
-       last_response.should_not eq ""
+       last_response.body.should_not eq ""
     end
+    
     
     it "should generate output with MIME type text/plain" do
       get "/index.txt"      
       last_response.header['Content-Type'].should include 'text/plain'
+    end
+  end
+  
+  context "when asked for /editor" do
+    it "should not give a blank response" do
+       pending("fixing server response")
+       get "/editor"
+       last_response.body.should_not eq ""
+    end
+  end
+  
+  context "when asked for /edit-mockup" do
+    it "should not give a blank response" do
+       pending("fixing server response")
+       get "/edit-mockup"
+       last_response.body.should_not eq ""
     end
   end
   
