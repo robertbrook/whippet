@@ -22,14 +22,14 @@ class GovernmentSpokespersonsParser
   def scrape
     response = RestClient.get(@page)
     doc = Nokogiri::HTML(response.body)
-    paras = doc.xpath("//div[@id='mainmiddle']//p")
+    lines = doc.xpath("//div[@class='normalcontent']/p/*")
     
-#     //div[@class='normalcontent']/p/*
-    paras.each do |para|
-      if para.text.strip =~ /.*The House will sit/
-        @government_spokespersons = extract_government_spokespersons(para.text)
-        break
-      end
+    lines.each do |line|
+      @government_spokespersons << line.class
+      # if para.text.strip =~ /.*The House will sit/
+#         @government_spokespersons = extract_government_spokespersons(para.text)
+#         break
+#       end
     end
     return @government_spokespersons
   end
