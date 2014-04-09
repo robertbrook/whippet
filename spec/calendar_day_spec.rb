@@ -523,7 +523,6 @@ describe BusinessItem do
     end
     
     it "should return an array of two names where the two names are present" do
-      pending "manage splitting on forward slash, time limit in parens"
       test_item = BusinessItem.new()
       test_item.description = "QSD on the effectiveness of the Charity Commission – Baroness Barker/Lord Wallace of Saltaire (time limit 1 hour)"
       test_item.names.should eq ["Baroness Barker", "Lord Wallace of Saltaire"]
@@ -534,17 +533,15 @@ describe BusinessItem do
     context "when implying a time limit from a from a description" do
     
       it "should not identify a time limit when no time limit is present" do
-          pending "check for no time limit"
           test_item = BusinessItem.new()
           test_item.description = "2. Marriage (Same-sex couples) Bill – Second Reading – Baroness Stowell of Beeston"
           test_item.timelimit.should eq ""
       end
       
       it "should identify a time limit when a time limit is present" do
-          pending "extract time limit from parens"
           test_item = BusinessItem.new()
           test_item.description = "QSD on the effectiveness of the Charity Commission – Baroness Barker/Lord Wallace of Saltaire (time limit 1 hour)"
-          test_item.timelimit.should eq "1 hour"
+          test_item.timelimit.should eq "time limit 1 hour"
       end
 
     end

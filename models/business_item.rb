@@ -18,10 +18,23 @@ class BusinessItem < ActiveRecord::Base
   
   def names
     if description.index('–')
-      [description.split(" – ")[-1]]
+      names_found = [description.split(" – ")[-1]]
+      if description.index('/')
+        names_found = names_found[0].match(/^(.*)\/(.*)\s\(/)[1,2]
+      end
     else
-      []
+      names_found = []
     end
+    names_found
   end
   
+  def timelimit
+    timelimit_text = description.match(/\((.*)\)$/)
+    if timelimit_text
+      timelimit_text[1]
+    else
+      ""
+    end
+  end
+
 end
