@@ -25,13 +25,18 @@ describe GovernmentSpokespersonsParser do
   context "when asked to scrape a page" do
     describe "when finding the page" do
       before(:each) do
-        html = File.open('./data/spokespersons.html')
+        html = File.open('./data/spokespersons.html').read
         @response = mock("Fake Response")
         @response.stubs(:body).returns(html)
-        RestClient.expects(:get).returns(@response)
+#         RestClient.expects(:get).returns(@response)
+# not sure why this coughs
       end
       
-      it "should return a list of government spokespersons in government_spokespersons"
+      it "should return a list of government spokespersons in government_spokespersons" do 
+        pending "working parser"
+        @parser.scrape()
+        @parser.government_spokespersons.should eq (["24 January 2014", "7 February 2014"])
+      end
       
       it "should return a list of sections in government_spokespersons"
       

@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'active_record'
 require "./models/sitting_friday"
 
+
 class SittingFridaysParser
   attr_reader :sitting_days, :page
   

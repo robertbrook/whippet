@@ -13,32 +13,48 @@ class GovernmentSpokespersonsParser
   end
   
   def parse
-     government_spokespersons = scrape()
-    # government_spokespersons.each do |government_spokesperson|
-#        GovernmentSpokesperson.find_or_create_by(:name => government_spokesperson)
-#     end
+    government_spokespersons = scrape()
+    government_spokespersons.each do |day|
+      GovernmentSpokesperson.find_or_create_by(:date => day)
+    end
   end
 
   def scrape
-
-    page = Nokogiri::HTML(RestClient.get(@page))
-
-    page.css("div.normalcontent > p").children.each do |line|
-#       pp line
-
-      if line.name == 'strong'
-        @section = line.children.text
-      end      
-      
-      if @section
-        'in section: ' + @section
-      else
-        'not in a section: ' + line.text
+    response = RestClient.get(@page)
+    doc = Nokogiri::HTML(response.body)
+    paras = doc.xpath("//div[@id='mainmiddle']//p")
+    
+#     //div[@class='normalcontent']/p/*
+    paras.each do |para|
+      if para.text.strip =~ /.*The House will sit/
+        @government_spokespersons = extract_government_spokespersons(para.text)
+        break
       end
-      
     end
-       
+    return @government_spokespersons
   end
   
+  private
+  
+  def extract_government_spokespersons(text)
+    days = []
+    
+    if text.match(/Fridays in (\d+):/)
+      year = $1
+
+      excerpt_start = text.index("in #{year}") + "in #{year}".length + 1
+      excerpt_end = text.index(".")-1
+      spokesperson_text = text[excerpt_start..excerpt_end]
+    
+      spokesperson_text.split(",").each do |spokesperson|
+        spokespersons << "#{spokesperson.strip} #{year}"
+      end
+    else
+      year = Time.now.year
+      spokespersons << "dummy spokesperson #{year}"
+    end
+
+    spokespersons
+  end
   
 end
