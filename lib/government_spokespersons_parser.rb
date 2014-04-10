@@ -22,38 +22,24 @@ class GovernmentSpokespersonsParser
   def scrape
     response = RestClient.get(@page)
     doc = Nokogiri::HTML(response.body)
-    lines = doc.xpath("//div[@class='normalcontent']/p/*")
+    lines = doc.xpath("//div[@class='normalcontent']/p").text
+    puts lines
+    # elems.each do |elem|
+#       @government_spokespersons << extract_government_spokespersons(elem)
+#     end
     
-    lines.each do |line|
-      @government_spokespersons << line.class
-      # if para.text.strip =~ /.*The House will sit/
-#         @government_spokespersons = extract_government_spokespersons(para.text)
-#         break
-#       end
-    end
     return @government_spokespersons
   end
   
   private
   
-  def extract_government_spokespersons(text)
-    days = []
+  def extract_government_spokespersons(elem)
+    spokespersons = []
     
-    if text.match(/Fridays in (\d+):/)
-      year = $1
-
-      excerpt_start = text.index("in #{year}") + "in #{year}".length + 1
-      excerpt_end = text.index(".")-1
-      spokesperson_text = text[excerpt_start..excerpt_end]
-    
-      spokesperson_text.split(",").each do |spokesperson|
-        spokespersons << "#{spokesperson.strip} #{year}"
-      end
-    else
-      year = Time.now.year
-      spokespersons << "dummy spokesperson #{year}"
+    unless elem.name == "br"
+      spokespersons << elem
+    	
     end
-
     spokespersons
   end
   
