@@ -22,11 +22,13 @@ class GovernmentSpokespersonsParser
   def scrape
     response = RestClient.get(@page)
     doc = Nokogiri::HTML(response.body)
-    lines = doc.xpath("//div[@class='normalcontent']/p").text
-    puts lines
-    # elems.each do |elem|
+    section_chunks = doc.xpath("//div[@class='normalcontent']/p").text.split("\r\n\r\n")
+#     p lines.match(/^(\n)(.*)$/m)
+    section_chunks.each do |section_chunk|
+      bits = section_chunk.split("\r\n")
+      puts "\n\n" + bits[0] + " ARE " + bits[1..bits.size].join(" AND ")
 #       @government_spokespersons << extract_government_spokespersons(elem)
-#     end
+    end
     
     return @government_spokespersons
   end
@@ -35,11 +37,11 @@ class GovernmentSpokespersonsParser
   
   def extract_government_spokespersons(elem)
     spokespersons = []
-    
-    unless elem.name == "br"
-      spokespersons << elem
-    	
-    end
+#     
+#     unless elem.name == "br"
+#       spokespersons << elem
+#     	
+#     end
     spokespersons
   end
   
