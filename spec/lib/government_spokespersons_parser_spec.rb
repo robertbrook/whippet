@@ -22,20 +22,20 @@ describe GovernmentSpokespersonsParser do
     end
   end
   
-  context "when asked to scrape a page" do
+  context "when asked to scrape the local spokespersons page" do
     describe "when finding the page" do
       before(:each) do
         html = File.open('./data/spokespersons.html').read
-        @response = mock("Fake Response")
-        @response.stubs(:body).returns(html)
+#         @response = mock("Fake Response")
+#         @response.stubs(:body).returns(html)
 #         RestClient.expects(:get).returns(@response)
 # not sure why this coughs
       end
       
-      it "should return a list of government sections in government_spokespersons with 25 items" do 
+      it "should return a list of government sections with 25 items" do 
         pending "working parser"
         @parser.scrape()
-        expect(@parser.government_spokespersons.length).to eq(25)
+        expect(@parser.government_sections.length).to eq(25)
       end
       
       it "should return a list of government spokespersons in government_spokespersons including the section 'Leader of the House of Lords and Chancellor of the Duchy of Lancaster'" do 
