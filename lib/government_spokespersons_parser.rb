@@ -10,6 +10,7 @@ class GovernmentSpokespersonsParser
   def initialize
     @page = "http://www.lordswhips.org.uk/government-spokespersons"
     @government_spokespersons = []
+    @government_sections = []
   end
   
   def parse
@@ -26,11 +27,16 @@ class GovernmentSpokespersonsParser
 #     p lines.match(/^(\n)(.*)$/m)
     section_chunks.each do |section_chunk|
       bits = section_chunk.split("\r\n")
-      puts "\n\n" + bits[0] + " ARE " + bits[1..bits.size].join(" AND ")
+#       puts "\n\n" + bits[0] + " ARE " + bits[1..bits.size].join(" AND ")
+      @government_sections << bits[0].gsub(/\W$/,"")
 #       @government_spokespersons << extract_government_spokespersons(elem)
     end
     
     return @government_spokespersons
+  end
+  
+  def government_sections
+    return @government_sections
   end
   
   private
