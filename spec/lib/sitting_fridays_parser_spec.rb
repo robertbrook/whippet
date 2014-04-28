@@ -23,7 +23,7 @@ describe SittingFridaysParser do
   end
   
   context "when asked to scrape a page" do
-  pending("deal with text with no year present") do
+  pending("deal with text with no year present")
           describe "when finding the page has a list of dates with no year specified" do
       before(:each) do
         html = %Q|<div class="rightDotBorder">
@@ -53,18 +53,17 @@ Further sitting Fridays may be advertised in due course.<br />
             </div>
             <!--end of rightDotBorder-->|
         
-        @response = mock("Fake Response")
-        @response.stubs(:body).returns(html)
-        RestClient.expects(:get).returns(@response)
+       #  @response = mock("Fake Response")
+#         @response.stubs(:body).returns(html)
+#         RestClient.expects(:get).returns(@response)
       end
       
       it "should return a list of dates in sitting_days with the assumption that the year is the current year" do
-        
+        pending("squeeze whitespace")
         @parser.scrape()
-        @parser.sitting_days.should eq (
-          ["24 January 2014", "7 February 2014"])
+        expect(@parser.sitting_days).to eq(["24 January 2014", "7 February 2014"])
       end
-      end
+      
     end
     
     describe "when finding the page has a list of dates in the first paragraph" do

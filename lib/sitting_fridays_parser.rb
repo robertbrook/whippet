@@ -36,7 +36,7 @@ class SittingFridaysParser
   
   def extract_sitting_days(text)
     days = []
-    
+    p text
     if text.match(/Fridays in (\d+):/)
       year = $1
 
@@ -45,11 +45,19 @@ class SittingFridaysParser
       day_text = text[excerpt_start..excerpt_end]
     
       day_text.split(",").each do |day|
-        days << "#{day.strip} #{year}"
+        days << "#{day.strip!} #{year}"
       end
     else
       year = Time.now.year
-      days << "dummy day #{year}"
+      
+      excerpt_start = text.index("Fridays:") + "Fridays:".length
+      excerpt_end = text.index(".")-1
+      day_text = text[excerpt_start..excerpt_end]
+    
+      day_text.split(",").each do |day|
+        days << "#{day.strip!} #{year}"
+      end
+      
     end
 
     days
