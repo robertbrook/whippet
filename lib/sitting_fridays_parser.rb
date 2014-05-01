@@ -36,7 +36,7 @@ class SittingFridaysParser
   
   def extract_sitting_days(text)
     days = []
-    p text
+#     p text
     if text.match(/Fridays in (\d+):/)
       year = $1
 
