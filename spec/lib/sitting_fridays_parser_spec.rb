@@ -53,13 +53,13 @@ Further sitting Fridays may be advertised in due course.<br />
             </div>
             <!--end of rightDotBorder-->|
         
-       #  @response = mock("Fake Response")
-#         @response.stubs(:body).returns(html)
-#         RestClient.expects(:get).returns(@response)
+        @response = mock("Fake Response")
+        @response.stubs(:body).returns(html)
+        RestClient.expects(:get).returns(@response)
       end
       
       it "should return a list of dates in sitting_days with the assumption that the year is the current year" do
-        pending("squeeze whitespace")
+#         pending("squeeze whitespace")
         @parser.scrape()
         expect(@parser.sitting_days).to eq(["24 January 2014", "7 February 2014"])
       end

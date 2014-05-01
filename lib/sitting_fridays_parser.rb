@@ -53,9 +53,9 @@ class SittingFridaysParser
       excerpt_start = text.index("Fridays:") + "Fridays:".length
       excerpt_end = text.index(".")-1
       day_text = text[excerpt_start..excerpt_end]
-    
+      
       day_text.split(",").each do |day|
-        days << "#{day.strip!} #{year}"
+        days << "#{day.strip.gsub(/^\D/,"")} #{year}"
       end
       
     end
