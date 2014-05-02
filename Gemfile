@@ -13,6 +13,7 @@ gem 'haml', :require => 'haml'
 gem 'ri_cal'
 gem 'rspec'
 gem 'diffable'
+gem 'unicorn'
 
 group :production do
   ruby '1.9.3'
