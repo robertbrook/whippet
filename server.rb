@@ -170,20 +170,12 @@ end
 #   items.to_json
 # end
 
-get "/:date" do
-  my_date = params[:date]
-  if my_date and my_date =~ /\d{4}-\d{1,2}-\d{1,2}/
-    @page = params[:page].to_i > 0 ? params[:page].to_i : 1
-    @total = CalendarDay.count
-    @offset = (@page - 1) * 10
-    @calendar_days = CalendarDay.find_by date: params[:date]
-    haml :index
-  end
-  
-  
+# /\d{4}-\d{1,2}-\d{1,2}/
+
+get %r{/(\d{4}-\d{2}-\d{2})} do
+  @calendar_day = CalendarDay.find_by date: params[:captures].first
+  haml :date
 end
-
-
 
 get "/pdf/:filename" do
   file = params[:filename]
