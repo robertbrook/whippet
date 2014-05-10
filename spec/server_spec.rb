@@ -3,9 +3,7 @@
 ENV['RACK_ENV'] = 'test'
 
 require './spec/rspec_helper.rb'
-require 'rack/test'
 require './server'
-require 'pp'
 
 def app
   Sinatra::Application
@@ -40,7 +38,6 @@ describe "The server" do
   
   context "when asked for /editor" do
     it "should not give a blank response" do
-       pending("fixing server response")
        get "/editor"
        last_response.body.should_not eq ""
     end
@@ -48,7 +45,6 @@ describe "The server" do
   
   context "when asked for /edit-mockup" do
     it "should not give a blank response" do
-       pending("fixing server response")
        get "/edit-mockup"
        last_response.body.should_not eq ""
     end

@@ -33,21 +33,18 @@ describe GovernmentSpokespersonsParser do
       end
       
       it "should return a list of government sections with 25 items" do 
-        pending "working parser"
         @parser.scrape()
         expect(@parser.government_sections.length).to eq(25)
       end
       
       it "should return a list of government spokespersons in government_spokespersons including the section 'Leader of the House of Lords and Chancellor of the Duchy of Lancaster'" do 
-        pending "sections code"
         @parser.scrape()
         expect(@parser.government_sections).to include("Leader of the House of Lords and Chancellor of the Duchy of Lancaster")
       end
       
       it "should return a list of sections in government_spokespersons" do 
-        pending "working parser"
         @parser.scrape()
-        @parser.government_sections.should eq (["24 January 2014", "7 February 2014"])
+        expect(@parser.government_sections).to be_an(Array)
       end
       
     end

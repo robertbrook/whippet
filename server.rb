@@ -125,6 +125,26 @@ get "/search.?:format?" do
   end
 end
 
+get '/editor' do  
+
+  @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
+  @hulk = true
+  haml :editor
+end
+
+get "/edit-mockup" do
+  if params[:date]
+    @date = Time.parse(params[:date])
+    @day = CalendarDay.where(:date => Time.parse(@date.strftime("%Y-%m-%d 00:00:00Z"))).first
+  else
+    @day = SittingDay.first
+    p = SittingDay.first
+    @date = @day.date
+  end
+  @editing = true
+  haml :edit_mockup
+end
+
 get "/:date.json" do
   content_type :json
   unless params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
@@ -150,23 +170,11 @@ end
 #   items.to_json
 # end
 
-get "/:date" do
-  if params[:date] and params[:date] =~ /\d{4}-\d{1,2}-\d{1,2}/
-    "html for #{params[:date]}"
-  end
-end
+# /\d{4}-\d{1,2}-\d{1,2}/
 
-get "/edit-mockup" do
-  if params[:date]
-    @date = Time.parse(params[:date])
-    @day = CalendarDay.where(:date => Time.parse(@date.strftime("%Y-%m-%d 00:00:00Z"))).first
-  else
-    @day = SittingDay.first
-    p = SittingDay.first
-    @date = @day.date
-  end
-  @editing = true
-  haml :edit_mockup
+get %r{/(\d{4}-\d{2}-\d{2})} do
+  @calendar_day = CalendarDay.find_by date: params[:captures].first
+  haml :date
 end
 
 get "/pdf/:filename" do
