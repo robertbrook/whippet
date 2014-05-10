@@ -51,17 +51,17 @@ get '/' do
   haml :index
 end
 
-get '/index.txt' do  
+get '/index.txt' do
   content_type :text
   "text output here"
 end
 
-get '/index.json' do  
+get '/index.json' do
   content_type :json
   CalendarDay.order("date desc").limit(10).to_json
 end
 
-get '/index.xml' do  
+get '/index.xml' do
   content_type :xml
   CalendarDay.order("date desc").limit(10).to_xml
 end
@@ -83,7 +83,7 @@ get '/index.ics' do
   else
   	limit = 4
   end
-  	
+
   sitting_days = CalendarDay.order("date desc").limit(limit)
 
 ical_content = RiCal.Calendar { |ical|
@@ -143,7 +143,7 @@ end
 #   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
 #   items.to_xml
 # end
-# 
+#
 # get "/search/:search_text.json" do
 #   content_type :json
 #   items = BusinessItem.where("description ILIKE ?", '%' + params[:search_text] + '%')
@@ -174,7 +174,7 @@ get "/pdf/:filename" do
   send_file File.expand_path("data/#{file}")
 end
 
-get '/editor' do  
+get '/editor' do
   @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
   @hulk = true
   haml :editor
@@ -184,4 +184,3 @@ get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
 end
-
