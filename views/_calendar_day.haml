@@ -14,17 +14,21 @@
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
     - day.time_blocks.order("position asc").each do |block|
+      - pdfname = block.meta['pdf_info']['filename']
       
-      .col-md-4.lead
+      .col-md-4
         =block.time_as_number
+        
         %strong
           =block.place
-      .col-md-8.lead
+      .col-md-8
         - if block.note
           =block.note
 
         - block.business_items.order("position asc").each do |item|
           %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>").gsub(/^(\d).\s/, '<span class="xtext-muted" style="margin-right:1.4em;">\1</span> ')
+        %p
+          %a.text-muted{:title => pdfname, :href => 'pdf/' + pdfname} PDF
           
 %hr.hidden-xs.hidden-sm
 

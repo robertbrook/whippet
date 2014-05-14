@@ -182,8 +182,6 @@ get "/pdf/:filename" do
   send_file File.expand_path("data/#{file}")
 end
 
-
-
 get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
