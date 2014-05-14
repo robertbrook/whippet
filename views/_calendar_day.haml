@@ -2,25 +2,26 @@
 .row
   - unless day.has_time_blocks?
     .col-md-8.col-md-offset-4
-      %h3
-        %time{datetime: true}
-          = day.date.strftime("%A %e %B")
+      %p
+        %strong
+          %time{datetime: true}
+            = day.date.strftime("%A %e %B")
       %p
         = day.note
         
   - else
     .col-md-8.col-md-offset-4
-      %h3
-        %time{datetime: true}
-          = day.date.strftime("%A %e %B")
+      %p
+        %strong
+          %time{datetime: true}
+            = day.date.strftime("%A %e %B")
     - day.time_blocks.order("position asc").each do |block|
       - pdfname = block.meta['pdf_info']['filename']
       
-      .col-md-4
-        =block.time_as_number
-        
-        %strong
+      .col-md-4        
+        .pull-right
           =block.place
+          =block.time_as_number
       .col-md-8
         - if block.note
           =block.note
