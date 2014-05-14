@@ -1,11 +1,11 @@
 
 .row
   - unless day.has_time_blocks?
-    .col-md-8.col-md-offset-4.text-muted
+    .col-md-8.col-md-offset-4
       %h3
         %time{datetime: true}
           = day.date.strftime("%A %e %B")
-      .lead
+      %p
         = day.note
         
   - else
