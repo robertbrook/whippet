@@ -30,6 +30,7 @@
           %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>").gsub(/^(\d).\s/, '<span class="xtext-muted" style="margin-right:1.4em;">\1</span> ')
         %p
           %a.text-muted{:title => pdfname, :href => 'pdf/' + pdfname} PDF
+          / %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html"} http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html
           
 %hr.hidden-xs.hidden-sm
 
