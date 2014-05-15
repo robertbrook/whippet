@@ -51,15 +51,16 @@ describe "The server" do
   end
   
   context "when asked for the URL /2013-03-27" do
-    it "should have a link to the PDF" do
-      pending("requires populated route for URL")
+    it "should have a link to 'FB 2013 03 27 r.pdf'" do
       get "/2013-03-27"
-      last_response.body.should include 'PDF LINK'
+      expect(last_response.body).to match(/href='pdf\/FB 2013 03 20 r\.pdf'/)
     end
         
     it "should have a link to the Lords calendar" do 
       pending("requires view for date page in HTML")
+      
       get "/2013-03-27"
+      expect(last_response.body).to match(/href='http:\/\/services.parliament.uk\/calendar\/Lords\/#!\/calendar\/Lords\/MainChamber\/2013\/3\/20\/events\.html'/)
     end
   end
     

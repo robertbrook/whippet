@@ -1,30 +1,36 @@
 
 .row
   - unless day.has_time_blocks?
-    .col-md-8.col-md-offset-4.text-muted
-      %h3
-        %time{datetime: true}
-          = day.date.strftime("%A %e %B")
-      .lead
+    .col-md-8.col-md-offset-4
+      %p
+        %strong
+          %time{datetime: true}
+            = day.date.strftime("%A %e %B")
+      %p
         = day.note
         
   - else
     .col-md-8.col-md-offset-4
-      %h3
-        %time{datetime: true}
-          = day.date.strftime("%A %e %B")
-    - day.time_blocks.order("position asc").each do |block|
-      
-      .col-md-4.lead
-        =block.time_as_number
+      %p
         %strong
+          %time{datetime: true}
+            = day.date.strftime("%A %e %B")
+    - day.time_blocks.order("position asc").each do |block|
+      - pdfname = block.meta['pdf_info']['filename']
+      
+      .col-md-4        
+        .pull-right
           =block.place
-      .col-md-8.lead
+          =block.time_as_number
+      .col-md-8
         - if block.note
           =block.note
 
         - block.business_items.order("position asc").each do |item|
           %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>").gsub(/^(\d).\s/, '<span class="xtext-muted" style="margin-right:1.4em;">\1</span> ')
+        %p
+          %a.text-muted{:title => pdfname, :href => 'pdf/' + pdfname} PDF
+          / %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html"} http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html
           
 %hr.hidden-xs.hidden-sm
 
