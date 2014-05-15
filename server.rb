@@ -182,15 +182,13 @@ get "/pdf/:filename" do
   send_file File.expand_path("data/#{file}")
 end
 
-<<<<<<< HEAD
 get '/editor' do
   @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
   @hulk = true
   haml :editor
 end
 
-=======
->>>>>>> ee6149a5d9b37a28b9e5d86dc375eba1e8123ba9
+
 get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
