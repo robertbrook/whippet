@@ -1,36 +1,34 @@
 
 .row
+  .col-md-6.col-md-offset-4
+    %h3
+      = day.date.strftime("%A %e %B")
+    %p
+      %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/" + day.date.strftime("%Y/%-m/%d") + "/events.html"}
+        parliament.uk/calendar
+       
+        
   - unless day.has_time_blocks?
-    .col-md-8.col-md-offset-4
-      %p
-        %strong
-          %time{datetime: true}
-            = day.date.strftime("%A %e %B")
+    .col-md-6.col-md-offset-4
       %p
         = day.note
         
   - else
-    .col-md-8.col-md-offset-4
-      %p
-        %strong
-          %time{datetime: true}
-            = day.date.strftime("%A %e %B")
     - day.time_blocks.order("position asc").each do |block|
-      - pdfname = block.meta['pdf_info']['filename']
-      
+      - pdfinfo = block.meta['pdf_info']
+
       .col-md-4        
         .pull-right
           =block.place
           =block.time_as_number
-      .col-md-8
+      .col-md-6
         - if block.note
           =block.note
 
         - block.business_items.order("position asc").each do |item|
-          %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>").gsub(/^(\d).\s/, '<span class="xtext-muted" style="margin-right:1.4em;">\1</span> ')
+          %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>")
         %p
-          %a.text-muted{:title => pdfname, :href => 'pdf/' + pdfname} PDF
-          %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html"} http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/2013/3/20/events.html
+          %a{:title => pdfinfo['filename'], :href => 'pdf/' + pdfinfo['filename']}
+            = "PDF &ndash; page #{pdfinfo['page']}, line #{pdfinfo['line']}."
           
-%hr.hidden-xs.hidden-sm
-
+          
