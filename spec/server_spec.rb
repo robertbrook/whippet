@@ -59,7 +59,7 @@ describe "The server" do
     it "should have a link to the Lords calendar" do 
 #       pending("requires view for date page in HTML")
       
-      get "/2013-03-27"
+      get "/2013-03-20"
       expect(last_response.body).to match(/href='http:\/\/services.parliament.uk\/calendar\/Lords\/#!\/calendar\/Lords\/MainChamber\/2013\/3\/20\/events\.html'/)
     end
   end
