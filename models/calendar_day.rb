@@ -3,6 +3,7 @@
 require "diffable"
 require "date"
 require "./models/sitting_friday"
+require "net/http"
 
 class CalendarDay < ActiveRecord::Base
   include Diffable
@@ -28,6 +29,14 @@ class CalendarDay < ActiveRecord::Base
       return false
     end
     true
+  end
+  
+  def get_parly_chunk
+    uri = URI.parse("http://services.parliament.uk")
+    http = Net::HTTP.new(uri.host, uri.port)
+    request = Net::HTTP::Post.new("/calendar/Lords/MainChamber/2014/5/14/events.html")
+    request.body = "ajax=events"
+    return http.request(request).body
   end
   
   def has_time_blocks?
