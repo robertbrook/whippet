@@ -109,20 +109,19 @@ sitting_days.each { |sitting_day|
 end
 
 get "/search.?:format?" do
-  unless params[:q].empty? and params[:q] != '+'
+  @items = []
+  @subtitle = ""
+  
+  unless params[:q].empty?
     @items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
     @format = params[:format]
     if @items.length > 0
       @subtitle = "Search results"
     else
       @subtitle = "No results found"
-    end
-    haml :search
-  else
-    @items = []
-    @subtitle = "sorry: I need something to search for"
-    haml :search
+    end    
   end
+  haml :search
 end
 
 get '/editor' do  
