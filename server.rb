@@ -110,17 +110,18 @@ end
 
 get "/search.?:format?" do
   @items = []
-  @subtitle = ""
+  @subtitle = "No results"
+
+  if params[:q] and params[:q].match(/\w/)
   
-  unless params[:q].empty?
     @items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
     @format = params[:format]
+    
     if @items.length > 0
-      @subtitle = "Search results"
-    else
-      @subtitle = "No results found"
+      @subtitle = "#{@items.length} results"
     end    
   end
+  
   haml :search
 end
 
