@@ -65,9 +65,9 @@ describe "The server" do
   end
     
   context "when running a search for 'Regulations'" do  
-    it "should return these results" do 
-      pending("requires search function and results view")
+    it "should return 'Draft Civil Legal Aid (Merits Criteria) (Amendment) Regulations 2013'" do 
       get "/search?q=Regulations"
+      expect(last_response.body).to match(/Draft Civil Legal Aid \(Merits Criteria\) \(Amendment\) Regulations 2013/)
     end
   end
   
