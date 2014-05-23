@@ -67,7 +67,7 @@ describe "The server" do
   context "when running a search for 'Regulations'" do  
     it "should return 'Draft Civil Legal Aid (Merits Criteria) (Amendment) Regulations 2013'" do 
       get "/search?q=Regulations"
-      expect(last_response.body).to match(/Draft Civil Legal Aid \(Merits Criteria\) \(Amendment\) Regulations 2013/)
+      expect(last_response.body).to include('Draft Civil Legal Aid (Merits Criteria) (Amendment) Regulations 2013')
     end
   end
   
@@ -86,10 +86,9 @@ describe "The server" do
   end
     
   context "when running a search for 'Lord McNally'" do
-    it "should return these results" do 
-      pending("requires search function and results view")
+    it "should return these 'Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012 (Amendment of Schedule 1) Order 2013 – Motion to Regret – Lord Bach/Lord McNally'" do 
       get "/search?q=Lord%20McNally"
-
+      expect(last_response.body).to include('Draft Legal Aid, Sentencing and Punishment of Offenders Act 2012 (Amendment of Schedule 1) Order 2013 – Motion to Regret – Lord Bach/Lord McNally')
     end
     
   end
