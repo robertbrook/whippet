@@ -44,15 +44,17 @@
           %form.navbar-form.navbar-right{role: "search", action: "/search"}
             .form-group
               %input.form-control{type: "text", name: "q", value: @params['q']}
-            %button.btn.btn-default{type: "submit"} Search
+            %button.btn.btn-default{type: "submit"}
+              .glyphicon.glyphicon-search
+              Search
           %ul.nav.navbar-nav.pull-right
             %li
               %a{href: "/edit-mockup"} Editor
           
       .clearfix
         =yield
-      .text-muted
-        Information on this site is from PDFs made public by <a href='http://www.lordswhips.org.uk'>The Government Whips' Office</a>, part of the <a href='https://www.gov.uk/government/organisations/cabinet-office'>Cabinet Office</a>'s <a href='https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords'>Government in Parliament Group</a>. Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
+      %hr
+      Information on this site is from PDFs made public by <a href='http://www.lordswhips.org.uk'>The Government Whips' Office</a>, part of the <a href='https://www.gov.uk/government/organisations/cabinet-office'>Cabinet Office</a>'s <a href='https://www.gov.uk/government/organisations/office-of-the-leader-of-the-house-of-lords'>Government in Parliament Group</a>. Source code for this site is available at <a href="https://github.com/robertbrook/whippet">github.com/robertbrook/whippet</a>.
 
         
 
