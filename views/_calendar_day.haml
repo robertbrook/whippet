@@ -1,4 +1,14 @@
-
+:javascript
+  $.ajax({
+    url: 'http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*Lord Livingston of Parkhead/Interests|Parties/',
+    type: 'GET',
+    dataType: 'json',
+    accepts: {
+        xml: 'text/xml',
+    },
+    success: function(mydata) { console.log(mydata); },
+  }); 
+  
 .row
   .col-md-6.col-md-offset-4
     %h3
@@ -26,9 +36,11 @@
           =block.note
 
         - block.business_items.order("position asc").each do |item|
-          %p= item.description.gsub(/QSD\b/, "<strong>QSD</strong>")
+          %p= item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
         %p
           %a{:title => pdfinfo['filename'], :href => 'pdf/' + pdfinfo['filename']}
             = "PDF &ndash; page #{pdfinfo['page']}, line #{pdfinfo['line']}."
+            
+            
           
           
