@@ -20,11 +20,16 @@ GEM
     afm (0.2.0)
     arel (4.0.2)
     builder (3.1.4)
+    coffee-script (2.2.0)
+      coffee-script-source
+      execjs
+    coffee-script-source (1.7.0)
     daemons (1.1.9)
     diff-lcs (1.2.5)
     diffable (0.0.1)
       activerecord (>= 3.2)
     eventmachine (1.0.3)
+    execjs (2.0.2)
     haml (4.0.5)
       tilt
     hashery (2.1.1)
@@ -97,6 +102,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (~> 4.0.0)
+  coffee-script
   diffable
   haml
   json (~> 1.7.7)

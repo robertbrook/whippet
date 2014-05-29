@@ -1,14 +1,13 @@
-:javascript
-  $.ajax({
-    url: 'http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*Lord Livingston of Parkhead/Interests|Parties/',
-    type: 'GET',
-    dataType: 'json',
-    accepts: {
-        xml: 'text/xml',
-    },
-    success: function(mydata) { console.log(mydata); },
-  }); 
-  
+/ check out rest-client  
+
+:coffee
+  $.ajax
+    url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fservices.parliament.uk%2Fcalendar%2FLords%2FMainChamber%2F2014%2F6%2F11%2Fevents.html%22%20and%20xpath%3D'%2F%2Ftable%5B%40class%3D%22order-of-business%22%5D'&format=json&callback="
+    type: "GET"
+    dataType: "json"
+    success: (mydata) ->
+      console.log mydata.query.results.table.tr
+
 .row
   .col-md-6.col-md-offset-4
     %h3
@@ -36,7 +35,25 @@
           =block.note
 
         - block.business_items.order("position asc").each do |item|
-          %p= item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
+          %div#item{:id => item.id.to_s}
+            - my_id = "#item_#{item.id.to_s}"
+            %p= item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
+            - item.names.each do |name|
+              %p= name
+              :coffee
+                $.ajax
+                  url: "http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*#{name}/Interests|Parties/"
+                  type: "GET"
+                  dataType: "json"
+                  accepts:
+                    xml: "text/xml"
+                  success: (mydata) ->
+                    console.log mydata.Members.Member.FullTitle
+                    $("#{my_id}").append mydata.Members.Member.ListAs
+
+
+
+
         %p
           %a{:title => pdfinfo['filename'], :href => 'pdf/' + pdfinfo['filename']}
             = "PDF &ndash; page #{pdfinfo['page']}, line #{pdfinfo['line']}."

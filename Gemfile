@@ -22,6 +22,7 @@ end
 
 group :development do
   gem 'shotgun'
+  gem 'coffee-script'
 end
 
 group :test do
