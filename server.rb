@@ -9,6 +9,7 @@ require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
 
+
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
   if ENV["DATABASE_URL"] #hai heroku
