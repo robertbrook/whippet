@@ -21,7 +21,7 @@ class BusinessItem < ActiveRecord::Base
     if description.index('–')
       names = [description.split(" – ")[-1]]
       if description.index('/')
-        names = names[0].split("/")
+        names = names[0].gsub(/.\(.*\)/, "").split("/")
 #         names = names[0].match(/^(.*)\/(.*)\s\(/)[1,2]
       end   
     end

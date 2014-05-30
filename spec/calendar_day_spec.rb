@@ -523,10 +523,10 @@ describe BusinessItem do
     end
     
     it "should return an array of two names where the two names are present" do
-      pending("fix to regex")
+#       pending("fix to regex")
       test_item = BusinessItem.new()
       test_item.description = "QSD on the effectiveness of the Charity Commission – Baroness Barker/Lord Wallace of Saltaire (time limit 1 hour)"
-      test_item.names.should eq ["Baroness Barker", "Lord Wallace of Saltaire"]
+      expect(test_item.names).to eq ["Baroness Barker", "Lord Wallace of Saltaire"]
     end
 
   end
