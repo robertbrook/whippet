@@ -14,15 +14,15 @@ gem 'ri_cal'
 gem 'rspec'
 gem 'diffable'
 gem 'unicorn'
+gem 'coffee-script'
 
 group :production do
   ruby '1.9.3'
-  gem 'thin'
+  # gem 'thin'
 end
 
 group :development do
   gem 'shotgun'
-  gem 'coffee-script'
 end
 
 group :test do
