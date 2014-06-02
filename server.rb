@@ -54,7 +54,8 @@ end
 
 get '/index.txt' do
   content_type :text
-  "text output here"
+  @calendar_days = CalendarDay.order("date desc").limit(10)
+  haml :text, :layout => false
 end
 
 get '/index.json' do
@@ -171,12 +172,18 @@ end
 #   items.to_json
 # end
 
-# /\d{4}-\d{1,2}-\d{1,2}/
+get %r{/(\d{4}-\d{2}-\d{2})\.txt} do
+  content_type :text
+  @calendar_day = CalendarDay.find_by date: params[:captures].first
+  haml :datetext, :layout => false
+end
 
 get %r{/(\d{4}-\d{2}-\d{2})} do
   @calendar_day = CalendarDay.find_by date: params[:captures].first
   haml :date
 end
+
+
 
 get "/pdf/:filename" do
   file = params[:filename]

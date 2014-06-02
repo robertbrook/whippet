@@ -1,0 +1,17 @@
+- @calendar_day.time_blocks.order("position asc").each do |block|
+  - pdfinfo = block.meta['pdf_info']
+  =block.place
+  =block.time_as_number
+  =""
+  
+  - if block.note
+    =block.note
+    =""
+    
+  - block.business_items.order("position asc").each do |item|
+    - my_id = "#item_#{item.id.to_s}"
+    = item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
+    
+    - item.names.each do |name|
+      = name
+      =""
