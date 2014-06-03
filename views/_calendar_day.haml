@@ -1,19 +1,13 @@
 / check out rest-client  
 
-:coffee
-  $.ajax
-    url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fservices.parliament.uk%2Fcalendar%2FLords%2FMainChamber%2F2014%2F6%2F11%2Fevents.html%22%20and%20xpath%3D'%2F%2Ftable%5B%40class%3D%22order-of-business%22%5D'&format=json&callback="
-    type: "GET"
-    dataType: "json"
-    success: (mydata) ->
-      console.log mydata.query.results.table.tr
+- targetdate = day.date.strftime("%Y/%-m/%d")
 
 .row
   .col-md-6.col-md-offset-4
     %h3
       = day.date.strftime("%A %e %B")
     %p
-      %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/" + day.date.strftime("%Y/%-m/%d") + "/events.html"}
+      %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/" + targetdate + "/events.html"}
         parliament.uk/calendar
         
        
@@ -38,9 +32,22 @@
         - block.business_items.order("position asc").each do |item|
           %div#item{:id => item.id.to_s}
             - my_id = "#item_#{item.id.to_s}"
+            :coffee
+              $.ajax
+                url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fservices.parliament.uk%2Fcalendar%2FLords%2FMainChamber%2F#{day.date.strftime("%Y")}%2F#{day.date.strftime("%-m")}%2F#{day.date.strftime("%d")}%2Fevents.html%22%20and%20xpath%3D'%2F%2Ftable%5B%40class%3D%22order-of-business%22%5D'&format=json&callback="
+                type: "GET"
+                dataType: "json"
+                success: (mydata) ->
+                  if mydata.query.count > 0
+                    if mydata.query.results.table.tr.length > 1
+                      for item in mydata.query.results.table.tr
+                        console.log item
+              
+                    
             %p= item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
             - item.names.each do |name|
               %p= name
+              
               :coffee
                 $.ajax
                   url: "http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*#{name}/Interests|Parties/"
@@ -51,14 +58,12 @@
                   success: (mydata) ->
                     console.log mydata.Members.Member.FullTitle
                     $("#{my_id}").append mydata.Members.Member.ListAs
-
-
-
+                    
+                
+                        
+                      
+                
 
         %p
           %a{:title => pdfinfo['filename'], :href => 'pdf/' + pdfinfo['filename']}
             = "PDF &ndash; page #{pdfinfo['page']}, line #{pdfinfo['line']}."
-            
-            
-          
-          
