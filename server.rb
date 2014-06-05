@@ -9,7 +9,6 @@ require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
 
-
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
   if ENV["DATABASE_URL"] #hai heroku
@@ -81,29 +80,29 @@ end
 get '/index.ics' do
   content_type 'text/calendar'
   if params[:limit].to_i.between?(1, 20)
-  	limit = params[:limit]
+    limit = params[:limit]
   else
-  	limit = 4
+    limit = 4
   end
 
   sitting_days = CalendarDay.order("date desc").limit(limit)
 
-ical_content = RiCal.Calendar { |ical|
-sitting_days.each { |sitting_day|
+  ical_content = RiCal.Calendar { |ical|
+    sitting_days.each { |sitting_day|
 
-  if sitting_day.has_time_blocks?
-  sitting_day.time_blocks.each { |time_block|
-    ical.event { |event|
-      time_as_string = time_block.time_as_number.to_s.insert(2, ':')
-      event.uid = time_block.ident
-      event.dtend = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
-      event.dtstart = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
-      event.summary = time_block.title
-      event.description = time_block.title
+      if sitting_day.has_time_blocks?
+        sitting_day.time_blocks.each { |time_block|
+          ical.event { |event|
+            time_as_string = time_block.time_as_number.to_s.insert(2, ':')
+            event.uid = time_block.ident
+            event.dtend = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
+            event.dtstart = DateTime.parse(sitting_day.date.iso8601 + " " + time_as_string)
+            event.summary = time_block.title
+            event.description = time_block.title
+          }
+        }
+      end
     }
-    }
-  end
-  }
   }
 
   ical_content.export
@@ -115,19 +114,19 @@ get "/search.?:format?" do
   @subtitle = "No results"
 
   if params[:q] and params[:q].match(/\w/)
-  
+
     @items = BusinessItem.where("description ILIKE ?", '%' + params[:q] + '%')
     @format = params[:format]
-    
+
     if @items.length > 0
       @subtitle = "#{@items.length} results"
-    end    
+    end
   end
-  
+
   haml :search
 end
 
-get '/editor' do  
+get '/editor' do
 
   @calendar_days_json = CalendarDay.order("date desc").limit(10).to_json
   @hulk = true

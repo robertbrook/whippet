@@ -1,69 +1,70 @@
-/ check out rest-client  
+/ check out rest-client
 
 - targetdate = day.date.strftime("%Y/%-m/%d")
 
 .row
-  .col-md-6.col-md-offset-4
-    %h3
+  .col-md-5.col-md-offset-2
+    %h4
       = day.date.strftime("%A %e %B")
     %p
       %a{:href => "http://services.parliament.uk/calendar/Lords/#!/calendar/Lords/MainChamber/" + targetdate + "/events.html"}
         parliament.uk/calendar
         
-       
-        
-  - unless day.has_time_blocks?
-    .col-md-6.col-md-offset-4
+- unless day.has_time_blocks?
+  .row
+    .col-md-5.col-md-offset-2
       %p
         = day.note
-        
-  - else
-    - day.time_blocks.order("position asc").each do |block|
-      - pdfinfo = block.meta['pdf_info']
-      
-      .col-md-4        
+
+- else
+  - day.time_blocks.order("position asc").each do |block|
+    - pdfinfo = block.meta['pdf_info']
+    .row
+      .col-md-2
         .pull-right
-          =block.place
-          =block.time_as_number
-      .col-md-6
+          =block.title
+          / =block.place
+          
+          / =block.time_as_number
+      .col-md-5
         - if block.note
           =block.note
 
         - block.business_items.order("position asc").each do |item|
           %div#item{:id => item.id.to_s}
             - my_id = "#item_#{item.id.to_s}"
-            :coffee
-              $.ajax
-                url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fservices.parliament.uk%2Fcalendar%2FLords%2FMainChamber%2F#{day.date.strftime("%Y")}%2F#{day.date.strftime("%-m")}%2F#{day.date.strftime("%d")}%2Fevents.html%22%20and%20xpath%3D'%2F%2Ftable%5B%40class%3D%22order-of-business%22%5D'&format=json&callback="
-                type: "GET"
-                dataType: "json"
-                success: (mydata) ->
-                  if mydata.query.count > 0
-                    if mydata.query.results.table.tr.length > 1
-                      for item in mydata.query.results.table.tr
-                        console.log item
-              
-                    
-            %p= item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
-            - item.names.each do |name|
-              %p= name
-              
-              :coffee
-                $.ajax
-                  url: "http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*#{name}/Interests|Parties/"
-                  type: "GET"
-                  dataType: "json"
-                  accepts:
-                    xml: "text/xml"
-                  success: (mydata) ->
-                    console.log mydata.Members.Member.FullTitle
-                    $("#{my_id}").append mydata.Members.Member.ListAs
-                    
-                
-                        
-                      
-                
+            %p
+              = item.description.gsub(/QSD\b/, '<abbr title="Question for short debate">QSD</abbr>')
+              - if item.names.length > 0
+                %ul.list-inline#item{:id => item.id.to_s}
+                  - item.names.each do |name|
+                    :coffee
+                      $.ajax
+                        url: "http://data.parliament.uk/membersdataplatform/services/mnis/members/query/House=Lords|name*#{name}/Interests|Parties/"
+                        type: "GET"
+                        dataType: "json"
+                        accepts:
+                          xml: "text/xml"
+                        success: (mydata) ->
+                          # console.log mydata.Members.Member.FullTitle
+                          $("ul#{my_id}").append "<li class='text-muted'>" + mydata.Members.Member.ListAs + "</li>"
 
         %p
           %a{:title => pdfinfo['filename'], :href => 'pdf/' + pdfinfo['filename']}
             = "PDF &ndash; page #{pdfinfo['page']}, line #{pdfinfo['line']}."
+            
+      .col-md-5#calendar{:id => day.id.to_s}
+        - if block.place == "Chamber"
+          :coffee
+            $.ajax
+              url: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fservices.parliament.uk%2Fcalendar%2FLords%2FMainChamber%2F#{day.date.strftime("%Y")}%2F#{day.date.strftime("%-m")}%2F#{day.date.strftime("%d")}%2Fevents.html%22%20and%20xpath%3D'%2F%2Ftable%5B%40class%3D%22order-of-business%22%5D'&format=json&callback="
+              type: "GET"
+              dataType: "json"
+              success: (mydata) ->
+                if mydata.query.count > 0 and mydata.query.results.table.tr.length > 1
+
+                  for item in mydata.query.results.table.tr
+                    if item.class != "th"
+                      if (item.td[0].p?)
+                        $("#calendar_#{day.id.to_s}").append "<b class='text-muted'>" + item.td[0].p + "</b>"
+                      $("#calendar_#{day.id.to_s}").append "<p class='text-muted'>" + item.td[1].div.p + "</p>"
