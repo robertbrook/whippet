@@ -8,6 +8,16 @@ require "./models/business_item"
 require "./models/time_block"
 require "./models/speaker_list"
 
+require "logger"
+
+# Log = Logger.new('log_file.log')
+Log = Logger.new(STDOUT)
+Log.level = Logger::DEBUG
+
+Log.formatter = proc do |severity, datetime, progname, msg|
+  "#{datetime.strftime('%H:%M:%S')}\t#{msg}\n"
+end
+
 class PdfParser
   #prepare to ingest a single pdf
   def initialize(target_pdf)
@@ -19,7 +29,7 @@ class PdfParser
     @pdf.pages
   end
   
-  def process(debug=false)
+  def process(debug=true)
     init_process()
     html = ""
     
@@ -34,36 +44,34 @@ class PdfParser
         
         #the end of the useful, the start of the notes section, we can stop now
         when /^\s*Information\s*$/
-          p "ok, ignoring the rest of this" if debug
+          Log.debug "start of information section"
           @fin = true
           break
         
         when /^\s*PROVISIONAL\s*$/
-          p "/sets provisional flag" if debug
+          Log.debug "/sets provisional flag"
           @provisional = true
         
         #a new day
         when /(\b[A-Z]{2,}[DAY]\s+\d+ [A-Z]+ \d{4})/
-          p "new day detected, starting a new section: #{line}" if debug
+          Log.debug "new day detected, starting a new section: #{line}"
           process_new_day($1, page, line_no)
         
         #a new time
         when /^\s*Business/
-          p "new time detected, starting a new sub-section: #{line}" if debug
+          Log.debug "new time detected, starting a new sub-section: #{line}"
           if @current_sitting_day
             process_new_time_block(line, html, page, line_no)
           end
         
         #a page number
         when /^\s*(\d+)\n?$/
-          p "** end of page #{$1} **" if debug
+          Log.debug "** end of page #{$1} **"
         
         #a numbered item
         when /^(\d)/
-          if debug
-            p "new business item, hello: #{line}"
-            p "aka #{html}" if debug
-          end
+          Log.debug "new business item, hello: #{line}"
+          Log.debug "aka #{html}"
           if @current_sitting_day
             process_new_business_item(line, html, page, line_no)
           end
@@ -74,7 +82,7 @@ class PdfParser
         
         #whole line in square brackets
         when /^\s*\[.*\]\s*$/
-          p "Meh, no need to process these #{line}" if debug
+          Log.debug "Meh, no need to process these #{line}"
           @last_line_was_blank = false if @current_sitting_day
         
         #all the other things
@@ -259,7 +267,7 @@ class PdfParser
   def process_blank_line(line_no, debug)
     if @current_sitting_day
       if @last_line_was_blank and @in_item
-        p "A blank following a blank line, resetting the itemflag" if debug
+        Log.debug "A blank following a blank line, resetting the itemflag"
         fix_description()
         @in_item = false
       end
@@ -280,38 +288,38 @@ class PdfParser
   
   def process_continuation_line(line, line_no, debug)
     @last_line_was_blank = false
-    p "...item continuation line..." if debug
+    Log.debug "...item continuation line..."
     #last line was a business item, treat this as a continuation
     last_item = @current_time_block.business_items.last
     new_desc = "#{last_item.description.rstrip} #{line.strip}"
     last_item.description = new_desc
     last_item.meta["pdf_info"]["last_line"] = line_no+1
     
-    p "item text replaced with: #{new_desc}" if debug
+    Log.debug "item text replaced with: #{new_desc}"
   end
   
   def process_notes_and_exceptions(line, html, debug)
     if html.include?("<b><i>")
-      p "Unhandled markup: #{html}" if debug
+      Log.debug "Unhandled markup: #{html}"
       #not what we first took it for, not sure what do do with it... yet
       return
     end
     if @last_line_was_blank == false
       if @current_sitting_day.has_time_blocks?
-        p "notes about the time: #{line}" if debug
+        Log.debug "notes about the time: #{line}"
         @current_time_block.note = line.strip
         @current_time_block.save
       else
-        p "notes about the day: #{line}" if debug
+        Log.debug "notes about the day: #{line}"
         store_note(line)
       end
     else
       @last_line_was_blank = false
       if line.strip =~ /(L|l)ast day to table amendments/
-        p "notes about the day (again!): #{line}" if debug
+        Log.debug "notes about the day (again!): #{line}"
         store_note(line)
       else
-        p "Unhandled text: #{line}" if debug
+        Log.debug "Unhandled text: #{line}"
       end
     end
   end

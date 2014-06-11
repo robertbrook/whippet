@@ -37,6 +37,7 @@ GEM
     i18n (0.6.9)
     json (1.7.7)
     kgio (2.9.2)
+    logger (1.2.8)
     metaclass (0.0.4)
     mime-types (2.3)
     mini_portile (0.6.0)
@@ -124,6 +125,7 @@ DEPENDENCIES
   diffable
   haml
   json (~> 1.7.7)
+  logger
   mocha
   nokogiri
   pdf-reader

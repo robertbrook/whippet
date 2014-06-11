@@ -15,6 +15,7 @@ gem 'rspec'
 gem 'diffable'
 gem 'unicorn'
 gem 'coffee-script'
+gem 'logger'
 
 group :production do
   ruby '1.9.3'
