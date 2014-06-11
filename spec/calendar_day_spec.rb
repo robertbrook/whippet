@@ -12,13 +12,14 @@ describe CalendarDay do
     it "should allow casting from CalendarDay to SittingDay" do
       day = CalendarDay.new(:note => "test")
       sitting_day = day.becomes(SittingDay)
-      sitting_day.should be_an_instance_of(SittingDay)
+      expect(sitting_day).to be_an_instance_of(SittingDay)
     end
     
     it "should cast CalendarDay to SittingDay retaining note text" do
       day = CalendarDay.new(:note => "test")
       sitting_day = day.becomes(SittingDay)
-      sitting_day.note.should eq "test"
+      expect(sitting_day.note).to eq("test")
+      # sitting_day.note.should eq "test"
     end
     
     it "should allow casting from CalendarDay to NonSittingDay" do

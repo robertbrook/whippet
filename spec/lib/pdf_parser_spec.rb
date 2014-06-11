@@ -267,7 +267,7 @@ describe PdfParser do
     
     it "should remove provisional status where elements are no longer down as provisional" do
       sitting_day = CalendarDay.where(:date => Time.parse("2013-03-25 00:00:00Z")).first
-      sitting_day.is_provisional.should_not be_true
+      sitting_day.is_provisional.should be_nil
     end
     
     it "should register a modification where the text has changed" do

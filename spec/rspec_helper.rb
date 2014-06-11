@@ -14,7 +14,7 @@ rescue ActiveRecord::ConnectionNotEstablished
   ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml'))[ENV["RACK_ENV"]])
 end
 
-require 'rspec/autorun'
+# require 'rspec/autorun'
 require 'rack/test'
 
 RSpec.configure do |conf|

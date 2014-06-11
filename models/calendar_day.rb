@@ -27,6 +27,7 @@ class CalendarDay < ActiveRecord::Base
     #check it's not already a SittingDay
     if SittingDay.find_by(:date => date)
       return false
+      
     end
     true
   end

@@ -9,6 +9,11 @@ require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
 
+def tux
+  @config = YAML::load(File.open('config/database.yml'))
+  ActiveRecord::Base.establish_connection(@config["development"])
+end
+
 before do
   env = ENV["RACK_ENV"] ? ENV["RACK_ENV"] : "development"
   if ENV["DATABASE_URL"] #hai heroku

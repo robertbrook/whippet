@@ -19,6 +19,7 @@ GEM
       tzinfo (~> 0.3.37)
     afm (0.2.0)
     arel (4.0.2)
+    bond (0.5.1)
     builder (3.1.4)
     coffee-script (2.2.0)
       coffee-script-source
@@ -65,6 +66,14 @@ GEM
     rest-client (1.6.7)
       mime-types (>= 1.16)
     ri_cal (0.8.8)
+    ripl (0.7.1)
+      bond (~> 0.5.1)
+    ripl-multi_line (0.3.1)
+      ripl (>= 0.3.6)
+    ripl-rack (0.2.1)
+      rack (>= 1.0)
+      rack-test (~> 0.6.2)
+      ripl (>= 0.7.0)
     rspec (3.0.0)
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
@@ -95,6 +104,11 @@ GEM
     thread_safe (0.3.4)
     tilt (1.4.1)
     ttfunk (1.1.1)
+    tux (0.3.0)
+      ripl (>= 0.3.5)
+      ripl-multi_line (>= 0.2.4)
+      ripl-rack (>= 0.2.0)
+      sinatra (>= 1.2.1)
     tzinfo (0.3.39)
     unicorn (4.8.3)
       kgio (~> 2.6)
@@ -124,4 +138,5 @@ DEPENDENCIES
   simplecov (= 0.7.1)
   sinatra
   thin
+  tux
   unicorn
