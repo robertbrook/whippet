@@ -12,7 +12,7 @@ require "logger"
 
 # Log = Logger.new('log_file.log')
 Log = Logger.new(STDOUT)
-Log.level = Logger::DEBUG
+Log.level = Logger::INFO
 
 Log.formatter = proc do |severity, datetime, progname, msg|
   "#{datetime.strftime('%H:%M:%S')}\t#{msg}\n"
@@ -29,12 +29,12 @@ class PdfParser
     @pdf.pages
   end
   
-  def process(debug=true)
+  def process(debug=false)
     init_process()
     html = ""
     
     pages.each do |page|
-      break if @fin
+      break if @information_section
       
       pdf_page = PDF::Reader::MarkupPage.new(page)
       pdf_page.lines.each_with_index do |line, line_no|
@@ -44,8 +44,8 @@ class PdfParser
         
         #the end of the useful, the start of the notes section, we can stop now
         when /^\s*Information\s*$/
-          Log.debug "start of information section"
-          @fin = true
+          Log.info "start of information section"
+          @information_section = true
           break
         
         when /^\s*PROVISIONAL\s*$/
@@ -102,7 +102,7 @@ class PdfParser
   private
   
   def init_process
-    @fin = false
+    @information_section = false
     @provisional = false
     @last_line_was_blank = false
     @in_item = false

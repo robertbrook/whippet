@@ -49,6 +49,7 @@ end
 @time = Time.now
 
 get '/' do
+  # logger.info "loading data"
   @page = params[:page].to_i > 0 ? params[:page].to_i : 1
   @total = CalendarDay.count
   @offset = (@page - 1) * 10

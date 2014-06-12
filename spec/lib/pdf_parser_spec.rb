@@ -4,6 +4,22 @@ require './spec/rspec_helper.rb'
 require './lib/pdf_parser'
 
 describe PdfParser do
+
+  context "when given the Forthcoming Business for 5th June 2014 PDF as FB%202014%2006%2005.pdf" do
+    before(:all) do
+      @parser = PdfParser.new("./data/FB%202014%2006%2005.pdf")
+      CalendarDay.delete_all
+      @parser.process()
+      @parser = PdfParser.new("./data/FB%202014%2006%2005.pdf")
+      @parser.process()
+    end
+    
+    it "should create the expected number of calendar days" do
+      CalendarDay.all.count.should eq 17
+    end
+  end
+
+
   context "when given the Forthcoming Business for 27th March 2013 PDF as FB-TEST.PDF" do
     before(:all) do
       @parser = PdfParser.new("./data/FB-TEST.pdf")

@@ -12,15 +12,15 @@ describe SpeakersListParser do
   describe "when making a new Speakers List parser" do 
   
     it "should be a Speakers List parser" do
-      @parser.should be_an_instance_of(SpeakersListParser)
+      expect(@parser).to be_an_instance_of(SpeakersListParser)
     end
     
     it "should look at the Speakers List URL" do
-      @parser.page.should eq "http://www.lordswhips.org.uk/speakers-lists"
+      expect(@parser.page).to eq "http://www.lordswhips.org.uk/speakers-lists"
     end
     
     it "should start with an empty list of Speakers Lists" do
-      @parser.speakers_lists.should eq []
+      expect(@parser.speakers_lists).to eq []
     end
     
   end
