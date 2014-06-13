@@ -302,24 +302,34 @@ describe SpeakersListParser do
             <div class="lgreydivider"><hr></div>
             <div class="clr10"></div>
 
-<table cellpadding="0" cellspacing="0" border="0">
-    <tbody><tr>
-        <td align="left" class="txt000"><strong>Week beginning Monday 5 May 2014</strong></td>
-        <td align="left">
-            <div class="navwrap">
-                    <a href="/speakers-lists/28042014" class="prevlnk">Previous Week</a>
+    <table cellpadding="0" cellspacing="0" border="0">
+        <tbody><tr>
+            <td align="left" class="txt000"><strong>Week beginning Monday 5 May 2014</strong></td>
+            <td align="left">
+                <div class="navwrap">
+                        <a href="/speakers-lists/28042014" class="prevlnk">Previous Week</a>
 
-                <a href="/speakers-lists/12052014" class="nextlnk">Next Week</a>
-            </div>
-            <!--end of wrap the speaker nav-->
-        </td>
-    </tr>
-</tbody></table>    </div>|
+                    <a href="/speakers-lists/12052014" class="nextlnk">Next Week</a>
+                </div>
+                <!--end of wrap the speaker nav-->
+            </td>
+        </tr>
+    </tbody></table>    </div>|
         
         @response = mock("Fake Response")
         @response.stubs(:body).returns(html)
         RestClient.expects(:get).returns(@response)
      end
+
+    xit "should return a 'week beginning' date of 'Monday 5 May 2014'" do
+      result = @parser.scrape()
+      expect(@parser.week_beginning).to eq "Monday 5 May 2014"
+    end
+
+    xit "should return a five dates" do
+      result = @parser.scrape()
+      expect(@parser.dates.length).to eq 5
+    end
   
   end
   

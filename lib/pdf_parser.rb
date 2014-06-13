@@ -44,7 +44,7 @@ class PdfParser
         
         #the end of the useful, the start of the notes section, we can stop now
         when /^\s*Information\s*$/
-          Log.info "start of information section"
+          # Log.info "start of information section"
           @information_section = true
           break
         

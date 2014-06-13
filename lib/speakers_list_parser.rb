@@ -4,12 +4,14 @@ require 'active_record'
 require "./models/speakers_list"
 
 class SpeakersListParser
-   attr_reader :speakers_lists, :page
+   attr_reader :speakers_lists, :page, :week_beginning, :dates
   
   def initialize
     @page = "http://www.lordswhips.org.uk/speakers-lists"
     @speakers_lists = []
   end
+
+
    
   def parse
     speakers_lists = scrape()
@@ -21,7 +23,7 @@ class SpeakersListParser
   def scrape
     response = RestClient.get(@page)
     doc = Nokogiri::HTML(response.body)
-    paras = doc.xpath("//a[@class='smbtnprint toright']/")
+    paras = doc.xpath("//div[@class='speaker_panel']")
     paras.each do |para|
       p para
       # if para.text.strip =~ /.*The House will sit/
