@@ -3,16 +3,18 @@ require 'nokogiri'
 require 'date'
 
 require "active_record"
-require "./models/recess.rb"
+# require "./models/recess.rb"
 
 class OralQuestionsParser
-  attr_reader :page, :oral_questions
+  attr_reader :page, :oral_questions, :title, :date_sections
   
   def initialize
     @page = "http://www.lordswhips.org.uk/oral-questions"
     @oral_questions = []
+    @title = ""
+    @date_sections = []
   end
-  
+
 #   def parse
 #     recesses = scrape()
 #     recesses.each do |recess|
@@ -25,10 +27,12 @@ class OralQuestionsParser
 #     end
 #   end
   
-#   def scrape
+  def scrape
 #     @recesses = []
-#     response = RestClient.get(@page)
-#     doc = Nokogiri::HTML(response.body)
+    response = RestClient.get(@page)
+    doc = Nokogiri::HTML(response.body)
+    @title = doc.xpath("//td[@class='txt000']/strong")[0].text
+    @date_sections = doc.xpath("//p[@class='txt666 txtbold']")
 #     paras = doc.xpath("//div[@id='mainmiddle']/div/p")
 #     year = ""
 #     name = ""
@@ -50,7 +54,7 @@ class OralQuestionsParser
 #       end
 #     end
 #     @recesses
-#   end
+  end
   
 #   private
   
