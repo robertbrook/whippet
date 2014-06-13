@@ -3,7 +3,7 @@ require 'nokogiri'
 require 'date'
 
 require "active_record"
-# require "./models/recess.rb"
+require "./models/oral_question.rb"
 
 class OralQuestionsParser
   attr_reader :page, :oral_questions, :title, :date_sections

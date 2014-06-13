@@ -65,11 +65,20 @@ describe OralQuestionsParser do
         RestClient.expects(:get).returns(@response)
       end
       
-      it "should return a questioner of 'Lord Lexden'"
+      xit "should return a questioner of 'Lord Lexden'" do
+        @parser.scrape()
+        expect(@parser.oral_questions).first.questioner.to eq "Lord Lexden"
+      end
 
-      it "should return an answerer of 'Minister to be confirmed'"
+      xit "should return an answerer of 'Minister to be confirmed'" do
+        @parser.scrape()
+        expect(@parser.oral_questions).first.answerer.to eq "Minister to be confirmed"
+      end
 
-      it "should return a department of 'Department for Education'"
+      xit "should return a department of 'Department for Education'" do
+        @parser.scrape()
+        expect(@parser.oral_questions).first.department.to eq "Department for Education"
+      end
 
 
     end
