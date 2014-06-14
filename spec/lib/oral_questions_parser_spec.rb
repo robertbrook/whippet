@@ -42,7 +42,25 @@ describe OralQuestionsParser do
         expect(@parser.date_sections.length).to eq(4)
       end
 
-      
+      xit "should return the first date section with 4 items" do 
+        @parser.scrape()
+        expect(@parser.date_sections[0].length).to eq(4)
+      end
+
+      xit "should return the second date section with 3 items" do 
+        @parser.scrape()
+        expect(@parser.date_sections[1].length).to eq(3)
+      end
+
+      xit "should return the third date section with the date string 'Wednesday 25 June 2014'" do 
+        @parser.scrape()
+        expect(@parser.date_sections[2].date_string).to eq("Wednesday 25 June 2014")
+      end
+
+      xit "should return nothing when asked for the third date section'" do 
+        @parser.scrape()
+        expect(@parser.date_sections[2].date_string).to eq("Wednesday 25 June 2014")
+      end
       
       # it "should return a list of oral questions in oral_questions including the section 'Leader of the House of Lords and Chancellor of the Duchy of Lancaster'" do 
       #   @parser.scrape()
