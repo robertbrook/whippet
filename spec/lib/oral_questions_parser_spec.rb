@@ -10,7 +10,7 @@ describe OralQuestionsParser do
   
   describe "when creating a new instance" do 
     it "should return a OralQuestionsParser" do
-      @parser.should be_an_instance_of(OralQuestionsParser)
+      expect(@parser).to be_an_instance_of(OralQuestionsParser)
     end
     
     it "should look for the URL 'http://www.lordswhips.org.uk/oral-questions'" do
@@ -18,7 +18,7 @@ describe OralQuestionsParser do
     end
     
     it "should set oral_questions to an empty array" do
-      @parser.oral_questions.should eq []
+      expect(@parser.oral_questions).to eq []
     end
   end
   
