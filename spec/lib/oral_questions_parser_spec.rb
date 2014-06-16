@@ -32,12 +32,12 @@ describe OralQuestionsParser do
         RestClient.expects(:get).returns(@response)
       end
       
-      it "should return a title of 'Week beginning Monday 23 June 2014'" do 
+      xit "should return a title of 'Week beginning Monday 23 June 2014'" do 
         @parser.scrape()
         expect(@parser.title).to eq("Week beginning Monday 23 June 2014")
       end
 
-      it "should return a list of date sections with 4 items" do 
+      xit "should return a list of date sections with 4 items" do 
         @parser.scrape()
         expect(@parser.date_sections.length).to eq(4)
       end
@@ -67,7 +67,7 @@ describe OralQuestionsParser do
         expect(@parser.date_sections[3].length).to eq(3)
       end
 
-      xit "should return the coplete first question of the fourth date section" do 
+      xit "should return the complete first question of the fourth date section" do 
         @parser.scrape()
         expect(@parser.date_sections[3].questions[0].complete).to eq("Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).")
       end

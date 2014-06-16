@@ -5,6 +5,34 @@ require 'date'
 require "active_record"
 require "./models/oral_question.rb"
 
+class OralQuestionsDocument < Nokogiri::XML::SAX::Document
+  def xmldecl(version, encoding, standalone)
+  end
+  def start_document
+  end
+  def end_document
+  end
+  def start_element(name, attrs = [])
+    puts "#{name} started with attrs #{attrs.inspect}"
+  end
+  def end_element(name)
+  end
+  def start_element_namespace(name, attrs = [], prefix = nil, uri = nil, ns = [])
+  end
+  def end_element_namespace(name, prefix = nil, uri = nil)
+  end
+  def characters(string)
+  end
+  def comment(string)
+  end
+  def warning(string)
+  end
+  def error(string)
+  end
+  def cdata_block(string)
+  end
+end
+
 class OralQuestionsParser
   attr_reader :page, :oral_questions, :title, :date_sections
   
@@ -27,13 +55,24 @@ class OralQuestionsParser
 #     end
 #   end
   
+  # def scrape
+  #   response = RestClient.get(@page)
+  #   doc = Nokogiri::HTML(response.body)
+  #   @title = doc.xpath("//td[@class='txt000']/strong")[0].text
+  #   @date_sections = doc.xpath("//p[@class='txt666 txtbold']")
+  #   paras = doc.xpath("//div[@class='questionpanel']/p")
+  #   paras.each do |para|
+  #     puts para.text
+  #     puts
+  #   end
+
   def scrape
-#     @recesses = []
     response = RestClient.get(@page)
-    doc = Nokogiri::HTML(response.body)
-    @title = doc.xpath("//td[@class='txt000']/strong")[0].text
-    @date_sections = doc.xpath("//p[@class='txt666 txtbold']")
-#     paras = doc.xpath("//div[@id='mainmiddle']/div/p")
+    parser = Nokogiri::HTML::SAX::Parser.new(OralQuestionsDocument.new)
+    parser.parse(response.body)
+  end
+       # reader = Nokogiri::XML::Reader
+
 #     year = ""
 #     name = ""
 #     paras.each do |para|
@@ -54,7 +93,7 @@ class OralQuestionsParser
 #       end
 #     end
 #     @recesses
-  end
+
   
 #   private
   

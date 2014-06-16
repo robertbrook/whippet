@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131119183125) do
+ActiveRecord::Schema.define(version: 20140616140227) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,11 @@ ActiveRecord::Schema.define(version: 20131119183125) do
   end
 
   add_index "calendar_days", ["ident"], name: "index_calendar_days_on_ident", using: :btree
+
+  create_table "oral_questions", force: true do |t|
+    t.string "date_string"
+    t.text   "complete"
+  end
 
   create_table "recesses", force: true do |t|
     t.string  "name"
