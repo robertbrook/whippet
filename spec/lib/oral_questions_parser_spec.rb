@@ -32,14 +32,20 @@ describe OralQuestionsParser do
         RestClient.expects(:get).returns(@response)
       end
       
-      xit "should return a title of 'Week beginning Monday 23 June 2014'" do 
+      it "should return a title of 'Monday 23 June 2014'" do 
         @parser.scrape()
-        expect(@parser.title).to eq("Week beginning Monday 23 June 2014")
+        puts @parser.oral_questions.to_yaml
+        expect(@parser.oral_questions['title']).to eq("Monday 23 June 2014")
       end
 
-      xit "should return a list of date sections with 4 items" do 
+      it "should return a list of date sections with 4 items" do 
         @parser.scrape()
-        expect(@parser.date_sections.length).to eq(4)
+        expect(@parser.oral_questions['date_sections'].length).to eq(4)
+      end
+
+      it "should return a list of 13 questions" do 
+        @parser.scrape()
+        expect(@parser.oral_questions['questions'].length).to eq(13)
       end
 
       xit "should return the first date section with 4 items" do 

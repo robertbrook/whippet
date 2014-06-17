@@ -26,40 +26,34 @@ class OralQuestionsParser
 #       rec.save
 #     end
 #   end
-  
-  # def scrape
-  #   response = RestClient.get(@page)
-  #   doc = Nokogiri::HTML(response.body)
-  #   @title = doc.xpath("//td[@class='txt000']/strong")[0].text
-  #   @date_sections = doc.xpath("//p[@class='txt666 txtbold']")
-  #   paras = doc.xpath("//div[@class='questionpanel']/p")
-  #   paras.each do |para|
-  #     puts para.text
-  #     puts
-  #   end
+
+  def parse
+    oral_questions = scrape()
+    # puts @oral_questions.to_yaml
+    # oral_questions.each do |oral_question|
+      # OralQuestion.find_or_create_by(:date => day)
+    # end
+  end
 
   def scrape
     @oral_questions = {}
     response = RestClient.get(@page)
 
     @oral_questions['title'] = ""
-    @oral_questions['dates'] = []
+    @oral_questions['date_sections'] = []
     @oral_questions['questions'] = []
+
     response.body.each_line do |line|
 
       case line
       when /Week beginning (.*)<\/strong>/
           @oral_questions['title'] = $1
-          # @oral_questions['state'] = $1
 
       when /<p class="txt666 txtbold">(.*)<\/p>/
-          @oral_questions['dates'] << $1
-          # @oral_questions['state'] = $1
+          @oral_questions['date_sections'] << $1
 
       when /<p>(.*)<\/p>/
-          puts $1
-          @oral_questions['questions'] << [@oral_questions['dates'][-1], $1]
-          # @oral_questions['state'] = $1
+          @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $1]
 
       else
           ""
@@ -67,7 +61,8 @@ class OralQuestionsParser
       
     end
 
-    puts @oral_questions.to_yaml
+    # puts @oral_questions.to_yaml
+    @oral_questions
 
   end
 
