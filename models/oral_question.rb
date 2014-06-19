@@ -5,7 +5,7 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def text
-    	# complete.split('.')[0]
+    	complete.split('.')[0]
   	end
 
   	def answerer

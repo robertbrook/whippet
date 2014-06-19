@@ -86,9 +86,11 @@ describe OralQuestionsParser do
         expect(my_question.questioner).to eq("Baroness Masham of Ilton")
       end
 
-      xit "should return the text of the first question of the fourth date section as 'Baroness Masham of Ilton'" do 
+      xit "should return the text of the first question with a date string of 'Thursday 26 June 2014'" do  
         @parser.scrape()
-        expect(@parser.date_sections[3].questions[0].text).to eq("to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier.")
+        thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
+        my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.text).to eq("what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier.")
       end
       
       it "should return the answerer of the first question with a date string of 'Thursday 26 June 2014' as 'Earl Howe'" do 
