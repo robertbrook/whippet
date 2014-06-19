@@ -5,7 +5,7 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def text
-    	"TEXT " + self.complete
+    	# complete.split('.')[0]
   	end
 
   	def answerer
@@ -14,10 +14,6 @@ class OralQuestion < ActiveRecord::Base
 
   	def department
   		/(?<=\.).*\((.*)\)\.$/.match(complete)[1]
-  	end
-
-  	def date_sections
-  		[]
   	end
 
 end
