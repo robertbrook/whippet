@@ -53,6 +53,8 @@ class OralQuestionsParser
       when /<p>(.*)<\/p>/
           if $1.include? "to ask Her Majesty"
             @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $1]
+            
+            	# p $1
           end
 
       else

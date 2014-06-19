@@ -8,6 +8,7 @@ require './models/calendar_day'
 require './models/time_block'
 require './models/business_item'
 require './models/speaker_list'
+require './models/oral_question'
 
 def tux
   @config = YAML::load(File.open('config/database.yml'))
@@ -188,8 +189,6 @@ get %r{/(\d{4}-\d{2}-\d{2})} do
   haml :date
 end
 
-
-
 get "/pdf/:filename" do
   file = params[:filename]
   send_file File.expand_path("data/#{file}")
@@ -201,8 +200,13 @@ get '/editor' do
   haml :editor
 end
 
-
 get "/pdf-list" do
   @pdfs = Dir['./data/*.pdf'].map { |x| File.basename(x) }
   haml :pdf_list
+end
+
+get "/oral-questions" do
+  @oral_questions = OralQuestion.all()
+
+  haml :oral_questions
 end
