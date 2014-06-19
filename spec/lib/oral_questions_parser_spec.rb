@@ -34,7 +34,7 @@ describe OralQuestionsParser do
       
       it "should return a title of 'Monday 23 June 2014'" do 
         @parser.scrape()
-        puts @parser.oral_questions.to_yaml
+        puts @parser.oral_questions['questions'][0][0][:date_string]
         expect(@parser.oral_questions['title']).to eq("Monday 23 June 2014")
       end
 
@@ -48,34 +48,36 @@ describe OralQuestionsParser do
         expect(@parser.oral_questions['questions'].length).to eq(13)
       end
 
-      xit "should return the first date section with 4 items" do 
+      it "should return 4 questions when asked for questions with a date string of 'Monday 23 June 2014'" do 
         @parser.scrape()
-        expect(@parser.date_sections[0].length).to eq(4)
+        expect(@parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Monday 23 June 2014'} .length).to eq(4)
       end
 
-      xit "should return the second date section with 3 items" do 
+      it "should return 3 questions when asked for questions with a date string of 'Tuesday 24 June 2014'" do 
         @parser.scrape()
-        expect(@parser.date_sections[1].length).to eq(3)
+        expect(@parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Tuesday 24 June 2014'} .length).to eq(3)
       end
 
-      xit "should return the third date section with the date string 'Wednesday 25 June 2014'" do 
+      it "should return 3 questions when asked for questions with a date string of 'Wednesday 25 June 2014'" do 
         @parser.scrape()
-        expect(@parser.date_sections[2].date_string).to eq("Wednesday 25 June 2014")
+        expect(@parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Wednesday 25 June 2014'} .length).to eq(3)
       end
 
-      xit "should return nothing when asked for the fifth date section'" do 
+      it "should return nothing when asked for the fifth date section'" do 
         @parser.scrape()
-        expect(@parser.date_sections[4]).to eq(nil)
+        expect(@parser.oral_questions['date_sections'][4]).to eq(nil)
       end
 
-      xit "should return the fourth date section with 3 items" do 
+      it "should return 3 questions when asked for questions with a date string of 'Thursday 26 June 2014'" do 
         @parser.scrape()
-        expect(@parser.date_sections[3].length).to eq(3)
+        expect(@parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}.length).to eq(3)
       end
 
-      xit "should return the complete first question of the fourth date section" do 
+      it "should return the complete first question with a date string of 'Thursday 26 June 2014'" do 
         @parser.scrape()
-        expect(@parser.date_sections[3].questions[0].complete).to eq("Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).")
+        thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
+        my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.complete).to eq("Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).")
       end
 
       xit "should return the questioner of the first question of the fourth date section as 'Baroness Masham of Ilton'" do 

@@ -4,7 +4,6 @@ require 'date'
 require "active_record"
 require "./models/oral_question.rb"
 
-
 class OralQuestionsParser
   attr_reader :page, :oral_questions, :title, :date_sections
   
@@ -64,6 +63,10 @@ class OralQuestionsParser
     # puts @oral_questions.to_yaml
     @oral_questions
 
+  end
+
+  def complete
+    "hello"
   end
 
 end
