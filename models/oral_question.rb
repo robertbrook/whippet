@@ -1,7 +1,7 @@
 class OralQuestion < ActiveRecord::Base
 
  	def questioner
-    	"QUESTIONER " + self.complete
+    	/^(.*) to ask Her Majesty/.match(complete)[1]
   	end
 
   	def text
@@ -9,7 +9,11 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def answerer
-    	"ANSWERER " + self.complete
+    	/\. (.*) (?=\(.*\)\.)/.match(complete)[1]
+  	end
+
+  	def department
+  		/(?<=\.).*\((.*)\)\.$/.match(complete)[1]
   	end
 
   	def date_sections

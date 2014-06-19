@@ -34,7 +34,6 @@ describe OralQuestionsParser do
       
       it "should return a title of 'Monday 23 June 2014'" do 
         @parser.scrape()
-        puts @parser.oral_questions['questions'][0][0][:date_string]
         expect(@parser.oral_questions['title']).to eq("Monday 23 June 2014")
       end
 
@@ -80,9 +79,11 @@ describe OralQuestionsParser do
         expect(my_question.complete).to eq("Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).")
       end
 
-      xit "should return the questioner of the first question of the fourth date section as 'Baroness Masham of Ilton'" do 
+      it "should return the questioner of the first question with a date string of 'Thursday 26 June 2014' as 'Baroness Masham of Ilton'" do 
         @parser.scrape()
-        expect(@parser.date_sections[3].questions[0].questioner).to eq("Baroness Masham of Ilton")
+        thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
+        my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.questioner).to eq("Baroness Masham of Ilton")
       end
 
       xit "should return the text of the first question of the fourth date section as 'Baroness Masham of Ilton'" do 
@@ -90,14 +91,18 @@ describe OralQuestionsParser do
         expect(@parser.date_sections[3].questions[0].text).to eq("to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier.")
       end
       
-      xit "should return the answerer of the first question of the fourth date section as 'Earl Howe'" do 
+      it "should return the answerer of the first question with a date string of 'Thursday 26 June 2014' as 'Earl Howe'" do 
         @parser.scrape()
-        expect(@parser.date_sections[3].questions[0].answerer).to eq("Earl Howe")
+        thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
+        my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.answerer).to eq("Earl Howe")
       end
 
-      xit "should return the department of the first question of the fourth date section as 'Earl Howe'" do 
+      it "should return the department of the first question with a date string of 'Thursday 26 June 2014' as 'Department of Health'" do 
         @parser.scrape()
-        expect(@parser.date_sections[3].questions[0].department).to eq("Department of Health")
+        thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
+        my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.department).to eq("Department of Health")
       end
 
       # it "should return a list of oral questions in oral_questions including the section 'Leader of the House of Lords and Chancellor of the Duchy of Lancaster'" do 
