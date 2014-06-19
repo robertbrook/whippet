@@ -28,10 +28,9 @@ class OralQuestionsParser
 
   def parse
     oral_questions = scrape()
-    # puts @oral_questions.to_yaml
-    # oral_questions.each do |oral_question|
-      # OralQuestion.find_or_create_by(:date => day)
-    # end
+    oral_questions['questions'].each do |oral_question|
+      OralQuestion.where(:complete => oral_question[0][:complete], :date_string => oral_question[0][:date_string]).first_or_create
+    end
   end
 
   def scrape
@@ -52,7 +51,9 @@ class OralQuestionsParser
           @oral_questions['date_sections'] << $1
 
       when /<p>(.*)<\/p>/
-          @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $1]
+          if $1.include? "to ask Her Majesty"
+            @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $1]
+          end
 
       else
           ""

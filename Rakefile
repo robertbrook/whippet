@@ -59,6 +59,20 @@ task :import_pdf_file=> :environment  do
   end
 end
 
+desc "import Oral Questions from web"
+task :import_oral_questions => :environment do
+  require "./lib/oral_questions_parser"
+
+  input_url = ENV['url']
+  if input_url
+    parser = OralQuestionsParser.new(input_url)
+  else
+    parser = OralQuestionsParser.new
+  end
+
+  parser.parse
+end
+
 desc "import recess dates from web"
 task :import_recess_dates => :environment do
   require "./lib/recess_dates_parser"

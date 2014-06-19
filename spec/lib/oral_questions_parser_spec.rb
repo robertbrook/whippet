@@ -3,6 +3,8 @@
 require './spec/rspec_helper.rb'
 require './lib/oral_questions_parser'
 
+
+
 describe OralQuestionsParser do
   before(:all) do
     @parser = OralQuestionsParser.new()
@@ -42,7 +44,7 @@ describe OralQuestionsParser do
         expect(@parser.oral_questions['date_sections'].length).to eq(4)
       end
 
-      it "should return a list of 13 questions" do 
+      xit "should return a list of 13 questions" do 
         @parser.scrape()
         expect(@parser.oral_questions['questions'].length).to eq(13)
       end
@@ -67,7 +69,7 @@ describe OralQuestionsParser do
         expect(@parser.oral_questions['date_sections'][4]).to eq(nil)
       end
 
-      it "should return 3 questions when asked for questions with a date string of 'Thursday 26 June 2014'" do 
+      xit "should return 3 questions when asked for questions with a date string of 'Thursday 26 June 2014'" do 
         @parser.scrape()
         expect(@parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}.length).to eq(3)
       end
@@ -86,7 +88,7 @@ describe OralQuestionsParser do
         expect(my_question.questioner).to eq("Baroness Masham of Ilton")
       end
 
-      xit "should return the text of the first question with a date string of 'Thursday 26 June 2014'" do  
+      it "should return the text of the first question with a date string of 'Thursday 26 June 2014'" do  
         @parser.scrape()
         thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
         my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
@@ -107,6 +109,24 @@ describe OralQuestionsParser do
         expect(my_question.department).to eq("Department of Health")
       end
 
+      # it "should return a questioner of 'Lord Lexden' for the first question" do
+      #   @parser.scrape()
+      #   p @parser.oral_questions['questions'][0].inspect
+      #   my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
+
+      #   # expect(@parser.oral_questions['questions'][0].questioner).to eq "Lord Lexden"
+      # end
+
+      # xit "should return an answerer of 'Minister to be confirmed'" do
+      #   @parser.scrape()
+      #   expect(@parser.oral_questions).first.answerer.to eq "Minister to be confirmed"
+      # end
+
+      # xit "should return a department of 'Department for Education'" do
+      #   @parser.scrape()
+      #   expect(@parser.oral_questions).first.department.to eq "Department for Education"
+      # end
+
       # it "should return a list of oral questions in oral_questions including the section 'Leader of the House of Lords and Chancellor of the Duchy of Lancaster'" do 
       #   @parser.scrape()
       #   expect(@parser.government_sections).to include("Leader of the House of Lords and Chancellor of the Duchy of Lancaster")
@@ -119,32 +139,7 @@ describe OralQuestionsParser do
       
     end
     
-    describe "and finding the first oral question on the page" do
-      before(:each) do
-        html = %Q|<p>Lord Lexden&nbsp;to ask Her Majesty’s Government what assessment they have made of the impact of independent schools on the British economy, in the light of the report&nbsp;<em>The impact of independent schools on the British economy</em>, published by the Independent Schools Council in April. <strong>Minister to be confirmed (Department for Education). </strong></p>|
-        
-        @response = mock("Fake Response")
-        @response.stubs(:body).returns(html)
-        RestClient.expects(:get).returns(@response)
-      end
-      
-      xit "should return a questioner of 'Lord Lexden'" do
-        @parser.scrape()
-        expect(@parser.oral_questions).first.questioner.to eq "Lord Lexden"
-      end
 
-      xit "should return an answerer of 'Minister to be confirmed'" do
-        @parser.scrape()
-        expect(@parser.oral_questions).first.answerer.to eq "Minister to be confirmed"
-      end
-
-      xit "should return a department of 'Department for Education'" do
-        @parser.scrape()
-        expect(@parser.oral_questions).first.department.to eq "Department for Education"
-      end
-
-
-    end
   end
   
 #   context "when asked to parse the data" do
