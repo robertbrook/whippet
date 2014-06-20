@@ -7,8 +7,6 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def text()
-    	    # /to ask Her Majesty.s Government (.*)$/.match(complete.split('.')[0])[1] + "."
-    	# complete.split('.')[0].match(/to ask Her Majesty&rsquo;s Government(.*)/)
     	complete.split('.')[0].match(/s Government (.*)/)[1] + '.'
   	end
 
