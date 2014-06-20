@@ -14,18 +14,6 @@ class OralQuestionsParser
     @date_sections = []
   end
 
-#   def parse
-#     recesses = scrape()
-#     recesses.each do |recess|
-#       name = recess[:name]
-#       year = recess[:start_date][-4..-1]
-#       rec = Recess.find_or_create_by(:name => name, :year => year)
-#       rec.start_date = recess[:start_date]
-#       rec.finish_date = recess[:finish_date]
-#       rec.save
-#     end
-#   end
-
   def parse
     oral_questions = scrape()
     oral_questions['questions'].each do |oral_question|
@@ -50,13 +38,9 @@ class OralQuestionsParser
       when /<p class="txt666 txtbold">(.*)<\/p>/
           @oral_questions['date_sections'] << $1
 
-      when /<p>(.*)<\/p>/
-          if $1.include? "to ask Her Majesty"
-            @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $1]
-            
-            	# p $1
-          end
-
+      when /.*to ask Her Majesty.*/
+            @oral_questions['questions'] << [:date_string => @oral_questions['date_sections'][-1], :complete => $~[0]]
+            # p /(?<=<p>).*to ask Her Majesty.*(?=<\/p>)/.match(line)
       else
           ""
       end
@@ -66,10 +50,6 @@ class OralQuestionsParser
     # puts @oral_questions.to_yaml
     @oral_questions
 
-  end
-
-  def complete
-    "hello"
   end
 
 end

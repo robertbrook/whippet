@@ -3,15 +3,13 @@
 class OralQuestion < ActiveRecord::Base
 
  	def questioner()
-    	  # /^(.*) to ask Her Majesty.s Government/.match(complete)[1]
-            return complete.match(/^(.*)to ask Her Majesty/)[1]
-            
+    	complete.match(/^(.*)(?:&nbsp;|\s)to ask Her Majesty/)[1] 
   	end
 
   	def text()
     	    # /to ask Her Majesty.s Government (.*)$/.match(complete.split('.')[0])[1] + "."
-          this = complete.split('.')[0].match(/to ask Her Majesty&rsquo;s Government(.*)$/)
-          return this
+    	# complete.split('.')[0].match(/to ask Her Majesty&rsquo;s Government(.*)/)
+    	complete.split('.')[0].match(/s Government (.*)/)[1] + '.'
   	end
 
   	def answerer()
