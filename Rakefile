@@ -63,9 +63,8 @@ desc "import Oral Questions from web"
 task :import_oral_questions => :environment do
   require "./lib/oral_questions_parser"
 
-  input_url = ENV['url']
-  if input_url
-    parser = OralQuestionsParser.new(input_url)
+  if ENV['page']
+    parser = OralQuestionsParser.new(ENV['page'])
   else
     parser = OralQuestionsParser.new
   end

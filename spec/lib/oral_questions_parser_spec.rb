@@ -95,14 +95,14 @@ describe OralQuestionsParser do
         expect(my_question.text).to eq("what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier.")
       end
       
-      xit "should return the answerer of the first question with a date string of 'Thursday 26 June 2014' as 'Earl Howe'" do 
+      it "should return the answerer of the first question with a date string of 'Thursday 26 June 2014' as 'Earl Howe'" do 
         @parser.scrape()
         thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
         my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize
         expect(my_question.answerer).to eq("Earl Howe")
       end
 
-      xit "should return the department of the first question with a date string of 'Thursday 26 June 2014' as 'Department of Health'" do 
+      it "should return the department of the first question with a date string of 'Thursday 26 June 2014' as 'Department of Health'" do 
         @parser.scrape()
         thursday_questions = @parser.oral_questions['questions'].select {|question| question[0][:date_string] == 'Thursday 26 June 2014'}
         my_question = OralQuestion.where(:complete => "Baroness Masham of Ilton to ask Her Majesty’s Government what steps they will take to help to remove barriers to access to secondary care for symptomatic patients so they are identified and can start treatment earlier. Earl Howe (Department of Health).", :date_string => "Thursday 26 June 2014").first_or_initialize

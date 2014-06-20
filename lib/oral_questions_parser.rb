@@ -7,8 +7,8 @@ require "./models/oral_question.rb"
 class OralQuestionsParser
   attr_reader :page, :oral_questions, :title, :date_sections
   
-  def initialize
-    @page = "http://www.lordswhips.org.uk/oral-questions"
+  def initialize(page = "http://www.lordswhips.org.uk/oral-questions")
+    @page = page
     @oral_questions = []
     @title = ""
     @date_sections = []
@@ -18,6 +18,7 @@ class OralQuestionsParser
     oral_questions = scrape()
     oral_questions['questions'].each do |oral_question|
       OralQuestion.where(:complete => oral_question[0][:complete], :date_string => oral_question[0][:date_string]).first_or_create
+      puts '.'
     end
   end
 

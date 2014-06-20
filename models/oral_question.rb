@@ -13,11 +13,11 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def answerer()
-    	  /\. (.*) (?=\(.*\)\.)/.match(complete)
+    	  /\. (.*) (?=\(.*\)\.)/.match(complete)[1]
   	end
 
   	def department()
-  		/(?<=\.).*\((.*)\)\.$/.match(complete)
+  		complete.match(/(?<=\.).*\((.*)\)\.$/)[1]
   	end
 
 end
