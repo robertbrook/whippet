@@ -121,6 +121,14 @@ describe OralQuestionsParser do
         expect(my_question.answerer).to eq("Minister to be confirmed")
       end
 
+      it "should return an answerer of 'Lord Freud'" do
+        @parser.scrape()
+        my_question = OralQuestion.where(:complete => %q|<p>Lord McAvoy to ask Her Majesty&#39;s Government what measures they are taking to tackle delays in Personal Independence Payment assessments.&nbsp;<strong style="line-height: 21px;">Lord Freud (Department for Work and Pensions).</strong></p>|, :date_string => "Tuesday 24 June 2014").first_or_initialize
+        expect(my_question.answerer).to eq("Lord Freud")
+      end
+
+      # <p>Lord McAvoy to ask Her Majesty&#39;s Government what measures they are taking to tackle delays in Personal Independence Payment assessments.&nbsp;<strong style="line-height: 21px;">Lord Freud (Department for Work and Pensions).</strong></p> 
+
       # xit "should return a department of 'Department for Education'" do
       #   @parser.scrape()
       #   expect(@parser.oral_questions).first.department.to eq "Department for Education"
