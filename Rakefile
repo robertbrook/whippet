@@ -59,7 +59,7 @@ task :import_pdf_file=> :environment  do
   end
 end
 
-desc "import Oral Questions from web"
+desc "import Oral Questions opt eg [page=http://www.lordswhips.org.uk/oral-questions/23062014]"
 task :import_oral_questions => :environment do
   require "./lib/oral_questions_parser"
 

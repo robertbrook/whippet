@@ -12,7 +12,7 @@
         %td= oral_question.date_string
         %td= oral_question.complete.match(/^(.*)(?:&nbsp;|\s)to ask Her Majesty/)[1]
         %td= oral_question.complete.split('.')[0].match(/s Government (.*)/).inspect
-        %td= "oral_question.answerer"
-        %td= "oral_question.department"
+        %td= oral_question.inspect
+        %td= oral_question.department
       %tr
         %td= oral_question.complete

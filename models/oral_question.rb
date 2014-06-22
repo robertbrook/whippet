@@ -3,19 +3,19 @@
 class OralQuestion < ActiveRecord::Base
 
  	def questioner()
-    	complete.match(/^(.*)(?:&nbsp;|\s)to ask Her Majesty/)[1] 
+    	  complete.match(/(?:<p>)(.*)(?:&nbsp;|\s)to ask Her Majesty/)[1] 
   	end
 
   	def text()
-    	complete.split('.')[0].match(/s Government (.*)/)[1] + '.'
+    	  complete.split('.')[0].match(/s Government(?:,) (.*)/)[1] + '.'
   	end
 
   	def answerer()
-    	  /\. (.*) (?=\(.*\)\.)/.match(complete)[1]
+    	  /\. (?:<strong>)(.*) (?=\(.*\)\.)/.match(complete)[1]
   	end
 
   	def department()
-  		complete.match(/(?<=\.).*\((.*)\)\.$/)[1]
+  		complete.match(/(?<=\.).*\((.*)\)\./)[1]
   	end
 
 end
