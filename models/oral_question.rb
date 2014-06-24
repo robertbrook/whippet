@@ -9,9 +9,7 @@ class OralQuestion < ActiveRecord::Base
   	end
 
   	def text()
-    	  # complete.split('.')[0].match(/s Government(?:,) (.*)/)[1] + '.'
-        Nokogiri::HTML.fragment(complete).text()
-        # to ask Her Majesty.s Government(?:,?)(.*)
+        Nokogiri::HTML.fragment(complete).text().match(/to ask Her Majesty.s Government(?:,?)(.*)/)[1].strip
   	end
 
   	def answerer()
