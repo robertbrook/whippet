@@ -3,6 +3,7 @@ require 'active_record'
 require 'haml'
 require 'ri_cal'
 require 'erb'
+require 'csv'
 
 require './models/calendar_day'
 require './models/time_block'
@@ -209,4 +210,16 @@ get "/oral-questions" do
   @oral_questions = OralQuestion.all()
 
   haml :oral_questions
+end
+
+get "/oral-questions.csv" do 
+    @oral_questions = OralQuestion.all()
+    content_type 'application/csv'
+    attachment "oral_questions.csv"
+    csv_string = CSV.generate do |csv|
+      @oral_questions.each do |oral_question|
+        csv << [oral_question.questioner, oral_question.text, oral_question.answerer, oral_question.department]
+      end
+    end    
+    csv_string
 end
