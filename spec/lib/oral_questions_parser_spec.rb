@@ -109,11 +109,19 @@ describe OralQuestionsParser do
         expect(my_question.department).to eq("Department for Communities and Local Government")
       end
 
-      it "should return a questioner of 'Lord Lexden' for the first question" do
+      it "should return a questioner of 'Lord Lexden'" do
         @parser.scrape()
         my_question = OralQuestion.where(:complete => "            <p>Lord Lexden&nbsp;to ask Her Majesty&rsquo;s Government what assessment they have made of the impact of independent schools on the British economy, in the light of the report&nbsp;<em>The impact of independent schools on the British economy</em>, published by the Independent Schools Council in April. <strong>Baroness Northover (Department for Education). </strong></p> ", :date_string => "Monday 23 June 2014").first_or_initialize
         expect(my_question.questioner).to eq("Lord Lexden")
       end
+
+      it "should return a questioner of 'Baroness Meacher'" do
+        @parser.scrape()
+        my_question = OralQuestion.where(:complete => "Baroness Meacher to ask Her Majesty’s Government what plans they have to contribute to the work of the European Union to prepare for the United Nations General Assembly Special Session on Drug Policy in 2016. <strong>Lord Ahmad of Wimbledon (Home Office).</strong></p> ", :date_string => "Thursday 26 June 2014").first_or_initialize
+        expect(my_question.questioner).to eq("Baroness Meacher")
+      end
+
+    
 
       it "should return an answerer of 'Minister to be confirmed'" do
         @parser.scrape()

@@ -4,7 +4,7 @@ xml.opml :version => "2.0" do
     xml.title "Lords Whip"
     xml.ownerProfile "http://lordswhip.herokuapp.com"
     xml.ownerName "Lords Whip"
-    xml.ownerEmail "mail@robertbrook.com"
+    xml.ownerEmail "robertbrook@fastmail.fm"
     xml.dateModified
     xml.expansionState
   end
