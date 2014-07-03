@@ -4,6 +4,7 @@ require "diffable"
 require "date"
 require "./models/sitting_friday"
 require "net/http"
+require 'open-uri'
 
 class CalendarDay < ActiveRecord::Base
   include Diffable
@@ -30,6 +31,14 @@ class CalendarDay < ActiveRecord::Base
       
     end
     true
+  end
+
+  def self.today
+    doc = Nokogiri::HTML(open("http://services.parliament.uk/calendar/Lords/MainChamber/events.html"))
+
+    doc.at_xpath('//div[@id = "selected-date"]/h1').text.match(/(.*) \d{4}/)[1]
+
+    # /Parliamentary business for (.*) \d{4}/i
   end
   
   def get_parly_chunk

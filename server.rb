@@ -59,6 +59,13 @@ get '/' do
   haml :index
 end
 
+get '/newindex' do
+
+  @today = CalendarDay.today
+
+  erb :index
+end
+
 get '/index.txt' do
   content_type :text
   @calendar_days = CalendarDay.order("date desc").limit(10)
