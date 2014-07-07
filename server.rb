@@ -48,7 +48,17 @@ helpers do
   end
 
   def show_greeting
-    "Good morning!"
+ 
+    case Time.now.strftime("%H").to_i
+    when 0..11
+      "Good morning."
+    when 12..18
+      "Good afternoon."
+    when 19..23
+      "Good evening."
+    else
+      "Hello."
+    end
   end
 end
 

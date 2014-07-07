@@ -2,15 +2,17 @@
   
 
   <h1><%= show_greeting %><br>It's <span class="text-danger"><%= Time.now.strftime("%A %e %B") %></span>.</h1>
-<br>
-<h1>The most recent Lords Calendar day is <span class="text-danger"><%= @today %></span>.</h1>
+
+  <br>
+  <h1>
+  The most recent Lords Calendar day is <span class="text-danger"><%= @today %></span>.</h1>
 
 <br>
   <p>
-  <a class="btn btn-default btn-lg" role="button">Oral Questions CSV</a>
-  <a class="btn btn-default btn-lg" role="button">Lords Whip CSV</a>
-  <a class="btn btn-default btn-lg disabled" role="button">Speakers List CSV</a>
-  <a class="btn btn-default btn-lg disabled" role="button">Amendment Groupings CSV</a>
+  <a class="btn btn-default btn-lg" role="button" href="oral-questions.csv">Oral Questions CSV</a>
+  <a class="btn btn-default btn-lg" role="button" href="lords-whip.csv">Lords Whip CSV</a>
+  <a class="btn btn-default btn-lg disabled" role="button" href="speakers-list.csv">Speakers List CSV</a>
+  <a class="btn btn-default btn-lg disabled" role="button" href="amendment-groupings.csv">Amendment Groupings CSV</a>
 
   </p>
 
