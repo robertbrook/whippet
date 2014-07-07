@@ -46,6 +46,10 @@ helpers do
       []
     end
   end
+
+  def show_greeting
+    "Good morning!"
+  end
 end
 
 @time = Time.now
