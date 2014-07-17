@@ -229,7 +229,6 @@ end
 
 get "/oral-questions" do
   @oral_questions = OralQuestion.all()
-
   haml :oral_questions
 end
 
