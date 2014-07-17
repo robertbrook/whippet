@@ -4,10 +4,6 @@
   <h1><%= show_greeting %><br>It's <span class="text-danger"><%= Time.now.strftime("%A %e %B") %></span>.</h1>
 
   <br>
-  <h1>
-  The most recent Lords Calendar day is <span class="text-danger"><%= @today %></span>.</h1>
-
-<br>
   <p>
   <a class="btn btn-default btn-lg" role="button" href="oral-questions.csv">Oral Questions CSV</a>
   <a class="btn btn-default btn-lg" role="button" href="lords-whip.csv">Lords Whip CSV</a>
@@ -15,5 +11,10 @@
   <a class="btn btn-default btn-lg disabled" role="button" href="amendment-groupings.csv">Amendment Groupings CSV</a>
 
   </p>
+  <h1>
+  The most recent published Lords Calendar day is <span class="text-danger"><%= @latest_calendar_day %></span>.</h1>
+  <p>Source: <a href="http://services.parliament.uk/calendar/Lords/MainChamber/events.html">Lords Calendar</a></p>
+
+
 
 </div>

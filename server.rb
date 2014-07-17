@@ -75,7 +75,7 @@ end
 
 get '/newindex' do
 
-  @today = CalendarDay.today
+  @latest_calendar_day = CalendarDay.latest_calendar_day
 
   erb :index
 end

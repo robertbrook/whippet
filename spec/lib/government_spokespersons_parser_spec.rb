@@ -26,10 +26,9 @@ describe GovernmentSpokespersonsParser do
     describe "when finding the page" do
       before(:each) do
         html = File.open('./data/spokespersons.html').read
-#         @response = mock("Fake Response")
-#         @response.stubs(:body).returns(html)
-#         RestClient.expects(:get).returns(@response)
-# not sure why this coughs
+        @response = mock("Fake Response")
+        @response.stubs(:body).returns(html)
+        RestClient.expects(:get).returns(@response)
       end
       
       it "should return a list of government sections with 25 items" do 

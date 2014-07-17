@@ -33,7 +33,7 @@ class CalendarDay < ActiveRecord::Base
     true
   end
 
-  def self.today
+  def self.latest_calendar_day
     doc = Nokogiri::HTML(open("http://services.parliament.uk/calendar/Lords/MainChamber/events.html"))
 
     doc.at_xpath('//div[@id = "selected-date"]/h1').text.match(/(.*) \d{4}/)[1]

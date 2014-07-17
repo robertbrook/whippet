@@ -29,13 +29,14 @@ class GovernmentSpokespersonsParser
       bits = section_chunk.split("\r\n")
 #       puts "\n\n" + bits[0] + " ARE " + bits[1..bits.size].join(" AND ")
       @government_sections << bits[0].gsub(/\W$/,"")
+      # House of Lords Government Whips
 #       @government_spokespersons << extract_government_spokespersons(elem)
     end
-    
     return @government_spokespersons
   end
   
   def government_sections
+    @government_sections = @government_sections - ["House of Lords Government Whips"]
     return @government_sections
   end
   
