@@ -73,6 +73,18 @@ get '/' do
   haml :index
 end
 
+get '/hoover' do
+  forthcoming_business_page = Nokogiri::HTML(open("http://www.lordswhips.org.uk/fb"))
+  target_link = forthcoming_business_page.xpath("//a[contains(@href,'download.axd?')]")
+  io = open('http://www.lordswhips.org.uk' + target_link[0]['href'])
+  somefile = File.open("./data/latest.pdf", "w")
+  somefile.puts io
+  somefile.close
+
+  p 'http://www.lordswhips.org.uk' + target_link[0]['href']
+
+end
+
 get '/newindex' do
 
   @latest_calendar_day = CalendarDay.latest_calendar_day
